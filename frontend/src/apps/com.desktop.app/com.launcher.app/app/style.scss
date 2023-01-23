@@ -1,0 +1,13 @@
+:host {
+  display: none;
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  background-color: rgb(94 94 94 / 35%);
+  transform: translate(-50%, 8px);
+  padding: 8px 16px;
+}
+
+:host([open]) {
+  display: block;
+}

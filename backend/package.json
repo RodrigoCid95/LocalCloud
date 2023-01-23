@@ -1,0 +1,21 @@
+{
+	"name": "backend",
+	"version": "1.0.0",
+	"main": "index.js",
+	"scripts": {
+		"start": "bitis start",
+		"build": "bitis build"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"description": "",
+	"bitis": {
+		"type": "http-sockets",
+		"boot": "auto",
+		"public-paths": ["public"]
+	},
+	"dependencies": {
+		"bitis": "github:RodrigoCid95/Bitis-Framework"
+	}
+}

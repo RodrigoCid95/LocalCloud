@@ -1,0 +1,28 @@
+{
+  "name": "frontend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "build.js",
+  "scripts": {
+    "start": "node .",
+    "c": "npm start -- --src components",
+    "c:p": "npm start -- --src components --prod",
+    "k": "npm start -- --src kernel",
+    "k:p": "npm start -- --src kernel --prod"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/minify": "^9.1.0",
+    "esbuild": "^0.16.9",
+    "html-minifier-terser": "^7.1.0",
+    "minify": "^9.1.0",
+    "sass": "^1.57.0",
+    "socket.io-client": "^4.5.4"
+  },
+  "dependencies": {
+    "lit": "^2.5.0",
+    "lit-html": "^2.5.0"
+  }
+}

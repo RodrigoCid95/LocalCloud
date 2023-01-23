@@ -1,0 +1,73 @@
+:host {
+  position: absolute;
+  flex-direction: column;
+  background-color: #b0b0b0;
+}
+
+.toolbar {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  background-color: rgb(153, 153, 153);
+
+  .title {
+    padding: 4px;
+
+    span {
+      color: #fff;
+      user-select: none;
+      font-size: 14px;
+    }
+  }
+
+  .buttons {
+    display: flex;
+    flex-direction: row;
+
+    div {
+      display: block;
+      width: 18px;
+      height: calc(100% - 12px);
+      position: relative;
+      background-color: rgb(176, 176, 176);
+      cursor: pointer;
+    }
+
+    div:hover {
+      box-shadow: 0 8px 8px 2px rgb(176, 176, 176, .75);
+      -webkit-box-shadow: 0 8px 8px 2px rgb(176, 176, 176, .75);
+      -moz-box-shadow: 0 8px 8px 2px rgb(176, 176, 176, .75);
+    }
+
+    div::after,
+    .close::before {
+      content: '';
+      display: block;
+      width: 100%;
+      position: absolute;
+      background-color: rgb(255, 255, 255);
+      height: 2px;
+    }
+
+    .minimize::after {
+      bottom: 0px;
+    }
+
+    .close::after,
+    .close::before {
+      top: 50%;
+    }
+
+    .close::after {
+      transform: rotate(45deg);
+    }
+
+    .close::before {
+      transform: rotate(135deg);
+    }
+  }
+}
+
+.content {
+  padding: 8px;
+}
