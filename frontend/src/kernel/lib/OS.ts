@@ -5,12 +5,13 @@ import WindowComponent from "./window"
 import './loading'
 
 export default class OS {
+  private _server: Server
 
-  constructor(private mainElement: HTMLElement, private server: Server) {
-    this.mainElement.innerHTML = '<app-loading></app-loading>'
-    this.server.socket.on('connect', () => {
+  public set server(v: Server) {
+    this._server = v
+    this._server.socket.on('connect', () => {
       this.launchLogin()
-      this.server.socket.on('auth/change', auth => {
+      this._server.socket.on('auth/change', auth => {
         if (auth) {
           this.launchDesktop()
         } else {
@@ -19,38 +20,54 @@ export default class OS {
       })
     })
   }
+
+  constructor(private mainElement: HTMLElement) {
+    this.mainElement.innerHTML = '<app-loading></app-loading>'
+  }
   private launchLogin() {
-    this.mainElement.innerHTML = ''
-    this.launch('com.login.app')
+    this.launch({ packageName: 'com.login.app', clearElement: true })
   }
   private launchDesktop() {
-    this.mainElement.innerHTML = ''
-    this.launch('com.desktop.app')
+    this.launch({ packageName: 'com.desktop.app', clearElement: true })
   }
-  private async launch(packageName: string, containerElement: HTMLElement = this.mainElement): Promise<HTMLElement | undefined> {
-    const packageResult = await import(`/js/apps/${packageName}/main.js`)
-    const manifestResult = packageResult.Manifest
-    if (manifestResult) {
-      const { Main } = await manifestResult.callback()
-      if (Main) {
-        try {
-          const manifest = { ...manifestResult }
-          delete manifest.callback
-          await Main({ Program, WindowComponent, server: this.server, launch: this.launch.bind(this), manifest })
-          if (manifestResult.tag) {
-            const programElement = document.createElement(manifestResult.tag)
-            containerElement.append(programElement)
-            console.log(packageName, '=>', programElement)
-            return programElement
+  private async launch(args: LaunchArguments): Promise<HTMLElement | undefined> {
+    const { packageName, containerElement = this.mainElement, clearElement = false } = args
+    if (packageName) {
+      const packageResult = await import(`/js/apps/${packageName}/main.js`)
+      const manifestResult = packageResult.Manifest
+      if (manifestResult) {
+        const { Main } = await manifestResult.callback()
+        if (Main) {
+          try {
+            const manifest = { ...manifestResult }
+            delete manifest.callback
+            await Main({ Program, WindowComponent, server: this._server, launch: this.launch.bind(this), manifest })
+            if (manifestResult.tag) {
+              const programElement = document.createElement(manifestResult.tag)
+              if (clearElement) {
+                containerElement.innerHTML = ''
+              }
+              containerElement.append(programElement)
+              console.log(packageName, '=>', programElement)
+              return programElement
+            }
+          } catch (error) {
+            console.error(error)
           }
-        } catch (error) {
-          console.error(error)
+        } else {
+          throw new Error(`El programa ${packageName} no es válido!`)
         }
       } else {
-        throw new Error(`El programa ${packageName} no es válido!`)
+        throw new Error(`El programa ${packageName} no está instalado!`)
       }
     } else {
-      throw new Error(`El programa ${packageName} no está instalado!`)
+      throw new Error('Falta el argumento "packageName"!')
     }
   }
+}
+
+export type LaunchArguments = {
+  packageName: string
+  containerElement?: HTMLElement
+  clearElement?: boolean
 }
