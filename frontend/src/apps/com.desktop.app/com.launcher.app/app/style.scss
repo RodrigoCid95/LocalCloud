@@ -11,3 +11,36 @@
 :host([open]) {
   display: block;
 }
+
+input {
+  display: block;
+  margin: 0 auto;
+}
+
+.appList {
+  margin-top: 16px;
+
+  .item {
+    display: flex;
+    align-items: center;
+    padding: 16px 8px;
+    cursor: pointer;
+
+    .icon {
+      img {
+        width: 64px;
+        height: 64px;
+      }
+    }
+
+    .content {
+      margin-left: 16px;
+
+      label {
+        color: #fff;
+        cursor: pointer;
+        user-select: none;
+      }
+    }
+  }
+}

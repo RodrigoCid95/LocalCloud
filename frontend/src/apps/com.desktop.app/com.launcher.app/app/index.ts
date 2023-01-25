@@ -22,11 +22,12 @@ export const Main = (kit: KIT) => {
       searchElement.addEventListener('keyup', () => requestAnimationFrame(() => {
         const appListElement = this.shadowRoot.querySelector('.appList')
         appListElement.innerHTML = ''
-        const results = this[__properties__].appsList.filter(item => item.title.toLocaleLowerCase().includes(searchElement.value.toLocaleLowerCase()))
+        const term = searchElement.value.toLocaleLowerCase()
+        const results = term === '' ? [] : this[__properties__].appsList.filter(item => item.title.toLocaleLowerCase().includes(term))
         const resultElements = results.map(({ packageNane, title, icon }) => {
           const itemElement = document.createElement('div')
           itemElement.classList.add('item')
-          itemElement.innerHTML = `<div class="icon"><img src="${icon || appLogo}" alt="${packageNane}"></div><div class="content"><div class="label">${title}</div></div>`
+          itemElement.innerHTML = `<div class="icon"><img src="${icon || appLogo}" alt="${packageNane}"></div><div class="content"><label>${title}</label></div>`
           itemElement.addEventListener('click', async () => {
             this.toggleAttribute('open')
             appListElement.innerHTML = ''

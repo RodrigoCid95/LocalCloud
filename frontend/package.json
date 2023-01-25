@@ -8,7 +8,9 @@
     "c": "npm start -- --src components",
     "c:p": "npm start -- --src components --prod",
     "k": "npm start -- --src kernel",
-    "k:p": "npm start -- --src kernel --prod"
+    "k:p": "npm start -- --src kernel --prod",
+    "a": "npm start -- --src apps",
+    "a:p": "npm start -- --src apps --prod"
   },
   "keywords": [],
   "author": "",
