@@ -1,10 +1,10 @@
-import { KIT } from 'types'
+import { AppArguments } from 'types'
 import css from './style.scss'
 import template from './template.html'
 
-export const Main = (kit: KIT) => {
-  const { WindowComponent, manifest } = kit
-  class AppTwoProgram extends WindowComponent {
+export const Main = (kit: AppArguments) => {
+  const { WindowComponent } = kit
+  return class AppTwoProgram extends WindowComponent {
     constructor() {
       super()
       this.text = 'Test Application Two'
@@ -16,8 +16,5 @@ export const Main = (kit: KIT) => {
     renderContent() {
       return template
     }
-  }
-  if (customElements.get(manifest.tag) === undefined) {
-    customElements.define(manifest.tag, AppTwoProgram)
   }
 }

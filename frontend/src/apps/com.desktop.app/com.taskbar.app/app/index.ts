@@ -1,10 +1,10 @@
-import { KIT, WindowComponent } from 'types'
+import { ProgramArguments, WindowComponent } from 'types'
 import css from './style.scss'
 import template from './template.html'
 
-export const Main = (kit: KIT) => {
-  const { Program, manifest } = kit
-  class TaskbarProgram extends Program {
+export default (kit: ProgramArguments) => {
+  const { Program } = kit
+  return class TaskbarProgram extends Program {
     constructor() {
       super()
       this.template = template
@@ -23,8 +23,5 @@ export const Main = (kit: KIT) => {
       this.append(buttonElement)
       item.addEventListener('onClose', () => buttonElement.remove())
     }
-  }
-  if (customElements.get(manifest.tag) === undefined) {
-    customElements.define(manifest.tag, TaskbarProgram)
   }
 }

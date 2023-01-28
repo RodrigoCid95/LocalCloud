@@ -1,19 +1,19 @@
-import { KIT } from 'types'
+import { ProgramArguments } from 'types'
 import css from './style.scss'
 import template from './template.html'
 import appLogo from './app.webp'
 
-export const Main = (kit: KIT) => {
-  const { Program, server, manifest } = kit
+export default (kit: ProgramArguments) => {
+  const { Program } = kit
   const __properties__ = Symbol()
-  class LauncherProgram extends Program {
+  return class LauncherProgram extends Program {
     [__properties__] = {
       appsList: []
     }
     constructor() {
       super()
       this.template = template
-      server.socket.emit('apps', ({ data }) => this[__properties__].appsList = data)
+      // server.socket.emit('apps', ({ data }) => this[__properties__].appsList = data)
     }
     connectedCallback() {
       super.connectedCallback()
@@ -41,8 +41,5 @@ export const Main = (kit: KIT) => {
         }
       }))
     }
-  }
-  if (customElements.get(manifest.tag) === undefined) {
-    customElements.define(manifest.tag, LauncherProgram)
   }
 }

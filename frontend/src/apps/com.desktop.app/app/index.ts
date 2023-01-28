@@ -1,11 +1,12 @@
-import { KIT } from 'types'
+import { ProgramArguments } from 'types'
 import css from './style.scss'
 import template from './template.html'
 
-export const Main = (kit: KIT) => {
-  const { Program, launch, manifest } = kit
-  class DesktopProgram extends Program {
+export default (args: ProgramArguments) => {
+  const { Program, launch } = args
+  return class DesktopProgram extends Program {
     async connectedCallback() {
+      super.connectedCallback()
       this.shadowRoot.adoptedStyleSheets.push(css)
       this.shadowRoot.innerHTML = template
       await launch({
@@ -29,8 +30,5 @@ export const Main = (kit: KIT) => {
         (appTaskbarElement as any).add(app)
       })
     }
-  }
-  if (customElements.get(manifest.tag) === undefined) {
-    customElements.define(manifest.tag, DesktopProgram)
   }
 }

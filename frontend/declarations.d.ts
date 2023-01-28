@@ -1,12 +1,6 @@
-declare module "*.scss" {
-  const content: CSSStyleSheet
-  export default content
-}
-declare module "*.html" {
-  const content: string
-  export default content
-}
-declare module "*.webp" {
-  const content: string
-  export default content
+import OS from "kernel/lib/OS"
+declare global {
+  interface Window {
+    os: OS
+  }
 }

@@ -14,7 +14,8 @@ export default class WindowComponent extends Program {
     position: {
       x: 0,
       y: 0
-    }
+    },
+    template
   }
   public set text(v: string) {
     this[__properties__].text = v
@@ -56,7 +57,17 @@ export default class WindowComponent extends Program {
   public get minimize(): boolean {
     return this[__properties__].minimize
   }
+  public set template(v: string) {
+    this[__properties__].template = v
+    if (this.isConnected) {
+      this.shadowRoot.innerHTML = v
+    }
+  }
+  public get template(): string {
+    return this[__properties__].template
+  }
   connectedCallback() {
+    super.connectedCallback()
     this.style.display = 'none'
     this.shadowRoot.adoptedStyleSheets.push(css)
     const _this: any = this
@@ -97,7 +108,6 @@ export default class WindowComponent extends Program {
     const buttonsElement = toolbarElement.querySelector('.buttons')
     buttonsElement.querySelector('.minimize').addEventListener('click', () => this.minimize = true)
     buttonsElement.querySelector('.close').addEventListener('click', () => {
-      this.dispatchEvent(new CustomEvent('onClose'))
       this.remove()
     })
     this.style.display = 'flex'

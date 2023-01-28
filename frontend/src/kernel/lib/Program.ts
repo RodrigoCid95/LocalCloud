@@ -3,13 +3,13 @@ export default class Program extends HTMLElement {
   [__properties__] = {
     template: ''
   }
-  protected set template(v: string) {
+  public set template(v: string) {
     this[__properties__].template = v
     if (this.isConnected) {
       this.shadowRoot.innerHTML = v
     }
   }
-  protected get template(): string {
+  public get template(): string {
     return this[__properties__].template
   }
   constructor() {
@@ -18,5 +18,8 @@ export default class Program extends HTMLElement {
   }
   connectedCallback() {
     this.template = this.template
+  }
+  disconnectedCallback() {
+    this.dispatchEvent(new CustomEvent('onClose'))
   }
 }
