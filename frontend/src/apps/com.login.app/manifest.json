@@ -1,0 +1,15 @@
+{
+  "title": "LocalCloud - Iniciar sesión",
+  "description": "App de inicion de sesión.",
+  "author": [
+    "Rodrigo Cid"
+  ],
+  "tag": "app-login",
+  "type": "program",
+  "services": {
+    "login.service": {
+      "title": "Servicio de inicio de sesión.",
+      "description": "Servicio de inicio de sesión."
+    }
+  }
+}

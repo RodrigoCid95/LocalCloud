@@ -1,0 +1,10 @@
+{
+  "title": "LocalCloud - Escritorio",
+  "description": "Escritorio del sistema.",
+  "author": [
+    "Rodrigo Cid"
+  ],
+  "tag": "app-desktop",
+  "type": "program",
+  "services": {}
+}

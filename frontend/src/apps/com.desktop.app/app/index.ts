@@ -10,11 +10,11 @@ export default (args: ProgramArguments) => {
       this.shadowRoot.adoptedStyleSheets.push(css)
       this.shadowRoot.innerHTML = template
       await launch({
-        packageName: 'com.desktop.app/com.launcher.app',
+        packageName: 'com.launcher.app',
         containerElement: this.shadowRoot as unknown as HTMLElement
       })
       await launch({
-        packageName: 'com.desktop.app/com.taskbar.app',
+        packageName: 'com.taskbar.app',
         containerElement: this.shadowRoot as unknown as HTMLElement
       })
       const appLauncherElement: HTMLElement = this.shadowRoot.querySelector('app-launcher') as HTMLElement

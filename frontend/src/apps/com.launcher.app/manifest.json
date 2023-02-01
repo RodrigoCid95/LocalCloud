@@ -1,0 +1,10 @@
+{
+  "title": "LocalCloud - Lanzador",
+  "description": "Lanzador de aplicaciones.",
+  "author": [
+    "Rodrigo Cid"
+  ],
+  "tag": "app-launcher",
+  "type": "program",
+  "services": {}
+}

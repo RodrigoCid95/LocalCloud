@@ -1,7 +1,7 @@
 import Service from "kernel/lib/Service"
 
 export default (ClassService: typeof Service) => {
-  return class Service1 extends ClassService {
+  return class GeolocationService extends ClassService {
     constructor(args) {
       super(args)
       console.log(this.manifest)

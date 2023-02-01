@@ -2,15 +2,15 @@
   "name": "frontend",
   "version": "1.0.0",
   "description": "",
-  "main": "build.js",
+  "main": "builder/index.js",
   "scripts": {
     "start": "node .",
-    "c": "npm start -- --src components",
-    "c:p": "npm start -- --src components --prod",
-    "k": "npm start -- --src kernel",
-    "k:p": "npm start -- --src kernel --prod",
-    "a": "npm start -- --src apps",
-    "a:p": "npm start -- --src apps --prod"
+    "k": "node . --kernel",
+    "k:p": "node . --kernel --prod",
+    "a": "node . --app",
+    "a:p": "node . --prod --app",
+    "s": "node . --service",
+    "s:p": "node . --prod --service"
   },
   "keywords": [],
   "author": "",

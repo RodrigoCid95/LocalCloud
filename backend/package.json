@@ -13,7 +13,9 @@
 	"bitis": {
 		"type": "http-sockets",
 		"boot": "auto",
-		"public-paths": ["public"]
+		"public-paths": [
+			"public"
+		]
 	},
 	"dependencies": {
 		"bitis": "github:RodrigoCid95/Bitis-Framework"

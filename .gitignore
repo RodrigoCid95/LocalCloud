@@ -1,6 +1,7 @@
 backend/node_modules
 backend/.debugger
 backend/package-lock.json
+backend/manifests
 backend/public/js
 
 frontend/node_modules

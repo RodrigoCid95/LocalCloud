@@ -76,14 +76,16 @@ export default class WindowComponent extends Program {
       this.shadowRoot.querySelector('.content').innerHTML = _this.renderContent()
     }
     requestAnimationFrame(() => {
-      const x = (this.parentElement.clientWidth - this.clientWidth) / 2
-      const y = (this.parentElement.clientHeight - this.clientHeight) / 2
-      this.style.left = `${x}px`
-      this.style.top = `${y}px`
-      this.text = this.text
-      this.icon = this.icon
-      this.minimize = this.minimize
-      this.isResize = this.isResize
+      if (this.isConnected) {
+        const x = (this.parentElement.clientWidth - this.clientWidth) / 2
+        const y = (this.parentElement.clientHeight - this.clientHeight) / 2
+        this.style.left = `${x}px`
+        this.style.top = `${y}px`
+        this.text = this.text
+        this.icon = this.icon
+        this.minimize = this.minimize
+        this.isResize = this.isResize
+      }
     })
     const toolbarElement = this.shadowRoot.querySelector('.toolbar')
     toolbarElement.addEventListener('mousedown', (e: MouseEvent) => {
