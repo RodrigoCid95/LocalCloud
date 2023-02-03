@@ -3,7 +3,8 @@ import css from './style.scss'
 import template from './template.html'
 
 export default (kit: AppArguments) => {
-  const { WindowComponent } = kit
+  const { WindowComponent, args } = kit
+  console.log(args)
   return class AppOneProgram extends WindowComponent {
     constructor() {
       super()

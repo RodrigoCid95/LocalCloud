@@ -10,6 +10,7 @@ type LaunchArguments = {
   packageName: string
   containerElement?: HTMLElement
   clearElement?: boolean
+  args?: { [x: string]: any }
 }
 
 const __PROGRAMS__ = Symbol()
@@ -37,7 +38,7 @@ export default class OS {
   constructor(private mainElement: HTMLElement) {
     this.mainElement.innerHTML = '<app-loading></app-loading>'
   }
-  private async launch({ packageName, containerElement = this.mainElement, clearElement = false }: LaunchArguments): Promise<Task> {
+  private async launch({ packageName, containerElement = this.mainElement, clearElement = false, args = {} }: LaunchArguments): Promise<Task> {
     const manifest: ProgramManifest | AppManifest | ServiceManifest | undefined = (await new Promise(resolve => this[__SERVER__].socket.emit('app', packageName, resolve)) as any).data as any
     if (!manifest) {
       throw new Error(`El paquete ${packageName} no existe!`)
@@ -121,14 +122,14 @@ export default class OS {
     if (manifest.type === 'service') {
       const servicePath = `/js/services/${packageName}/index.js`
       const { default: callback } = await import(servicePath)
-      const ClassService: typeof Service = await callback(Service)
+      const ClassService: typeof Service = await callback(Service, args)
       element = new ClassService(this[__SERVER__])
       this[__SERVICES__].push(task)
     } else {
       const componentPath = `/js/apps/${packageName}/index.js`
       const { default: callback } = await import(componentPath)
       const { [__SERVICES__]: SERVICES } = this
-      const args = {
+      const callbackArgs = {
         manifest,
         WindowComponent,
         getService(serviceName: string) {
@@ -138,13 +139,14 @@ export default class OS {
           }
           return service
         },
-        launch: this.launch.bind(this)
+        launch: this.launch.bind(this),
+        args: { a: 1, b: 2 }
       }
       if (manifest.type === 'program') {
-        args['Program'] = Program
+        callbackArgs['Program'] = Program
       }
+      const ClassCommponent = await callback(callbackArgs)
       if (customElements.get(manifest.tag) === undefined) {
-        const ClassCommponent = await callback(args)
         customElements.define(manifest.tag, ClassCommponent)
       }
       element = document.createElement(manifest.tag)

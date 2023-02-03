@@ -50,6 +50,7 @@ export interface AppArguments<T = 'app'> {
   WindowComponent: typeof WindowComponent
   getService: <T>(serviceName: string) => T | undefined
   launch: OS['launch']
+  args?: { [x: string]: any }
 }
 
 export interface ProgramArguments extends AppArguments<'program'> {
