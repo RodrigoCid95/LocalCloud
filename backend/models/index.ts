@@ -10,4 +10,11 @@ export class DumieModel {
     const content = fs.readFileSync(manifestPath, { encoding: 'utf8' })
     return JSON.parse(content)
   }
+  public getManifests(packageNames: string[]) {
+    const manifests: any = {}
+    for (const packageName of packageNames) {
+      manifests[packageName] = this.getManifest(packageName)
+    }
+    return manifests
+  }
 }

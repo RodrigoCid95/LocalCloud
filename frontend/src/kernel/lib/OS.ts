@@ -129,10 +129,14 @@ export default class OS {
       const { default: callback } = await import(componentPath)
       const { [__SERVICES__]: SERVICES } = this
       const args = {
-        manifest: manifest,
+        manifest,
         WindowComponent,
-        get services() {
-          return SERVICES.concat(task.services)
+        getService(serviceName: string) {
+          let service: Service = services.find(({ name }) => name === serviceName)?.service
+          if (!service) {
+            service = SERVICES.find(({ name }) => name === serviceName)?.service
+          }
+          return service
         },
         launch: this.launch.bind(this)
       }

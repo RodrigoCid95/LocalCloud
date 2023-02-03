@@ -48,7 +48,7 @@ export interface Task extends BasedTask {
 export interface AppArguments<T = 'app'> {
   manifest: Manifest<T>
   WindowComponent: typeof WindowComponent
-  readonly services: any[]
+  getService: <T>(serviceName: string) => T | undefined
   launch: OS['launch']
 }
 

@@ -2,9 +2,11 @@ import { ProgramArguments } from 'types'
 import css from './style.scss'
 import template from './template.html'
 import appLogo from './app.webp'
+import { LauncherService } from '../types'
 
 export default (kit: ProgramArguments) => {
-  const { Program } = kit
+  const { Program, getService } = kit
+  const launcherService = getService<LauncherService>('launcher.service')
   const __properties__ = Symbol()
   return class LauncherProgram extends Program {
     [__properties__] = {
@@ -13,7 +15,18 @@ export default (kit: ProgramArguments) => {
     constructor() {
       super()
       this.template = template
-      // server.socket.emit('apps', ({ data }) => this[__properties__].appsList = data)
+      launcherService.getAppList().then(manifests => {
+        this[__properties__].appsList = []
+        for (const key in manifests) {
+          if (Object.prototype.hasOwnProperty.call(manifests, key)) {
+            const manifest = manifests[key]
+            this[__properties__].appsList.push({
+              packageName: key,
+              ...manifest
+            })
+          }
+        }
+      })
     }
     connectedCallback() {
       super.connectedCallback()
@@ -24,15 +37,15 @@ export default (kit: ProgramArguments) => {
         appListElement.innerHTML = ''
         const term = searchElement.value.toLocaleLowerCase()
         const results = term === '' ? [] : this[__properties__].appsList.filter(item => item.title.toLocaleLowerCase().includes(term))
-        const resultElements = results.map(({ packageNane, title, icon }) => {
+        const resultElements = results.map(({ packageName, title, icon }) => {
           const itemElement = document.createElement('div')
           itemElement.classList.add('item')
-          itemElement.innerHTML = `<div class="icon"><img src="${icon || appLogo}" alt="${packageNane}"></div><div class="content"><label>${title}</label></div>`
+          itemElement.innerHTML = `<div class="icon"><img src="${icon || appLogo}" alt="${packageName}"></div><div class="content"><label>${title}</label></div>`
           itemElement.addEventListener('click', async () => {
             this.toggleAttribute('open')
             appListElement.innerHTML = ''
             searchElement.value = ''
-            this.dispatchEvent(new CustomEvent('onLaunchProgram', { detail: packageNane }))
+            this.dispatchEvent(new CustomEvent('onLaunchProgram', { detail: packageName }))
           })
           return itemElement
         })

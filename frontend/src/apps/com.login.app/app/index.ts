@@ -1,9 +1,11 @@
-import { AppArguments } from 'types'
+import { ProgramArguments } from 'types'
+import { LoginService } from '../types'
 import css from './style.scss'
 import template from './template.html'
 
-export default (kit: AppArguments) => {
-  const { WindowComponent, services: [loginService] } = kit
+export default (kit: ProgramArguments) => {
+  const { WindowComponent, getService } = kit
+  const loginService = getService<LoginService>('login.service')
   class LoginProgram extends WindowComponent {
     constructor() {
       super()
@@ -13,9 +15,7 @@ export default (kit: AppArguments) => {
     connectedCallback() {
       super.connectedCallback()
       this.shadowRoot.adoptedStyleSheets.push(css)
-      this.shadowRoot.querySelector('button').addEventListener('click', () => {
-        loginService.login()
-      })
+      this.shadowRoot.querySelector('button').addEventListener('click', loginService.login.bind(loginService))
     }
     renderContent() {
       return template

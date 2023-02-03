@@ -26,8 +26,10 @@ export default (args: ProgramArguments) => {
         const app = await launch({
           packageName: detail,
           containerElement: this
-        });
-        (appTaskbarElement as any).add(app)
+        })
+        if (app.type !== 'service') {
+          (appTaskbarElement as any).add(app.element)
+        }
       })
     }
   }

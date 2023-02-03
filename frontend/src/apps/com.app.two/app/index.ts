@@ -2,7 +2,7 @@ import { AppArguments } from 'types'
 import css from './style.scss'
 import template from './template.html'
 
-export const Main = (kit: AppArguments) => {
+export default (kit: AppArguments) => {
   const { WindowComponent } = kit
   return class AppTwoProgram extends WindowComponent {
     constructor() {

@@ -6,5 +6,10 @@
   ],
   "tag": "app-launcher",
   "type": "program",
-  "services": {}
+  "services": {
+    "launcher.service": {
+      "title": "Servicio de lanzador.",
+      "description": "Servicio para gestionar apps y servicios para el lanzador."
+    }
+  }
 }

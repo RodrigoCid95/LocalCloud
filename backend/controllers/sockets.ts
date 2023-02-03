@@ -18,18 +18,7 @@ export class Dumie {
   @On('apps')
   public apps(): SocketResponse {
     return {
-      data: [
-        {
-          packageNane: 'com.app.one',
-          title: 'Test Application One',
-          icon: ''
-        },
-        {
-          packageNane: 'com.app.two',
-          title: 'Test Application Two',
-          icon: ''
-        }
-      ]
+      data: this.model.getManifests(['com.app.one', 'com.app.two'])
     }
   }
 }
