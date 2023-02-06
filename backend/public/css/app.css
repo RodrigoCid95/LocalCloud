@@ -2,6 +2,8 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  user-select: none;
+  font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
 }
 
 *::-webkit-scrollbar {
@@ -34,11 +36,17 @@ body>main {
   display: block;
   width: 100vw;
   height: 100vh;
-  z-index: -1;
   position: relative;
-  background-color: #000;
 }
 
 body {
   z-index: -2;
+}
+
+body>main {
+  z-index: -1;
+  background-image: url(/assets/background.webp);
+  background-color: currentColor;
+  background-repeat: no-repeat;
+  background-size: cover;
 }

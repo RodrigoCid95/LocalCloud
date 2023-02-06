@@ -8,6 +8,8 @@ export default (kit: AppArguments) => {
     constructor() {
       super()
       this.text = 'Test Application Two'
+      this.withBtnClose = true
+      this.withBtnMinimize = true
     }
     connectedCallback() {
       super.connectedCallback()

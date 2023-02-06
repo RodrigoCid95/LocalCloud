@@ -33,9 +33,9 @@
   position: absolute;
   flex-direction: column;
   background-color: #b0b0b0;
-  outline: rgb(0, 0, 0) solid 1px;
-  border: 1px solid rgb(255, 255, 255);
+  outline: rgb(255, 255, 255) solid 1px;
   overflow: hidden auto;
+  border-radius: 4px;
 }
 
 .toolbar {
@@ -46,16 +46,13 @@
 
   .title {
     padding: 4px;
+    color: rgb(255, 255, 255);
+    user-select: none;
+    font-size: 20px;
     overflow: hidden;
-
-    span {
-      color: #fff;
-      user-select: none;
-      font-size: 14px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    line-height: .8;
   }
 
   .buttons {
@@ -64,27 +61,26 @@
 
     div {
       display: block;
-      width: 18px;
-      height: calc(100% - 12px);
+      width: 24px;
+      height: 24px;
       position: relative;
       background-color: rgb(176, 176, 176);
       cursor: pointer;
     }
 
     div:hover {
-      box-shadow: 0 8px 8px 2px rgb(176, 176, 176, .75);
-      -webkit-box-shadow: 0 8px 8px 2px rgb(176, 176, 176, .75);
-      -moz-box-shadow: 0 8px 8px 2px rgb(176, 176, 176, .75);
+      background-color: rgb(197, 197, 197);
     }
 
     div::after,
     .close::before {
       content: '';
       display: block;
-      width: 100%;
       position: absolute;
       background-color: rgb(255, 255, 255);
       height: 2px;
+      width: 18px;
+      margin: 0px 3px 2px;
     }
 
     .minimize::after {
@@ -93,7 +89,7 @@
 
     .close::after,
     .close::before {
-      top: 50%;
+      top: 12px;
     }
 
     .close::after {

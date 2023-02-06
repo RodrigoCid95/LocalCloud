@@ -53,7 +53,6 @@ export default (kit: ProgramArguments) => {
           appListElement.append(item)
         }
       }))
-      setTimeout(() => this.dispatchEvent(new CustomEvent('onLaunchProgram', { detail: 'com.app.one' })), 500)
     }
   }
 }

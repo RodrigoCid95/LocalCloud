@@ -27,11 +27,13 @@ export default class WindowComponent extends Program {
       min: 0,
       max: 0
     },
-    resizeObserver: undefined
+    resizeObserver: undefined,
+    btnClose: undefined,
+    btnMinimize: undefined
   }
   public set text(v: string) {
     this[__properties__].text = v
-    const textElement = this.shadowRoot.querySelector('.toolbar .title span')
+    const textElement = this.shadowRoot.querySelector('.toolbar .title')
     if (textElement) {
       textElement.innerHTML = this[__properties__].text
     }
@@ -140,6 +142,46 @@ export default class WindowComponent extends Program {
   public get maxHeight(): number {
     return this[__properties__].height.max
   }
+  public set withBtnClose(v: boolean) {
+    if (v) {
+      this[__properties__].btnClose = document.createElement('div')
+      this[__properties__].btnClose.classList.add('close')
+      this[__properties__].btnClose.addEventListener('click', () => this.remove())
+      if (this.isConnected) {
+        this.shadowRoot.querySelector('.toolbar .buttons').append(this[__properties__].btnClose)
+      }
+    } else {
+      if (this[__properties__].btnClose) {
+        if (this.isConnected) {
+          this[__properties__].btnClose.remove()
+        }
+        delete this[__properties__].btnClose
+      }
+    }
+  }
+  public get withBtnClose(): boolean {
+    return this[__properties__].btnClose !== undefined
+  }
+  public set withBtnMinimize(v: boolean) {
+    if (v) {
+      this[__properties__].btnMinimize = document.createElement('div')
+      this[__properties__].btnMinimize.classList.add('minimize')
+      this[__properties__].btnMinimize.addEventListener('click', () => this.minimize = true)
+      if (this.isConnected) {
+        this.shadowRoot.querySelector('.toolbar .buttons').append(this[__properties__].btnMinimize)
+      }
+    } else {
+      if (this[__properties__].btnMinimize) {
+        if (this.isConnected) {
+          this[__properties__].btnMinimize.remove()
+        }
+        delete this[__properties__].btnMinimize
+      }
+    }
+  }
+  public get withBtnMinimize(): boolean {
+    return this[__properties__].btnMinimize !== undefined
+  }
   connectedCallback() {
     super.connectedCallback()
     this.style.display = 'none'
@@ -187,11 +229,6 @@ export default class WindowComponent extends Program {
       })
     })
     toolbarElement.addEventListener('mouseup', () => this[__properties__].move = false)
-    const buttonsElement = toolbarElement.querySelector('.buttons')
-    buttonsElement.querySelector('.minimize').addEventListener('click', () => this.minimize = true)
-    buttonsElement.querySelector('.close').addEventListener('click', () => {
-      this.remove()
-    })
     this.style.display = 'flex'
     this.tabIndex = 0
     this.focus()
@@ -203,6 +240,13 @@ export default class WindowComponent extends Program {
       this.dispatchEvent(new CustomEvent('onResize'))
     })
     this[__properties__].resizeObserver.observe(this)
+    const buttonsElement = toolbarElement.querySelector('.buttons')
+    if (this[__properties__].btnClose) {
+      buttonsElement.append(this[__properties__].btnClose)
+    }
+    if (this[__properties__].btnMinimize) {
+      buttonsElement.append(this[__properties__].btnMinimize)
+    }
   }
   disconnectedCallback() {
     super.disconnectedCallback()
