@@ -205,6 +205,7 @@ export default class WindowComponent extends Program {
     this[__properties__].resizeObserver.observe(this)
   }
   disconnectedCallback() {
+    super.disconnectedCallback()
     this[__properties__]?.resizeObserver?.unobserve(this)
   }
 }

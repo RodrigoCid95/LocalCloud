@@ -24,7 +24,6 @@ export default class OS {
     this[__SERVER__] = v
     this[__SERVER__].socket.on('connect', async () => {
       await this.launch({ packageName: 'com.desktop.app', clearElement: true })
-      // await this.launch({ packageName: 'com.login.app', clearElement: true })
       this[__SERVER__].socket.on('auth/change', async (auth: boolean) => {
         if (auth) {
           await this.launch({ packageName: 'com.desktop.app', clearElement: true })
