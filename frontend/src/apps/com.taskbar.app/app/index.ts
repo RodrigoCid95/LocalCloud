@@ -6,7 +6,9 @@ const __PROPERTIES__ = Symbol()
 export default (kit: ProgramArguments) => {
   const { Program } = kit
   return class TaskbarProgram extends Program {
-    apps = []
+    [__PROPERTIES__] = {
+      apps: []
+    }
     constructor() {
       super()
       this.template = template
@@ -18,8 +20,8 @@ export default (kit: ProgramArguments) => {
       this.shadowRoot.querySelector('button').addEventListener('click', () => this.dispatchEvent(new CustomEvent('onLaunchClick')))
     }
     public add(app: WindowComponent) {
-      this.apps.push(app)
-      app.style.zIndex = this.apps.length.toString()
+      this[__PROPERTIES__].apps.push(app)
+      app.style.zIndex = this[__PROPERTIES__].apps.length.toString()
       const buttonElement = document.createElement('button')
       buttonElement.innerHTML = app.text
       buttonElement.addEventListener('click', () => {
@@ -28,7 +30,7 @@ export default (kit: ProgramArguments) => {
           app.focus()
         } else {
           const zIndex = parseInt(app.style.zIndex)
-          if (zIndex === this.apps.length) {
+          if (zIndex === this[__PROPERTIES__].apps.length) {
             app.minimize = true
           } else {
             app.focus()
@@ -38,27 +40,27 @@ export default (kit: ProgramArguments) => {
       buttonElement.classList.add('active')
       this.shadowRoot.querySelector('.buttons').append(buttonElement)
       const orderIndexes = () => {
-        for (let index = 0; index < this.apps.length; index++) {
-          const appElement = this.apps[index]
+        for (let index = 0; index < this[__PROPERTIES__].apps.length; index++) {
+          const appElement = this[__PROPERTIES__].apps[index]
           appElement.style.zIndex = (index + 1).toString()
         }
       }
       app.addEventListener('onClose', () => {
         buttonElement.remove()
-        this.apps.splice(parseInt(app.style.zIndex) - 1, 1)
+        this[__PROPERTIES__].apps.splice(parseInt(app.style.zIndex) - 1, 1)
         orderIndexes()
       })
       app.addEventListener('focus', () => {
         buttonElement.classList.add('active')
         let appIndex = parseInt(app.style.zIndex)
-        if (this.apps.length > 1 && appIndex < this.apps.length) {
+        if (this[__PROPERTIES__].apps.length > 1 && appIndex < this[__PROPERTIES__].apps.length) {
           appIndex--
-          for (let index = appIndex; index < this.apps.length; index++) {
-            const nextElement = this.apps[(index + 1)]
+          for (let index = appIndex; index < this[__PROPERTIES__].apps.length; index++) {
+            const nextElement = this[__PROPERTIES__].apps[(index + 1)]
             if (nextElement) {
-              this.apps[index] = nextElement
+              this[__PROPERTIES__].apps[index] = nextElement
             } else {
-              this.apps[index] = app
+              this[__PROPERTIES__].apps[index] = app
             }
           }
           orderIndexes()

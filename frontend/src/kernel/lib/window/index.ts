@@ -27,7 +27,7 @@ export default class WindowComponent extends Program {
       min: 0,
       max: 0
     },
-    resizeObserver: null
+    resizeObserver: undefined
   }
   public set text(v: string) {
     this[__properties__].text = v
