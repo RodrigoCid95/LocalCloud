@@ -144,6 +144,12 @@ export default class WindowComponent extends Program {
     super.connectedCallback()
     this.style.display = 'none'
     this.shadowRoot.adoptedStyleSheets.push(css)
+    this.width = this.width
+    this.minWidth = this.minWidth
+    this.maxWidth = this.maxWidth
+    this.height = this.height
+    this.minHeight = this.minHeight
+    this.maxHeight = this.maxHeight
     const _this: any = this
     _this.shadowRoot.innerHTML = template
     if (_this.renderContent) {
