@@ -1,9 +1,29 @@
 :host {
-  display: block;
+  display: flex;
   position: absolute;
   bottom: 8px;
   left: 50%;
   background-color: rgb(94, 94, 94);
   transform: translate(-50%, -8px);
   padding: 8px 16px;
+  max-width: 90%;
+  width: auto;
+}
+
+:host {
+  .buttons {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    button {
+      display: inline-block;
+
+      &.active {
+        box-shadow: 10px 10px 5px 0px rgba(0, 0, 0, 0.75);
+        -webkit-box-shadow: 10px 10px 5px 0px rgba(0, 0, 0, 0.75);
+        -moz-box-shadow: 10px 10px 5px 0px rgba(0, 0, 0, 0.75);
+      }
+    }
+  }
 }

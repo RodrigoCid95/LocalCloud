@@ -15,7 +15,8 @@ export default class WindowComponent extends Program {
       x: 0,
       y: 0
     },
-    template
+    template,
+    isFocus: false
   }
   public set text(v: string) {
     this[__properties__].text = v
@@ -52,6 +53,11 @@ export default class WindowComponent extends Program {
     this[__properties__].minimize = v
     if (this.isConnected) {
       this.style.display = v ? 'none' : 'flex'
+      if (v) {
+        this.focus()
+      } else {
+        this.blur()
+      }
     }
   }
   public get minimize(): boolean {
@@ -65,6 +71,9 @@ export default class WindowComponent extends Program {
   }
   public get template(): string {
     return this[__properties__].template
+  }
+  public get isFocus(): boolean {
+    return this[__properties__].isFocus
   }
   connectedCallback() {
     super.connectedCallback()
@@ -113,5 +122,9 @@ export default class WindowComponent extends Program {
       this.remove()
     })
     this.style.display = 'flex'
+    this.tabIndex = 0
+    this.focus()
+    this.addEventListener('focus', () => this[__properties__].isFocus = true)
+    this.addEventListener('blur', () => this[__properties__].isFocus = false)
   }
 }
