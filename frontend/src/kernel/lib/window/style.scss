@@ -59,46 +59,51 @@
     display: flex;
     flex-direction: row;
 
-    div {
-      display: block;
-      width: 24px;
-      height: 24px;
-      position: relative;
-      background-color: rgb(176, 176, 176);
-      cursor: pointer;
+    section {
+      display: contents;
+
+      div {
+        display: block;
+        width: 24px;
+        height: 24px;
+        position: relative;
+        background-color: rgb(176, 176, 176);
+        cursor: pointer;
+      }
+
+      div:hover {
+        background-color: rgb(197, 197, 197);
+      }
+
+      div::after,
+      .close::before {
+        content: '';
+        display: block;
+        position: absolute;
+        background-color: rgb(255, 255, 255);
+        height: 2px;
+        width: 18px;
+        margin: 0px 3px 2px;
+      }
+
+      .minimize::after {
+        bottom: 0px;
+      }
+
+      .close::after,
+      .close::before {
+        top: 12px;
+      }
+
+      .close::after {
+        transform: rotate(45deg);
+      }
+
+      .close::before {
+        transform: rotate(135deg);
+      }
     }
 
-    div:hover {
-      background-color: rgb(197, 197, 197);
-    }
-
-    div::after,
-    .close::before {
-      content: '';
-      display: block;
-      position: absolute;
-      background-color: rgb(255, 255, 255);
-      height: 2px;
-      width: 18px;
-      margin: 0px 3px 2px;
-    }
-
-    .minimize::after {
-      bottom: 0px;
-    }
-
-    .close::after,
-    .close::before {
-      top: 12px;
-    }
-
-    .close::after {
-      transform: rotate(45deg);
-    }
-
-    .close::before {
-      transform: rotate(135deg);
-    }
   }
 }
 

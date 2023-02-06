@@ -10,8 +10,8 @@ export default (kit: AppArguments) => {
       super()
       this.text = 'Test Application One'
       this.isResize = true
-      this.withBtnClose = true
       this.withBtnMinimize = true
+      this.withBtnClose = true
     }
     connectedCallback() {
       super.connectedCallback()

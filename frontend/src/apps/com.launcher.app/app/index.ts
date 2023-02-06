@@ -10,11 +10,32 @@ export default (kit: ProgramArguments) => {
   const __properties__ = Symbol()
   return class LauncherProgram extends Program {
     [__properties__] = {
-      appsList: []
+      appsList: [],
+      renderItems: undefined
     }
     constructor() {
       super()
       this.template = template
+      this[__properties__].renderItems = (items = this[__properties__].appsList) => {
+        const appListElement = this.shadowRoot.querySelector('.appList')
+        const searchElement: HTMLInputElement = this.shadowRoot.getElementById('search') as HTMLInputElement
+        appListElement.innerHTML = ''
+        const resultElements = items.map(({ packageName, title, icon }) => {
+          const itemElement = document.createElement('div')
+          itemElement.classList.add('item')
+          itemElement.innerHTML = `<div class="icon"><img src="${icon || appLogo}" alt="${packageName}"></div><div class="content"><label>${title}</label></div>`
+          itemElement.addEventListener('click', async () => {
+            this.toggleAttribute('open')
+            searchElement.value = ''
+            this.dispatchEvent(new CustomEvent('onLaunchProgram', { detail: packageName }))
+            this[__properties__].renderItems()
+          })
+          return itemElement
+        })
+        for (const item of resultElements) {
+          appListElement.append(item)
+        }
+      }
       launcherService.getAppList().then(manifests => {
         this[__properties__].appsList = []
         for (const key in manifests) {
@@ -26,6 +47,7 @@ export default (kit: ProgramArguments) => {
             })
           }
         }
+        this[__properties__].renderItems()
       })
     }
     connectedCallback() {
@@ -33,26 +55,16 @@ export default (kit: ProgramArguments) => {
       this.shadowRoot.adoptedStyleSheets.push(css)
       const searchElement: HTMLInputElement = this.shadowRoot.getElementById('search') as HTMLInputElement
       searchElement.addEventListener('keyup', () => requestAnimationFrame(() => {
-        const appListElement = this.shadowRoot.querySelector('.appList')
-        appListElement.innerHTML = ''
         const term = searchElement.value.toLocaleLowerCase()
-        const results = term === '' ? [] : this[__properties__].appsList.filter(item => item.title.toLocaleLowerCase().includes(term))
-        const resultElements = results.map(({ packageName, title, icon }) => {
-          const itemElement = document.createElement('div')
-          itemElement.classList.add('item')
-          itemElement.innerHTML = `<div class="icon"><img src="${icon || appLogo}" alt="${packageName}"></div><div class="content"><label>${title}</label></div>`
-          itemElement.addEventListener('click', async () => {
-            this.toggleAttribute('open')
-            appListElement.innerHTML = ''
-            searchElement.value = ''
-            this.dispatchEvent(new CustomEvent('onLaunchProgram', { detail: packageName }))
-          })
-          return itemElement
-        })
-        for (const item of resultElements) {
-          appListElement.append(item)
-        }
+        const results = term === '' ? this[__properties__].appsList : this[__properties__].appsList.filter(item => item.title.toLocaleLowerCase().includes(term))
+        this[__properties__].renderItems(results)
       }))
+      this.shadowRoot.querySelector('.btnClose').addEventListener('click', () => this.removeAttribute('open'))
+      window.addEventListener('keydown', ({key}) => {
+        if (key === 'Escape') {
+          this.removeAttribute('open')
+        }
+      })
     }
   }
 }
