@@ -16,7 +16,18 @@ export default class WindowComponent extends Program {
       y: 0
     },
     template,
-    isFocus: false
+    isFocus: false,
+    width: {
+      value: 0,
+      min: 0,
+      max: 0
+    },
+    height: {
+      value: 0,
+      min: 0,
+      max: 0
+    },
+    resizeObserver: null
   }
   public set text(v: string) {
     this[__properties__].text = v
@@ -75,6 +86,60 @@ export default class WindowComponent extends Program {
   public get isFocus(): boolean {
     return this[__properties__].isFocus
   }
+  public set width(v: number) {
+    this[__properties__].width.value = v
+    if (this.isConnected && this[__properties__].width.value > 0) {
+      this.style.width = `${v}px`
+    }
+  }
+  public get width(): number {
+    return (this[__properties__].width.value > 0) ? this[__properties__].width.value : this.offsetWidth
+  }
+  public set minWidth(v: number) {
+    this[__properties__].width.min = v
+    if (this.isConnected && this[__properties__].width.min > 0) {
+      this.style.minWidth = `${v}px`
+    }
+  }
+  public get minWidth(): number {
+    return this[__properties__].width.min
+  }
+  public set maxWidth(v: number) {
+    this[__properties__].width.max = v
+    if (this.isConnected && this[__properties__].width.max > 0) {
+      this.style.maxWidth = `${v}px`
+    }
+  }
+  public get maxWidth(): number {
+    return this[__properties__].width.max
+  }
+  public set height(v: number) {
+    this[__properties__].height.value = v
+    if (this.isConnected && this[__properties__].height.value > 0) {
+      this.style.height = `${v}px`
+    }
+  }
+  public get height(): number {
+    return (this[__properties__].height.value > 0) ? this[__properties__].height.value : this.offsetHeight
+  }
+  public set minHeight(v: number) {
+    this[__properties__].height.min = v
+    if (this.isConnected && this[__properties__].height.min > 0) {
+      this.style.minHeight = `${v}px`
+    }
+  }
+  public get minHeight(): number {
+    return this[__properties__].height.min
+  }
+  public set maxHeight(v: number) {
+    this[__properties__].height.max = v
+    if (this.isConnected && this[__properties__].height.max > 0) {
+      this.style.maxHeight = `${v}px`
+    }
+  }
+  public get maxHeight(): number {
+    return this[__properties__].height.max
+  }
   connectedCallback() {
     super.connectedCallback()
     this.style.display = 'none'
@@ -126,5 +191,14 @@ export default class WindowComponent extends Program {
     this.focus()
     this.addEventListener('focus', () => this[__properties__].isFocus = true)
     this.addEventListener('blur', () => this[__properties__].isFocus = false)
+    this[__properties__].resizeObserver = new ResizeObserver(([{ borderBoxSize: [{ blockSize, inlineSize }] }]) => {
+      this[__properties__].width.value = inlineSize
+      this[__properties__].height.value = blockSize
+      this.dispatchEvent(new CustomEvent('onResize'))
+    })
+    this[__properties__].resizeObserver.observe(this)
+  }
+  disconnectedCallback() {
+    this[__properties__]?.resizeObserver?.unobserve(this)
   }
 }

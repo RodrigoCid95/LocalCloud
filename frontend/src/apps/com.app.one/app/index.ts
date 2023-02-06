@@ -9,6 +9,7 @@ export default (kit: AppArguments) => {
     constructor() {
       super()
       this.text = 'Test Application One'
+      this.isResize = true
     }
     connectedCallback() {
       super.connectedCallback()
