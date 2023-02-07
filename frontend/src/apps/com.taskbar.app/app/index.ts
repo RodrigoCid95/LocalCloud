@@ -1,6 +1,7 @@
 import { ProgramArguments, WindowComponent } from 'types'
 import css from './style.scss'
 import template from './template.html'
+import appImage from './app.svg'
 
 const __PROPERTIES__ = Symbol()
 export default (kit: ProgramArguments) => {
@@ -17,13 +18,14 @@ export default (kit: ProgramArguments) => {
       (window as any).taskbar = this
       super.connectedCallback()
       this.shadowRoot.adoptedStyleSheets.push(css)
-      this.shadowRoot.querySelector('button').addEventListener('click', () => this.dispatchEvent(new CustomEvent('onLaunchClick')))
+      this.shadowRoot.querySelector('.btnLaunch').addEventListener('click', () => this.dispatchEvent(new CustomEvent('onLaunchClick')))
     }
     public add(app: WindowComponent) {
       this[__PROPERTIES__].apps.push(app)
       app.style.zIndex = this[__PROPERTIES__].apps.length.toString()
-      const buttonElement = document.createElement('button')
-      buttonElement.innerHTML = app.text
+      const buttonElement = document.createElement('div')
+      buttonElement.classList.add('item')
+      buttonElement.innerHTML = `${app.icon ? `<img src="${app.icon}" alt="${app.text}">` : appImage}<label>${app.text}</label>`
       buttonElement.addEventListener('click', () => {
         if (app.minimize) {
           app.minimize = false

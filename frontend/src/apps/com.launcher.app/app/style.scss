@@ -34,10 +34,13 @@
     .btnClose {
       width: 20px;
       height: 20px;
-      outline: rgb(255, 255, 255) solid 1px;
       border-radius: 4px;
       position: relative;
       cursor: pointer;
+
+      &:hover {
+        outline: rgb(255, 255, 255) solid 1px;
+      }
 
       &::before,
       &::after {
@@ -71,9 +74,12 @@
       align-items: center;
       padding: 16px 8px;
       cursor: pointer;
-      outline: rgb(255, 255, 255) solid 1px;
       margin: 12px 0;
       border-radius: 4px;
+
+      &:hover {
+        outline: rgb(255, 255, 255) solid 1px;
+      }
 
       .icon {
         img {
@@ -117,6 +123,7 @@
         max-width: 162px;
 
         .content {
+          margin-top: 12px;
           margin-left: 0;
           max-width: 85%;
 

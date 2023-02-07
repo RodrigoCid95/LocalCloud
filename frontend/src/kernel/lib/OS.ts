@@ -149,7 +149,8 @@ export default class OS {
       if (customElements.get(manifest.tag) === undefined) {
         customElements.define(manifest.tag, ClassCommponent)
       }
-      element = document.createElement(manifest.tag)
+      element = document.createElement(manifest.tag);
+      (element as any).icon = manifest.icon
       if (clearElement) {
         containerElement.innerHTML = ''
       }

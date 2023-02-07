@@ -66,7 +66,7 @@ module.exports = async (args) => {
         else console.log('Compilado:', result)
       },
     },
-    loader: { '.webp': 'dataurl' }
+    loader: { '.webp': 'dataurl', '.svg': 'text' }
   }
   await require('esbuild').build({
     entryPoints: [entryPoint],

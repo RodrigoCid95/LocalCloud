@@ -1,28 +1,131 @@
+*::-webkit-scrollbar {
+  width: 6px;
+}
+
+*::-webkit-scrollbar:horizontal {
+  height: 6px;
+}
+
+*::-webkit-scrollbar-track {
+  box-shadow: inset 0 0 5px gray;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: #fff;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: rgb(255 255 255 / 75%);
+  width: 10px;
+}
+
+*::-webkit-scrollbar-thumb:horizontal:hover {
+  height: 10px;
+}
+
 :host {
   display: flex;
+  align-items: center;
   position: absolute;
   bottom: 8px;
   left: 50%;
-  background-color: rgb(94, 94, 94);
   transform: translate(-50%, -8px);
   padding: 8px 16px;
   max-width: 90%;
   width: auto;
-}
+  background-color: rgba(94, 94, 94, 0.35);
+  outline: #fff solid 1px;
+  border-radius: 4px;
 
-:host {
+  .btnLaunch {
+    padding: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+
+    svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    &:hover {
+      outline: rgb(255, 255, 255) solid 1px;
+      border-radius: 4px;
+    }
+  }
+
   .buttons {
     display: flex;
     flex-direction: row;
     align-items: center;
+    margin-left: 4px;
+    overflow-x: auto;
 
-    button {
-      display: inline-block;
+    .item {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      margin: 0 4px;
+      padding: 2px 4px;
 
+      svg,
+      img {
+        width: 24px;
+        height: 24px;
+      }
+
+      label {
+        display: none;
+      }
+
+      &:hover,
       &.active {
-        box-shadow: 10px 10px 5px 0px rgba(0, 0, 0, 0.75);
-        -webkit-box-shadow: 10px 10px 5px 0px rgba(0, 0, 0, 0.75);
-        -moz-box-shadow: 10px 10px 5px 0px rgba(0, 0, 0, 0.75);
+        outline: rgb(255, 255, 255) solid 1px;
+        border-radius: 4px;
+      }
+    }
+  }
+}
+
+@media (min-width: 768px) {
+  :host {
+    .btnLaunch {
+      height: 64px;
+
+      svg {
+        width: 48px;
+        height: 48px;
+      }
+    }
+
+    .buttons {
+      height: 88px;
+
+      .item {
+        width: auto;
+        height: 64px;
+        max-width: 128px;
+        flex-direction: column;
+        padding: 8px 4px;
+
+        svg,
+        img {
+          width: 48px;
+          height: 48px;
+        }
+
+        label {
+          display: inline-block;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          color: rgb(255, 255, 255);
+          margin-left: 4px;
+          max-width: 100%;
+          overflow: hidden;
+        }
       }
     }
   }
