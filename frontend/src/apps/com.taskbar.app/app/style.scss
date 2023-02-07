@@ -31,7 +31,7 @@
   left: 50%;
   transform: translate(-50%, -8px);
   padding: 8px 16px;
-  max-width: 90%;
+  max-width: 85%;
   width: auto;
   background-color: rgba(94, 94, 94, 0.35);
   outline: #fff solid 1px;
@@ -42,6 +42,7 @@
     cursor: pointer;
     display: flex;
     align-items: center;
+    margin: 0 4px;
 
     svg {
       width: 24px;
@@ -58,8 +59,8 @@
     display: flex;
     flex-direction: row;
     align-items: center;
-    margin-left: 4px;
     overflow-x: auto;
+    height: 52px;
 
     .item {
       width: 32px;
