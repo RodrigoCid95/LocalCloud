@@ -12,8 +12,13 @@ export default class WindowComponent extends Program {
     resize: false,
     minimize: false,
     position: {
-      x: 0,
-      y: 0
+      isDragging: false,
+      currentX: 0,
+      currentY: 0,
+      initialX: 0,
+      initialY: 0,
+      xOffset: 0,
+      yOffset: 0
     },
     template,
     isFocus: false,
@@ -210,25 +215,49 @@ export default class WindowComponent extends Program {
       }
     })
     const toolbarElement = this.shadowRoot.querySelector('.toolbar')
-    toolbarElement.addEventListener('mousedown', (e: MouseEvent) => {
+    const dragStart = (e: MouseEvent | TouchEvent) => {
       if (this[__properties__].draggable) {
-        this[__properties__].move = true
-        this[__properties__].position.x = e.clientX
-        this[__properties__].position.y = e.clientY
+        if (e instanceof MouseEvent) {
+          this[__properties__].position.initialX = e.clientX - this[__properties__].position.xOffset
+          this[__properties__].position.initialY = e.clientY - this[__properties__].position.yOffset
+          toolbarElement.addEventListener('mousemove', drag)
+        } else if (e instanceof TouchEvent) {
+          this[__properties__].position.initialX = e.touches[0].clientX - this[__properties__].position.xOffset
+          this[__properties__].position.initialY = e.touches[0].clientY - this[__properties__].position.yOffset
+          toolbarElement.addEventListener('touchmove', drag)
+        }
+        this[__properties__].position.isDragging = true
       }
-    })
-    toolbarElement.addEventListener('mousemove', (e: MouseEvent) => {
-      if (!this[__properties__].move) return;
-      requestAnimationFrame(() => {
-        const deltaX = e.clientX - this[__properties__].position.x
-        const deltaY = e.clientY - this[__properties__].position.y
-        this.style.left = `${this.offsetLeft + deltaX}px`
-        this.style.top = `${this.offsetTop + deltaY}px`
-        this[__properties__].position.x = e.clientX
-        this[__properties__].position.y = e.clientY
-      })
-    })
-    toolbarElement.addEventListener('mouseup', () => this[__properties__].move = false)
+    }
+    const drag = (e: MouseEvent | TouchEvent) => {
+      if (this[__properties__].draggable && this[__properties__].position.isDragging) {
+        e.preventDefault()
+        if (e instanceof MouseEvent) {
+          this[__properties__].position.currentX = e.clientX - this[__properties__].position.initialX
+          this[__properties__].position.currentY = e.clientY - this[__properties__].position.initialY
+        } else if (e instanceof TouchEvent) {
+          this[__properties__].position.currentX = e.touches[0].clientX - this[__properties__].position.initialX
+          this[__properties__].position.currentY = e.touches[0].clientY - this[__properties__].position.initialY
+        }
+        this[__properties__].position.xOffset = this[__properties__].position.currentX
+        this[__properties__].position.yOffset = this[__properties__].position.currentY
+        this.style.transform = `translate3d(${this[__properties__].position.currentX}px, ${this[__properties__].position.currentY}px, 0)`
+      }
+    }
+    const dragEnd = (e: MouseEvent | TouchEvent) => {
+      this[__properties__].position.initialX = this[__properties__].position.currentX
+      this[__properties__].position.initialY = this[__properties__].position.currentY
+      if (e instanceof MouseEvent) {
+        toolbarElement.removeEventListener('mousemove', drag)
+      } else if (e instanceof TouchEvent) {
+        toolbarElement.removeEventListener('touchmove', drag)
+      }
+      this[__properties__].position.isDragging
+    }
+    toolbarElement.addEventListener('mousedown', dragStart)
+    toolbarElement.addEventListener('touchstart', dragStart)
+    toolbarElement.addEventListener('mouseup', dragEnd)
+    toolbarElement.addEventListener('touchend', dragEnd)
     this.style.display = 'flex'
     this.tabIndex = 0
     this.focus()
