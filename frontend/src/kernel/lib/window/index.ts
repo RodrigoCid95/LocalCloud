@@ -34,7 +34,10 @@ export default class WindowComponent extends Program {
     },
     resizeObserver: undefined,
     btnClose: undefined,
-    btnMinimize: undefined
+    btnMinimize: undefined,
+    autoFullScreen: true,
+    callbackAutoFullScreen: undefined,
+    matchMedia: window.matchMedia('(max-width: 452px)')
   }
   public set text(v: string) {
     this[__properties__].text = v
@@ -187,6 +190,29 @@ export default class WindowComponent extends Program {
   public get withBtnClose(): boolean {
     return this[__properties__].btnClose !== undefined
   }
+  public set autoFullScreen(v: boolean) {
+    this[__properties__].autoFullScreen = v
+    if (this.isConnected) {
+      if (v) {
+        this[__properties__].matchMedia.addEventListener('change', this[__properties__].callbackAutoFullScreen)
+      } else {
+        this[__properties__].matchMedia.removeEventListener('change', this[__properties__].callbackAutoFullScreen)
+      }
+    }
+  }
+  public get autoFullScreen(): boolean {
+    return this[__properties__].autoFullScreen
+  }
+  constructor() {
+    super()
+    this[__properties__].callbackAutoFullScreen = ({ matches }) => {
+      if (matches) {
+        this.setAttribute('fullscreen', '')
+      } else {
+        this.removeAttribute('fullscreen')
+      }
+    }
+  }
   connectedCallback() {
     super.connectedCallback()
     this.style.display = 'none'
@@ -216,7 +242,7 @@ export default class WindowComponent extends Program {
     })
     const toolbarElement = this.shadowRoot.querySelector('.toolbar')
     const dragStart = (e: MouseEvent | TouchEvent) => {
-      if (this[__properties__].draggable) {
+      if (this[__properties__].draggable && this[__properties__].autoFullScreen && !this[__properties__].matchMedia.matches) {
         if (e instanceof MouseEvent) {
           this[__properties__].position.initialX = e.clientX - this[__properties__].position.xOffset
           this[__properties__].position.initialY = e.clientY - this[__properties__].position.yOffset
@@ -258,7 +284,6 @@ export default class WindowComponent extends Program {
     toolbarElement.addEventListener('touchstart', dragStart)
     toolbarElement.addEventListener('mouseup', dragEnd)
     toolbarElement.addEventListener('touchend', dragEnd)
-    this.style.display = 'flex'
     this.tabIndex = 0
     this.focus()
     this.addEventListener('focus', () => this[__properties__].isFocus = true)
@@ -271,6 +296,13 @@ export default class WindowComponent extends Program {
     this[__properties__].resizeObserver.observe(this)
     this.withBtnMinimize = this.withBtnMinimize
     this.withBtnClose = this.withBtnClose
+    this.autoFullScreen = this.autoFullScreen
+    requestAnimationFrame(() => {
+      if (this[__properties__].matchMedia.matches && this.autoFullScreen) {
+        this.setAttribute('fullscreen', '')
+      }
+    })
+    this.style.display = 'flex'
   }
   disconnectedCallback() {
     super.disconnectedCallback()
