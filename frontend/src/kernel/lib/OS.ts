@@ -1,4 +1,4 @@
-import { AppManifest, ProgramManifest, Task, ServiceManifest, ServiceTask, ProgramArguments, AppArguments } from "types"
+import { AppManifest, ProgramManifest, Task, ServiceManifest, ServiceTask } from "types"
 import Server from "./Server"
 import WindowComponent from "./window"
 
@@ -12,19 +12,20 @@ type LaunchArguments = {
   clearElement?: boolean
   args?: { [x: string]: any }
 }
+type ManifestResult = ProgramManifest | AppManifest | ServiceManifest | undefined
 
 const __PROGRAMS__ = Symbol()
 const __SERVICES__ = Symbol()
 const __SERVER__ = Symbol()
 export default class OS {
-  [__SERVER__] = null;
+  [__SERVER__]: Server | null = null;
   [__PROGRAMS__] = [];
   [__SERVICES__] = [];
   public set server(v: Server) {
     this[__SERVER__] = v
-    this[__SERVER__].socket.on('connect', async () => {
+    this[__SERVER__].onConnect(async () => {
       await this.launch({ packageName: 'com.login.app', clearElement: true })
-      this[__SERVER__].socket.on('auth/change', async (auth: boolean) => {
+      this[__SERVER__].on<Boolean>('auth/change', async auth => {
         if (auth) {
           await this.launch({ packageName: 'com.desktop.app', clearElement: true })
         } else {
@@ -39,7 +40,7 @@ export default class OS {
     this.mainElement.innerHTML = '<app-loading></app-loading>'
   }
   private async launch({ packageName, containerElement = this.mainElement, clearElement = false, args = {} }: LaunchArguments): Promise<Task> {
-    const manifest: ProgramManifest | AppManifest | ServiceManifest | undefined = (await new Promise(resolve => this[__SERVER__].socket.emit('app', packageName, resolve)) as any).data as any
+    const manifest: ManifestResult = await (this[__SERVER__] as Server).emit<ManifestResult>('app', { packageName })
     if (!manifest) {
       throw new Error(`El paquete ${packageName} no existe!`)
     }

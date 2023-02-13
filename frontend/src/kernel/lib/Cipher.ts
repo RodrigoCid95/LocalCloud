@@ -1,10 +1,6 @@
-import { InitLibrary } from 'bitis/core'
-import { CipherClass } from 'types/Cipher'
-import crypto from 'crypto'
-
-class Cipher implements CipherClass {
-  private encoder = new TextEncoder()
-  private decoder = new TextDecoder()
+export class Cipher {
+  encoder = new TextEncoder()
+  decoder = new TextDecoder()
   private generateKey(key: string) {
     return crypto.subtle.importKey('raw', this.encoder.encode(key.slice(0, 16)), { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt'])
   }
@@ -30,8 +26,6 @@ class Cipher implements CipherClass {
     const iv = uint8Array.slice(0, 12)
     const data = uint8Array.slice(12, uint8Array.length)
     const decrypted = await crypto.subtle.decrypt({ name: "AES-GCM", iv }, newKey, data)
-    return JSON.parse(this.decoder.decode(decrypted))
+    return this.decoder.decode(decrypted)
   }
 }
-
-export const cipher: InitLibrary = () => new Cipher()

@@ -8,8 +8,9 @@ const Main = async (mainElement: HTMLElement) => {
   console.log('OS =>', os)
   const { default: Server } = await import('./lib/Server')
   const server = new Server()
-  console.log('Server =>', os)
+  console.log('Server =>', server)
   os.server = server
+  window.server = server
 }
 
 export default Main
