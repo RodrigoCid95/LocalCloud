@@ -1,8 +1,12 @@
+import { CipherClass } from 'types/Cipher'
+import path from 'path'
+import os from 'os'
+import fileUpload from 'express-fileupload'
 import { BitisHTTPConfigProfile } from 'bitis/http'
 import { BitisSocketsConfig } from 'bitis/web-sockets'
-import { CipherClass } from 'types/Cipher'
 
 export const bitisHttpConfig: BitisHTTPConfigProfile = {
+  middlewares: [fileUpload()],
   pathsPublic: [
     {
       route: '/',
@@ -27,3 +31,10 @@ export const bitisSocketsConfig: BitisSocketsConfig = {
     }
   }
 }
+
+const usersPath = path.resolve(os.homedir(), 'users')
+
+export const fileSystem = { usersPath }
+
+export const appsManager = { usersPath }
+export const sqlite = { usersPath }
