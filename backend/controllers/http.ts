@@ -1,2 +1,3 @@
-export * from './apps-manager/http'
+export * from './apps/http'
 export * from './auth/http'
+export * from './users/http'

@@ -11,57 +11,65 @@ export default class AppsManager implements AppsManagerClass {
   public async init() {
     const dirs = fs.readdirSync(this.usersPath)
     for (const dir of dirs) {
-      const appsDBPath = path.join(this.usersPath, dir, 'data.db')
-      if (!fs.existsSync(appsDBPath)) {
-        fs.writeFileSync(appsDBPath, '', { encoding: 'utf8' })
-      }
-      await this.sqlite.createTable(
-        dir,
-        'apps',
-        [
-          {
-            name: 'packagename',
-            type: FieldTypes.STRING,
-            notNull: true,
-            primaryKey: true
-          },
-          {
-            name: 'title',
-            type: FieldTypes.STRING,
-            notNull: true
-          },
-          {
-            name: 'description',
-            type: FieldTypes.STRING
-          },
-          {
-            name: 'author',
-            type: FieldTypes.STRING
-          },
-          {
-            name: 'icon',
-            type: FieldTypes.STRING,
-            notNull: true
-          },
-          {
-            name: 'services',
-            type: FieldTypes.STRING
-          },
-          {
-            name: 'type',
-            type: FieldTypes.STRING,
-            notNull: true
-          },
-          {
-            name: 'tag',
-            type: FieldTypes.STRING,
-            notNull: true
-          }
-        ]
-      )
+      await this.prepareUserDB(dir)
     }
   }
-  public async install(user: string, packageName: string, data: Buffer): Promise<void> {
+  public async prepareUserDB(user: string) {
+    const appsDBPath = path.join(this.usersPath, user, 'data.db')
+    if (!fs.existsSync(appsDBPath)) {
+      fs.writeFileSync(appsDBPath, '', { encoding: 'utf8' })
+    }
+    await this.sqlite.createTable(
+      user,
+      'apps',
+      [
+        {
+          name: 'packagename',
+          type: FieldTypes.STRING,
+          notNull: true,
+          primaryKey: true
+        },
+        {
+          name: 'title',
+          type: FieldTypes.STRING,
+          notNull: true
+        },
+        {
+          name: 'description',
+          type: FieldTypes.STRING
+        },
+        {
+          name: 'author',
+          type: FieldTypes.STRING
+        },
+        {
+          name: 'icon',
+          type: FieldTypes.STRING,
+          notNull: true
+        },
+        {
+          name: 'services',
+          type: FieldTypes.STRING
+        },
+        {
+          name: 'type',
+          type: FieldTypes.STRING,
+          notNull: true
+        },
+        {
+          name: 'tag',
+          type: FieldTypes.STRING,
+          notNull: true
+        },
+        {
+          name: 'appSystem',
+          type: FieldTypes.BOOLEAN,
+          notNull: true
+        }
+      ]
+    )
+  }
+  public async install(user: string, packageName: string, data: Buffer, isSystemApp: boolean = false): Promise<void> {
     const tempName = `${v4()}.zip`
     const tempPath = path.join(this.usersPath, user, 'temp', tempName)
     const appPath = path.join(this.usersPath, user, 'apps', packageName)

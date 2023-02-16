@@ -3,7 +3,7 @@ import path from 'path'
 import { AppsManagerClass } from 'types/AppsManager'
 import { Lib } from 'bitis/core'
 
-export class AppsManagerModel {
+export class AppsModel {
   @Lib('appsManager') private appsManager: AppsManagerClass
   public install(user: string, packageName: string, data: Buffer) {
     return this.appsManager.install(user, packageName, data)

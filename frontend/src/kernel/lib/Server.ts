@@ -8,40 +8,30 @@ export default class Server {
   [__CIPHER__]: Cipher
   constructor() {
     this[__SOCKET__] = io()
+    this[__SOCKET__].on('disconnect', () => window.location.reload())
     this[__CIPHER__] = new Cipher()
   }
   public onConnect(callback: () => void | Promise<void>) {
     this[__SOCKET__].on('connect', callback)
   }
-  public send<D = {}>(args: Omit<SendArguments<D>, 'onProgress'>): () => void {
-    const { path, method, data, onAbort, onError, onLoad, onLoadend, onLoadstart, onTimeout } = args
-    const xhr = new XMLHttpRequest()
-    if (onAbort) {
-      xhr.addEventListener('abort', onAbort)
-    }
-    if (onError) {
-      xhr.addEventListener('error', onError)
-    }
-    if (onLoad) {
-      xhr.addEventListener('load', onLoad)
-    }
-    if (onLoadend) {
-      xhr.addEventListener('loadend', onLoadend)
-    }
-    if (onLoadstart) {
-      xhr.addEventListener('loadstart', onLoadstart)
-    }
-    if (onTimeout) {
-      xhr.addEventListener('timeout', onTimeout)
-    }
-    xhr.open(method, path)
-    xhr.setRequestHeader("Content-Type", "application/json")
+  public async send<T = null>(args: SendArguments): Promise<T> {
+    const { path, method, data, encryptRequest, decryptResponse } = args
+    let response = undefined
     if (data) {
-      xhr.send(JSON.stringify(data))
+      const headers = new Headers()
+      headers.append("Content-Type", "application/json")
+      let body = JSON.stringify(data)
+      if (encryptRequest) {
+        body = JSON.stringify({ dataEncrypt: await this[__CIPHER__].encrypt(this[__SOCKET__].id, body) })
+      }
+      response = fetch(path, { method, headers, body }).then(res => res.text())
     } else {
-      xhr.send()
+      response = fetch(path, { method }).then(res => res.text())
     }
-    return xhr.abort
+    if (response && decryptResponse) {
+      response = this[__CIPHER__].decrypt(this[__SOCKET__].id, response)
+    }
+    return response
   }
   public async emit<T = {}>(event: string, data?: object): Promise<T> {
     let response: string = ''
@@ -81,17 +71,12 @@ type Response<T> = {
   }
 }
 
-export type SendArguments<D> = {
+export type SendArguments = {
   path: string
   method: Methods
-  data?: D
-  onAbort?: (ev: ProgressEvent<XMLHttpRequestEventTarget>) => void
-  onError?: (ev: ProgressEvent<XMLHttpRequestEventTarget>) => void
-  onLoad?: (ev: ProgressEvent<XMLHttpRequestEventTarget>) => void
-  onLoadend?: (ev: ProgressEvent<XMLHttpRequestEventTarget>) => void
-  onLoadstart?: (ev: ProgressEvent<XMLHttpRequestEventTarget>) => void
-  onProgress?: (ev: ProgressEvent<XMLHttpRequestEventTarget>) => void
-  onTimeout?: (ev: ProgressEvent<XMLHttpRequestEventTarget>) => void
+  data?: any
+  encryptRequest?: boolean
+  decryptResponse?: boolean
 }
 
 export enum Methods {
