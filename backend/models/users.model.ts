@@ -61,15 +61,15 @@ export class UsersModel {
     const newData: NewUser = { uuid: v4(), ...newUser }
     const newUserPath = path.join(this.usersPath, newData.uuid)
     const homeNewUserPath = path.join(newUserPath, 'home')
+    const tempNewUserPath = path.join(newUserPath, 'temp')
     const appsNewUserPath = path.join(newUserPath, 'apps')
-    const dbAppsNewUserPath = path.join(appsNewUserPath, 'data.db')
     if (fs.existsSync(newUserPath)) {
       fs.rmSync(newUserPath, { recursive: true, force: true })
     }
     fs.mkdirSync(newUserPath, { recursive: true })
     fs.mkdirSync(homeNewUserPath, { recursive: true })
+    fs.mkdirSync(tempNewUserPath, { recursive: true })
     fs.mkdirSync(appsNewUserPath, { recursive: true })
-    fs.writeFileSync(dbAppsNewUserPath, '', { encoding: 'utf8' })
     const { uuid, name, fullName, email, role, password } = newData
     let hash = ''
     for (let i = 0; i < name.length; i++) {
@@ -79,6 +79,57 @@ export class UsersModel {
       this.usersDBPath,
       'users',
       { uuid, name, fullName, email, role, hash }
+    )
+    const appsDBPath = path.join(newUserPath, 'data.db')
+    fs.writeFileSync(appsDBPath, '', { encoding: 'utf8' })
+    await this.sqlite.createTable(
+      appsDBPath,
+      'apps',
+      [
+        {
+          name: 'packagename',
+          type: FieldTypes.STRING,
+          notNull: true,
+          primaryKey: true
+        },
+        {
+          name: 'title',
+          type: FieldTypes.STRING,
+          notNull: true
+        },
+        {
+          name: 'description',
+          type: FieldTypes.STRING
+        },
+        {
+          name: 'author',
+          type: FieldTypes.STRING
+        },
+        {
+          name: 'icon',
+          type: FieldTypes.STRING,
+          notNull: true
+        },
+        {
+          name: 'services',
+          type: FieldTypes.STRING
+        },
+        {
+          name: 'type',
+          type: FieldTypes.STRING,
+          notNull: true
+        },
+        {
+          name: 'tag',
+          type: FieldTypes.STRING,
+          notNull: true
+        },
+        {
+          name: 'appSystem',
+          type: FieldTypes.BOOLEAN,
+          notNull: true
+        }
+      ]
     )
   }
   public async getAll() {

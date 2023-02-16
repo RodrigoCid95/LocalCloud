@@ -10,7 +10,7 @@ import { v4 } from 'uuid'
 const sessionMiddleware = session({ secret: v4(), saveUninitialized: true, resave: true })
 
 export const bitisHttpConfig: BitisHTTPConfigProfile = {
-  middlewares: [sessionMiddleware, fileUpload()],
+  middlewares: [fileUpload(), sessionMiddleware],
   pathsPublic: [{ route: '/', dir: 'public' }]
 }
 

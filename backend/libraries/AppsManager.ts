@@ -69,10 +69,12 @@ export default class AppsManager implements AppsManagerClass {
       ]
     )
   }
-  public async install(user: string, packageName: string, data: Buffer, isSystemApp: boolean = false): Promise<void> {
+  public async install(uuid: string, packageName: string, data: Buffer, isSystemApp: boolean = false): Promise<void> {
     const tempName = `${v4()}.zip`
-    const tempPath = path.join(this.usersPath, user, 'temp', tempName)
-    const appPath = path.join(this.usersPath, user, 'apps', packageName)
+    const tempPath = path.join(this.usersPath, uuid, 'temp', tempName)
+    const appPath = path.join(this.usersPath, uuid, 'apps', packageName)
+    const userDBPath = path.join(this.usersPath, uuid, 'data.db')
+    const result = await this.sqlite.get(userDBPath, 'apps', { packageName })
     const revert = () => {
       if (fs.existsSync(tempPath)) {
         fs.rmSync(tempPath, { recursive: true, force: true })
@@ -81,20 +83,43 @@ export default class AppsManager implements AppsManagerClass {
         fs.rmSync(appPath, { recursive: true, force: true })
       }
     }
-    try {
-      fs.writeFileSync(tempPath, data)
-      if (fs.existsSync(appPath)) {
-        fs.rmSync(appPath, { recursive: true, force: true })
+    if (result === null) {
+      try {
+        fs.writeFileSync(tempPath, data)
+        if (fs.existsSync(appPath)) {
+          fs.rmSync(appPath, { recursive: true, force: true })
+        }
+        fs.mkdirSync(appPath, { recursive: true })
+        await unzipper.Open.file(tempPath).then(d => d.extract({ path: appPath, concurrency: 5 }))
+        fs.rmSync(tempPath, { recursive: true, force: true })
+        const manifestPath = path.join(appPath, 'manifest.json')
+        const manifestData = JSON.parse(fs.readFileSync(manifestPath, { encoding: 'utf8' }))
+        fs.rmSync(manifestPath, { force: true })
+        const { title, description, author, icon, services = {}, type, tag, appSystem } = manifestData
+        if (!title || !icon || !type || !tag) {
+          revert()
+          throw new Error('Error de instalación')
+        }
+        await this.sqlite.insert(
+          userDBPath,
+          'apps',
+          {
+            packageName,
+            title,
+            description: description || '',
+            author: author ? JSON.stringify(author) : '',
+            icon,
+            services: JSON.stringify(services),
+            type,
+            tag,
+            appSystem: appSystem ? 1 : 0
+          })
+      } catch (error) {
+        revert()
+        throw new Error('Error de instalación')
       }
-      fs.mkdirSync(appPath, { recursive: true })
-      await unzipper.Open.file(tempPath).then(d => d.extract({ path: appPath, concurrency: 5 }))
-      fs.rmSync(tempPath, { recursive: true, force: true })
-      const manifestPath = path.join(appPath, 'manifest.json')
-      const manifestData = JSON.parse(fs.readFileSync(manifestPath, { encoding: 'utf8' }))
-      console.log(manifestData)
-    } catch (error) {
-      revert()
-      throw new Error('Error de instalación')
+    } else {
+      throw new Error(`La app ${packageName} ya está instalada!`)
     }
   }
 }
