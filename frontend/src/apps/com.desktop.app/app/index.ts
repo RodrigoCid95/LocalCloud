@@ -9,14 +9,20 @@ export default (args: ProgramArguments) => {
       super.connectedCallback()
       this.shadowRoot.adoptedStyleSheets.push(css)
       this.shadowRoot.innerHTML = template
-      await launch({
-        packageName: 'com.launcher.app',
-        containerElement: this.shadowRoot as unknown as HTMLElement
-      })
-      await launch({
-        packageName: 'com.taskbar.app',
-        containerElement: this.shadowRoot as unknown as HTMLElement
-      })
+      await launch(
+        {
+          packageName: 'com.launcher.app',
+          containerElement: this.shadowRoot as unknown as HTMLElement
+        },
+        true
+      )
+      await launch(
+        {
+          packageName: 'com.taskbar.app',
+          containerElement: this.shadowRoot as unknown as HTMLElement
+        },
+        true
+      )
       const appLauncherElement: HTMLElement = this.shadowRoot.querySelector('app-launcher') as HTMLElement
       const appTaskbarElement: HTMLElement = this.shadowRoot.querySelector('app-taskbar') as HTMLElement
       appTaskbarElement.addEventListener('onLaunchClick', () => {

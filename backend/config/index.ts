@@ -1,12 +1,24 @@
 import { CipherClass } from 'types/Cipher'
 import path from 'path'
-import os from 'os'
-import fileUpload from 'express-fileupload'
+import fs from 'fs'
 import { BitisHTTPConfigProfile } from 'bitis/http'
 import { BitisSocketsConfig, Socket } from 'bitis/web-sockets'
 import session from 'express-session'
+import fileUpload from 'express-fileupload'
 import { v4 } from 'uuid'
 
+const baseDir = path.resolve(__dirname, '..', '..')
+if (!fs.existsSync(baseDir)) {
+  fs.mkdirSync(baseDir, { recursive: true })
+}
+const systemDB = path.join(baseDir, 'data.db')
+if (!fs.existsSync(systemDB)) {
+  fs.writeFileSync(systemDB, '', { encoding: 'utf8' })
+}
+const appsDir = path.join(baseDir, 'apps')
+if (!fs.existsSync(appsDir)) {
+  fs.mkdirSync(appsDir, { recursive: true })
+}
 const sessionMiddleware = session({ secret: v4(), saveUninitialized: true, resave: true })
 
 export const bitisHttpConfig: BitisHTTPConfigProfile = {
@@ -42,8 +54,6 @@ export const bitisSocketsConfig: BitisSocketsConfig = {
   }
 }
 
-const usersPath = path.resolve(os.homedir(), 'users')
+export const fileSystem = { baseDir }
 
-export const fileSystem = { usersPath }
-
-export const appsManager = { usersPath }
+export const appsManager = { baseDir }

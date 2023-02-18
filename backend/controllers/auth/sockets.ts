@@ -1,11 +1,12 @@
 import { Model } from 'bitis/core'
 import { On, Prefix, Socket } from 'bitis/web-sockets'
-import { UsersModel } from 'models'
+import { UsersModel, CipherModel } from 'models'
 import { User } from 'types/Users'
 
 @Prefix('auth')
 export class AuthController {
   @Model('UsersModel') private usersModel: UsersModel
+  @Model('CipherModel') private cipherModel: CipherModel
   @On('signin')
   public async signin({ name, password }: Credendials, socket: Socket) {
     if (name && password) {
@@ -19,17 +20,12 @@ export class AuthController {
         if (userHashing === name) {
           const { uuid, name, fullName, email, role } = result
           const user: User = { uuid, name, fullName, email, role };
-          (socket.request as any).session.user = user;
+          (socket.request as any).session.user = user
           await new Promise(resolve => (socket.request as any).session.save(resolve))
+          socket.emit('auth/change', await this.cipherModel.encrypt(true, socket.id))
         }
       }
     }
-  }
-  @On('test')
-  public async test(socket: Socket) {
-    (socket.request as any).session.auth = true;
-    await new Promise(resolve => (socket.request as any).session.save(resolve))
-    return true
   }
 }
 type Credendials = {

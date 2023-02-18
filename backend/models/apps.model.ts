@@ -8,19 +8,24 @@ export class AppsModel {
   public install(user: string, packageName: string, data: Buffer) {
     return this.appsManager.install(user, packageName, data)
   }
-  public getManifest(packageName: string) {
-    const manifestPath = path.resolve(__dirname, '..', 'manifests', `${packageName}.json`)
-    if (!fs.existsSync(manifestPath)) {
-      return
+  public getManifest(packageName: string, uuid?: string) {
+    if (uuid) {
+      return this.appsManager.getManifest(packageName, uuid)
+    } else {
+      return this.appsManager.getSystemManifest(packageName)
     }
-    const content = fs.readFileSync(manifestPath, { encoding: 'utf8' })
-    return JSON.parse(content)
   }
-  public getManifests(packageNames: string[]) {
-    const manifests: any = {}
-    for (const packageName of packageNames) {
-      manifests[packageName] = this.getManifest(packageName)
+  public getManifests(uuid: string) {
+    return this.appsManager.getManifests(uuid)
+  }
+  public resolveAppDir(packageName: string, userUUID?: string): string {
+    if (userUUID) {
+      return path.join(this.appsManager.usersPath, userUUID, 'apps', packageName)
+    } else {
+      return path.join(this.appsManager.systemAppsPath, packageName)
     }
-    return manifests
+  }
+  public uninstall(uuid: string, packageName: string) {
+    return this.appsManager.uninstall(uuid, packageName)
   }
 }

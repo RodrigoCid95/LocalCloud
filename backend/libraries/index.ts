@@ -6,6 +6,6 @@ import SQLite from './SQLite'
 
 const sqliteInstance = new SQLite()
 export const cipher: InitLibrary = () => new Cipher()
-export const fileSystem: InitLibrary = ({ usersPath }: { usersPath: string }) => new FileSystem(usersPath)
-export const appsManager: InitLibrary = ({ usersPath }: { usersPath: string }) => new AppsManager(usersPath, sqliteInstance)
+export const fileSystem: InitLibrary = ({ baseDir }: { baseDir: string }) => new FileSystem(baseDir)
+export const appsManager: InitLibrary = ({ baseDir }: { baseDir: string }) => new AppsManager(baseDir, sqliteInstance)
 export const sqlite: InitLibrary = () => sqliteInstance

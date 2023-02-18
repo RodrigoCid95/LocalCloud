@@ -6,3 +6,7 @@ backend/public/js
 
 frontend/node_modules
 frontend/package-lock.json
+
+apps
+users
+data.db

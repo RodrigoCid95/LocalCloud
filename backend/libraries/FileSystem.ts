@@ -1,3 +1,6 @@
 export default class FileSystem {
-  constructor(usersPath: string) {}
+  public baseDir: string
+  constructor(baseDir: string) {
+    this.baseDir = baseDir
+  }
 }

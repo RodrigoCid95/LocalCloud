@@ -3,15 +3,15 @@ import { Prefix, Methods, On, Request, Response, Next } from 'bitis/http'
 import { UsersModel } from 'models'
 import { User } from 'types/Users'
 
-const { POST } = Methods
+const { POST, DELETE } = Methods
 
 const getOptions = (path: string) => ({ path, beforeMiddlewares: ['decrypt'], afterMiddlewares: ['encrypt'] })
 
 @Prefix('auth')
 export class AuthController {
   @Model('UsersModel') private usersModel: UsersModel
-  @On(POST, getOptions('/signin'))
-  public async signin(req: Request, res: Response) {
+  @On(POST, getOptions('/'))
+  public async login(req: Request, res: Response) {
     if (!(req.session as any).user) {
       const { name, password } = req.body
       if (name && password) {
@@ -34,8 +34,8 @@ export class AuthController {
     }
     res.json(false)
   }
-  @On(POST, '/signout')
-  public signout(req: Request, res: Response) {
+  @On(DELETE, '/')
+  public logout(req: Request, res: Response) {
     req.session.destroy(() => res.status(200).end())
   }
   public encrypt(req: Request, res: Response) {
