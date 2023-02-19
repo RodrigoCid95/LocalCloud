@@ -40,7 +40,7 @@ export default class OS {
     this.mainElement.innerHTML = '<app-loading></app-loading>'
   }
   private async launch({ packageName, containerElement = this.mainElement, clearElement = false, args = {} }: LaunchArguments, systemApp = false): Promise<Task> {
-    const manifest: ManifestResult = await (this[__SERVER__] as Server).emit<ManifestResult>('apps-manager find', { packageName, systemApp })
+    const manifest: ManifestResult = await (this[__SERVER__] as Server).emit<ManifestResult>(`apps-manager ${systemApp ? 'system' : 'user'}/manifest`, { packageName, systemApp })
     if (!manifest) {
       throw new Error(`El paquete ${packageName} no existe!`)
     }
@@ -141,7 +141,7 @@ export default class OS {
           return service
         },
         launch: this.launch.bind(this),
-        args: { a: 1, b: 2 }
+        args
       }
       if (manifest.type === 'program') {
         callbackArgs['Program'] = Program

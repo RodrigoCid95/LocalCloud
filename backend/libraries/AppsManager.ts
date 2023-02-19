@@ -18,7 +18,7 @@ export default class AppsManager implements AppsManagerClass {
       fs.mkdirSync(this.usersPath, { recursive: true })
     }
   }
-  public async install(uuid: string, packageName: string, data: Buffer, isSystemApp: boolean = false): Promise<void> {
+  public async install(uuid: string, packageName: string, data: Buffer): Promise<void> {
     const tempName = `${v4()}.zip`
     const tempPath = path.join(this.usersPath, uuid, 'temp', tempName)
     const appPath = path.join(this.usersPath, uuid, 'apps', packageName)
@@ -81,8 +81,8 @@ export default class AppsManager implements AppsManagerClass {
     const result = await this.sqlite.get<ManifestResult>(dbPath, 'apps', { packageName })
     let manifest: Manifest | null = null
     if (result) {
-      const { title, description, author, icon, services, type, tag } = result
-      manifest = { title, description, author: author ? JSON.parse(author) : null, icon, services: services ? JSON.parse(services) : null, type, tag }
+      const { packageName, title, description, author, icon, services, type, tag } = result
+      manifest = { packageName, title, description, author: author ? JSON.parse(author) : null, icon, services: services ? JSON.parse(services) : null, type, tag }
     }
     return manifest
   }
@@ -90,8 +90,8 @@ export default class AppsManager implements AppsManagerClass {
     const dbPath = path.join(this.usersPath, uuid, 'data.db')
     const manifestResults: ManifestResult[] = await this.sqlite.getAll(dbPath, 'apps')
     const results: Manifest[] = manifestResults.map(
-      ({ title, description, author, icon, services, type, tag }) =>
-        ({ title, description, author: author ? JSON.parse(author) : null, icon, services: services ? JSON.parse(services) : null, type, tag })
+      ({ packageName, title, description, author, icon, services, type, tag }) =>
+        ({ packageName, title, description, author: author ? JSON.parse(author) : null, icon, services: services ? JSON.parse(services) : null, type, tag })
     )
     return results
   }

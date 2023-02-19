@@ -9,6 +9,7 @@ export interface AppsManagerClass {
 }
 
 export type Manifest = {
+  packageName: string
   title: string
   description: string
   author: string[]

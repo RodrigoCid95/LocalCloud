@@ -58,7 +58,7 @@ export class UsersModel {
         'apps',
         [
           {
-            name: 'packagename',
+            name: 'packageName',
             type: FieldTypes.STRING,
             notNull: true,
             primaryKey: true
@@ -130,7 +130,7 @@ export class UsersModel {
       'apps',
       [
         {
-          name: 'packagename',
+          name: 'packageName',
           type: FieldTypes.STRING,
           notNull: true,
           primaryKey: true

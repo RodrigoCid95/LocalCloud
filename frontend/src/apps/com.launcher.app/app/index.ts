@@ -37,16 +37,7 @@ export default (kit: ProgramArguments) => {
         }
       }
       launcherService.getAppList().then(manifests => {
-        this[__properties__].appsList = []
-        for (const key in manifests) {
-          if (Object.prototype.hasOwnProperty.call(manifests, key)) {
-            const manifest = manifests[key]
-            this[__properties__].appsList.push({
-              packageName: key,
-              ...manifest
-            })
-          }
-        }
+        this[__properties__].appsList = manifests
         this[__properties__].renderItems()
       })
     }

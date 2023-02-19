@@ -6,20 +6,60 @@ import { AppsModel } from 'models'
 @Prefix('apps-manager')
 export class AppsController {
   @Model('AppsModel') private appsModel: AppsModel
-  @On('find')
-  public async app({ packageName, systemApp }, socket: Socket) {
-    if (systemApp) {
-      return await this.appsModel.getManifest(packageName)
-    } else {
-      const user: User | null = (socket.request as any).session?.user
-      if (user) {
+  @On('system/manifest')
+  public async getSystemManifest({ packageName }) {
+    const result = await this.appsModel.getManifest(packageName)
+    return result
+  }
+  @On('user/manifest')
+  public async getUserManifest({ packageName, uuid }, socket: Socket) {
+    const user: User | undefined = (socket.request as any).session.user
+    if (user) {
+      if (uuid) {
+        if (user.role === 'admin') {
+          return await this.appsModel.getManifest(packageName, uuid)
+        } else {
+          throw new Error('No tienes permiso para hacer esto!')
+        }
+      } else {
         return await this.appsModel.getManifest(packageName, user.uuid)
       }
-      return null
+    } else {
+      throw new Error('Es requerido un inicio de sesión!')
     }
   }
-  @On('get-all')
-  public apps(socket: Socket) {
-    return this.appsModel.getManifests(['com.app.one', 'com.app.two'])
+  @On('user/manifests')
+  public async getManifests({ uuid }, socket: Socket) {
+    const user: User | undefined = (socket?.request as any).session.user
+    if (user) {
+      if (uuid) {
+        if (user.role === 'admin') {
+          return await this.appsModel.getManifests(uuid)
+        } else {
+          throw new Error('No tienes permiso para hacer esto!')
+        }
+      } else {
+        return await this.appsModel.getManifests(user.uuid)
+      }
+    } else {
+      throw new Error('Es requerido un inicio de sesión!')
+    }
+  }
+  @On('uninstall')
+  public async uninstall({ packageName, uuid }, socket: Socket) {
+    const user: User | undefined = (socket.request as any).session.user
+    if (user) {
+      if (uuid) {
+        if (user.role === 'admin') {
+          await this.appsModel.uninstall(uuid, packageName)
+        } else {
+          throw new Error('No tienes permiso para hacer esto!')
+        }
+      } else {
+        await this.appsModel.uninstall(user.uuid, packageName)
+      }
+    } else {
+      throw new Error('Es requerido un inicio de sesión!')
+    }
   }
 }

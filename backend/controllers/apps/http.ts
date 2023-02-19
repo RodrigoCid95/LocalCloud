@@ -61,6 +61,12 @@ export class AppsController {
       res.status(500).send('El archivo adjunto no es un comprimido!')
     }
   }
+  @On(GET, '/system/manifest/:packageName')
+  public async getSystemManifest(req: Request, res: Response) {
+    const { packageName } = req.params
+    const result = await this.appsModel.getManifest(packageName)
+    res.json(result)
+  }
   @On(GET, '/user/:uuid/manifest/:packageName')
   public async getManifestByUUID(req: Request, res: Response) {
     const { user } = req.session as any
@@ -83,12 +89,6 @@ export class AppsController {
     } else {
       res.status(404).end()
     }
-  }
-  @On(GET, '/system/manifest/:packageName')
-  public async getSystemManifest(req: Request, res: Response) {
-    const { packageName } = req.params
-    const result = await this.appsModel.getManifest(packageName)
-    res.json(result)
   }
   @On(GET, '/manifests')
   public async getManifests(req: Request, res: Response) {
