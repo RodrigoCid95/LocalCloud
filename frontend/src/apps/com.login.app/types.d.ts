@@ -1,5 +1,9 @@
 import Service from "kernel/lib/Service"
 
 export interface LoginService extends Service {
-	login(): void
+	login(credential: Credential): void
+}
+export type Credential = {
+	name: string
+	password: string
 }

@@ -11,7 +11,7 @@ module.exports = async (args) => {
     console.error(`No se encontró la app ${app}!`)
     return
   }
-  const outdir = path.resolve('.', '..', 'backend', 'public', 'js', 'apps', app)
+  const outdir = path.resolve('.', '..', 'apps', app)
   if (fs.existsSync(outdir)) {
     fs.rmSync(outdir, { recursive: true, force: true })
   }
@@ -84,11 +84,11 @@ module.exports = async (args) => {
       })
     }
   }
-  const content = prod ? JSON.stringify(manifest) : JSON.stringify(manifest, null, '\t')
+  /* const content = prod ? JSON.stringify(manifest) : JSON.stringify(manifest, null, '\t')
   const manifestsPath = path.resolve('.', '..', 'backend', 'manifests')
   if (!fs.existsSync(manifestsPath)) {
     fs.mkdirSync(manifestsPath)
   }
-  fs.writeFileSync(path.join(manifestsPath, `${app}.json`), content, { encoding: 'utf8' })
+  fs.writeFileSync(path.join(manifestsPath, `${app}.json`), content, { encoding: 'utf8' }) */
   console.log('Listo!')
 }

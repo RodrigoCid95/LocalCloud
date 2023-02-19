@@ -18,6 +18,17 @@
 		]
 	},
 	"dependencies": {
-		"bitis": "github:RodrigoCid95/Bitis-Framework"
+		"bitis": "github:RodrigoCid95/Bitis-Framework",
+		"express-fileupload": "^1.4.0",
+		"express-session": "^1.17.3",
+		"sqlite3": "^5.1.4",
+		"unzipper": "^0.10.11",
+		"uuid": "^9.0.0"
+	},
+	"devDependencies": {
+		"@types/express-fileupload": "^1.4.1",
+		"@types/express-session": "^1.17.6",
+		"@types/unzipper": "^0.10.5",
+		"@types/uuid": "^9.0.0"
 	}
 }

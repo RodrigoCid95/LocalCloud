@@ -24,14 +24,14 @@ export default class OS {
   public set server(v: Server) {
     this[__SERVER__] = v
     this[__SERVER__].onConnect(async () => {
-      await this.launch({ packageName: 'com.login.app', clearElement: true })
+      await this.launch({ packageName: 'com.login.app', clearElement: true }, true)
       this[__SERVER__].on<Boolean>('auth/change', async auth => {
         if (auth) {
-          await this.launch({ packageName: 'com.desktop.app', clearElement: true })
+          await this.launch({ packageName: 'com.desktop.app', clearElement: true }, true)
         } else {
           this[__PROGRAMS__] = []
           this[__SERVICES__] = []
-          await this.launch({ packageName: 'com.login.app', clearElement: true })
+          await this.launch({ packageName: 'com.login.app', clearElement: true }, true)
         }
       })
     })
@@ -39,8 +39,8 @@ export default class OS {
   constructor(private mainElement: HTMLElement) {
     this.mainElement.innerHTML = '<app-loading></app-loading>'
   }
-  private async launch({ packageName, containerElement = this.mainElement, clearElement = false, args = {} }: LaunchArguments): Promise<Task> {
-    const manifest: ManifestResult = await (this[__SERVER__] as Server).emit<ManifestResult>('app', { packageName })
+  private async launch({ packageName, containerElement = this.mainElement, clearElement = false, args = {} }: LaunchArguments, systemApp = false): Promise<Task> {
+    const manifest: ManifestResult = await (this[__SERVER__] as Server).emit<ManifestResult>(`apps-manager ${systemApp ? 'system' : 'user'}/manifest`, { packageName, systemApp })
     if (!manifest) {
       throw new Error(`El paquete ${packageName} no existe!`)
     }
@@ -62,7 +62,7 @@ export default class OS {
           author = [],
           icon
         } = manifest.services[key]
-        const servicePath = `/js/${manifest.type === 'service' ? 'services' : 'apps'}/${packageName}/services/${key}.js`
+        const servicePath = manifest.type === 'service' ? `/service/${packageName}/index.js` : `/app/${systemApp ? 'system' : 'user'}/${packageName}/services/${key}.js` // `/${manifest.type === 'service' ? 'service' : 'app'}/${packageName}/services/${key}.js`
         const { default: callback } = await import(servicePath)
         const ClassService: typeof Service = await callback(Service)
         let service: Service = new ClassService(this[__SERVER__])
@@ -121,13 +121,13 @@ export default class OS {
       }
     }
     if (manifest.type === 'service') {
-      const servicePath = `/js/services/${packageName}/index.js`
+      const servicePath = `/service/${packageName}/index.js`
       const { default: callback } = await import(servicePath)
       const ClassService: typeof Service = await callback(Service, args)
       element = new ClassService(this[__SERVER__])
       this[__SERVICES__].push(task)
     } else {
-      const componentPath = `/js/apps/${packageName}/index.js`
+      const componentPath = `/app/${systemApp ? 'system' : 'user'}/${packageName}/index.js`
       const { default: callback } = await import(componentPath)
       const { [__SERVICES__]: SERVICES } = this
       const callbackArgs = {
@@ -141,7 +141,7 @@ export default class OS {
           return service
         },
         launch: this.launch.bind(this),
-        args: { a: 1, b: 2 }
+        args
       }
       if (manifest.type === 'program') {
         callbackArgs['Program'] = Program

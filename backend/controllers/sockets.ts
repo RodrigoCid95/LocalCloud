@@ -1,2 +1,2 @@
-export * from './apps-manager/sockets'
+export * from './apps/sockets'
 export * from './auth/sockets'
