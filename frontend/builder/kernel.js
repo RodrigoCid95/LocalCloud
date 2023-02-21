@@ -4,7 +4,7 @@ const fs = require('fs')
 
 module.exports = (args) => {
   const prod = args['prod']
-  const outdir = path.resolve('.', '..', 'backend', 'public', 'js', 'kernel')
+  const outdir = path.resolve('.', '..', 'backend', 'public', 'js')
   if (fs.existsSync(outdir)) {
     fs.rmSync(outdir, { recursive: true, force: true })
   }
