@@ -36,15 +36,13 @@ export default class Server {
   public async emit<T = {}>(event: string, data?: object): Promise<T> {
     let response: string = ''
     if (data) {
-      let strData = JSON.stringify(data)
-      const request = await this[__CIPHER__].encrypt(this[__SOCKET__].id, strData)
-      response = await new Promise(resolve => this[__SOCKET__].emit(event, { request }, resolve))
+      const request = this[__CIPHER__].isEnable() ? { request: await this[__CIPHER__].encrypt(this[__SOCKET__].id, JSON.stringify(data)) } : data
+      response = await new Promise(resolve => this[__SOCKET__].emit(event, request, resolve))
     } else {
       response = await new Promise(resolve => this[__SOCKET__].emit(event, resolve))
     }
-    const result = await this[__CIPHER__].decrypt(this[__SOCKET__].id, response)
-    const res = JSON.parse(result)
-    const { data: dataResult, error }: Response<T> = res
+    const result = this[__CIPHER__].isEnable() ? JSON.parse(await this[__CIPHER__].decrypt(this[__SOCKET__].id, response)) : response
+    const { data: dataResult, error }: Response<T> = result
     if (typeof dataResult !== 'undefined') {
       return dataResult
     }
@@ -54,9 +52,13 @@ export default class Server {
   }
   public on<T = {}>(event: string, callback: Callback<T>) {
     this[__SOCKET__].on(event, async (response: string) => {
-      const result = await this[__CIPHER__].decrypt(this[__SOCKET__].id, response)
-      const res = JSON.parse(result)
-      callback(res)
+      if (this[__CIPHER__].isEnable()) {
+        const result = await this[__CIPHER__].decrypt(this[__SOCKET__].id, response)
+        const res = JSON.parse(result)
+        callback(res)
+      } else {
+        callback(response)
+      }
     })
   }
 }
