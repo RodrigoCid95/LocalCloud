@@ -1,0 +1,16 @@
+{
+  "name": "kernel",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "builder start --input ./src --output ./dist"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "builder": "file:../builder",
+    "socket.io-client": "^4.6.1"
+  }
+}

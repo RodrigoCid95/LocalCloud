@@ -1,0 +1,16 @@
+{
+  "name": "apps",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "builder start --input ./src/com.login.app --output ./dist/com.login.app --manifest",
+    "build": "builder build --input ./src/com.login.app --output ./dist/com.login.app --manifest --zipper"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "builder": "file:../builder"
+  }
+}

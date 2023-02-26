@@ -25,6 +25,7 @@
   },
   "dependencies": {
     "lit": "^2.5.0",
-    "lit-html": "^2.5.0"
+    "lit-html": "^2.5.0",
+    "sqlite3": "^5.1.4"
   }
 }

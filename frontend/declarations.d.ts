@@ -1,9 +1,16 @@
-import OS from "kernel/lib/OS"
-import { Server } from "types"
-
-declare global {
-  interface Window {
-    os: OS
-    server: Server
-  }
+declare module "*.scss" {
+  const content: CSSStyleSheet
+  export default content
+}
+declare module "*.html" {
+  const content: string
+  export default content
+}
+declare module "*.webp" {
+  const content: string
+  export default content
+}
+declare module "*.svg" {
+  const content: string
+  export default content
 }

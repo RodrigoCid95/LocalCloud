@@ -1,0 +1,10 @@
+{
+  "title": "LocalCloud - App Two",
+  "description": "App fake de pruebas.",
+  "author": [
+    "Rodrigo Cid"
+  ],
+  "tag": "app-two",
+  "type": "app",
+  "services": {}
+}
