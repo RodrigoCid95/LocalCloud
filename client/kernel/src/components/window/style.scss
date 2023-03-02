@@ -1,0 +1,14 @@
+:host {
+  position: absolute;
+}
+
+@media (max-width: 452px) {
+  :host([fullscreen]) {
+    width: 100% !important;
+    height: 100% !important;
+    top: 0px !important;
+    left: 0px !important;
+    resize: none !important;
+    transform: unset !important;
+  }
+}

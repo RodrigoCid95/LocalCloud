@@ -23,6 +23,7 @@ export class AuthController {
           (socket.request as any).session.user = user
           await new Promise(resolve => (socket.request as any).session.save(resolve))
           socket.emit('auth/change', await this.cipherModel.encrypt(true, socket.id))
+          return 'ok!'
         }
       }
     }

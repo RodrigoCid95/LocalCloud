@@ -4,12 +4,14 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "builder start --input ./src --output ./dist"
+    "start": "builder start --input ./src --output ./../../backend/public/js",
+    "build": "builder build --input ./src --output ./../../backend/public/js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@ionic/core": "^6.6.0",
     "builder": "file:../builder",
     "socket.io-client": "^4.6.1"
   }

@@ -5,6 +5,17 @@
     "target": "ES6",
     "moduleResolution": "Node",
     "module": "ES2020",
-    "lib": ["DOM", "ES2015"]
+    "lib": [
+      "DOM",
+      "ES2017"
+    ],
+    "paths": {
+      "components/*": [
+        "components/*"
+      ],
+      "libs/*": [
+        "libs/*"
+      ]
+    }
   }
 }

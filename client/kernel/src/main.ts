@@ -1,15 +1,13 @@
-import template from './template.html'
-
 const Main = async (mainElement: HTMLElement) => {
-  mainElement.innerHTML = template
-  const { default: OS } = await import('./lib/OS')
+  const { default: OS } = await import('./OS')
   const os = new OS(mainElement)
   window.os = os
   console.log('OS =>', os)
-  const { default: Server } = await import('./lib/Server')
-  const server = new Server()
+  const { Cipher } = await import('./libs/Cipher')
+  const { default: Server } = await import('./libs/Server')
+  const server = new Server(new Cipher())
   console.log('Server =>', server)
-  os.server = server
+  os.setServer(server)
   window.server = server
 }
 

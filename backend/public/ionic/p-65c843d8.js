@@ -1,0 +1,2 @@
+import{i as o}from"./p-c57c31a3.js";import{l as s,m as a,p as w,t as i}from"./p-c03ef3ad.js";window.loadingController=s;window.modalController=a;window.pickerController=w;window.toastController=i;const p=()=>{o()};export{p as g};
+//# sourceMappingURL=p-65c843d8.js.map
