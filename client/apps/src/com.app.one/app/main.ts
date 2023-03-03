@@ -12,6 +12,8 @@ export default (kit: AppArguments) => {
     onMount() {
       this.shadowRoot.adoptedStyleSheets.push(css)
       this.innerHTML = template
+      this.querySelector('[name="minimize"]').addEventListener('click', () => this.minimize = true)
+      this.querySelector('[name="close"]').addEventListener('click', () => this.remove())
     }
   }
 }

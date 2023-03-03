@@ -1,4 +1,15 @@
-<ion-modal id="launcher">
+<ion-header slot="taskbar" style="z-index: 0;">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button name="play">
+        <ion-icon slot="icon-only" name="play-outline"></ion-icon>
+      </ion-button>
+      <div class="tasks"></div>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+<div id="desktop" slot="desktop"></div>
+<ion-modal id="launcher" slot="launcher">
   <ion-header>
     <ion-toolbar>
       <ion-title>Apps</ion-title>

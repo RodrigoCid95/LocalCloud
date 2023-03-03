@@ -1,5 +1,4 @@
 import { IOS, IServer, IServiceTask, ManifestResult, IService, ITask, LaunchArguments } from "builder"
-import Server from "libs/Server"
 import WindowComponent from "./components/window"
 
 import Service from "./Service"
@@ -87,6 +86,7 @@ export default class OS implements IOS {
       }
     }
     let element: HTMLElement | Service
+    const k = this.kill.bind(this)
     const task = {
       get PID(): string {
         return PID
@@ -116,6 +116,7 @@ export default class OS implements IOS {
         return element
       },
       async kill() {
+        k(PID)
       }
     }
     if (manifest.type === 'service') {
@@ -157,6 +158,7 @@ export default class OS implements IOS {
         const index = this[__PROGRAMS__].findIndex((task: ITask) => task.PID === PID)
         this[__PROGRAMS__].splice(index, 1)
       })
+      element.slot = 'app'
       containerElement.append(element)
       this[__PROGRAMS__].push(task)
     }
