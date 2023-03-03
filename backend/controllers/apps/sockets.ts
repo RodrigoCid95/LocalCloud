@@ -30,7 +30,7 @@ export class AppsController {
   }
   @On('user/manifests')
   public async getManifests({ uuid }, socket: Socket) {
-    const user: User | undefined = (socket?.request as any).session.user
+    const user: User | undefined = (socket?.request as any)?.session?.user
     if (user) {
       if (uuid) {
         if (user.role === 'admin') {

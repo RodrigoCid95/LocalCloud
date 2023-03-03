@@ -62,6 +62,7 @@ export interface IProgram extends HTMLElement {
 export interface IServiceManifest extends IManifest<'service'> { }
 export type ChildService = Omit<Omit<IServiceManifest, 'services'>, 'type'>
 export interface IManifest<T> {
+  packageName: string
   title: string
   description?: string
   author?: string[]
@@ -93,8 +94,6 @@ export interface IWindow extends IProgram {
   height: number
   minHeight: number
   maxHeight: number
-  withBtnMinimize: boolean
-  withBtnClose: boolean
   autoFullScreen: boolean
   readonly isFocus: boolean
   onMount?(): void | Promise<void>
@@ -113,8 +112,6 @@ export declare class WindowComponent extends Program implements IWindow {
   height: number
   minHeight: number
   maxHeight: number
-  withBtnMinimize: boolean
-  withBtnClose: boolean
   autoFullScreen: boolean
   readonly isFocus: boolean
   onMount?(): void | Promise<void>
@@ -122,3 +119,10 @@ export declare class WindowComponent extends Program implements IWindow {
 }
 export type ProgramClass = typeof Program
 export type WindowClassComponent = typeof WindowComponent
+export type AppArguments = {
+  manifest: ManifestResult
+  WindowComponent: typeof WindowComponent
+  getService<S = IService>(): S
+  launch: IOS['launch']
+  args: { [x: string]: any }
+}

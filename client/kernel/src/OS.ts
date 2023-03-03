@@ -20,13 +20,15 @@ export default class OS implements IOS {
       callback(this[__SERVER__])
       this.mainElement.innerHTML = '<app-login></app-login>'
       this[__SERVER__].on<Boolean>('auth/change', async auth => {
+        this.mainElement.innerHTML = ''
         if (auth) {
           const loading = await window.loadingController.create({message: 'Cargando escritorio ...'})
           await loading.present()
           const { default: callback } = await import('components/desktop')
-          await callback(this[__SERVER__])
-          this.mainElement.innerHTML = '<app-desktop></app-desktop>'
-          await loading.dismiss()
+          await callback(this[__SERVER__], this.launch.bind(this))
+          const appDesktop = document.createElement('app-desktop')
+          this.mainElement.append(appDesktop)
+          appDesktop.addEventListener('onReady', () => loading.dismiss())
         } else {
           this[__PROGRAMS__] = []
           this[__SERVICES__] = []
@@ -36,7 +38,7 @@ export default class OS implements IOS {
     })
   }
   public async launch({ packageName, containerElement = this.mainElement, clearElement = false, args = {} }: LaunchArguments): Promise<ITask> {
-    const manifest: ManifestResult = await (this[__SERVER__] as Server).emit<ManifestResult>(`apps-manager user/manifest`, { packageName })
+    const manifest: ManifestResult = await (this[__SERVER__] as IServer).emit<ManifestResult>(`apps-manager user/manifest`, { packageName })
     if (!manifest) {
       throw new Error(`El paquete ${packageName} no existe!`)
     }
@@ -117,13 +119,13 @@ export default class OS implements IOS {
       }
     }
     if (manifest.type === 'service') {
-      const servicePath = `/service/${packageName}/index.js`
+      const servicePath = `/service/${packageName}/main.js`
       const { default: callback } = await import(servicePath)
       const ClassService: typeof Service = await callback(Service, args)
       element = new ClassService(this[__SERVER__])
       this[__SERVICES__].push(task)
     } else {
-      const componentPath = `/app/user/${packageName}/index.js`
+      const componentPath = `/app/user/${packageName}/main.js`
       const { default: callback } = await import(componentPath)
       const { [__SERVICES__]: SERVICES } = this
       const callbackArgs = {

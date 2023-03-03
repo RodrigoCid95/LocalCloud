@@ -1,8 +1,13 @@
 :host {
   position: absolute;
+  flex-direction: column;
+  outline: 1px solid #222428;
+  overflow: hidden;
+  height: 85%;
+  width: 500px;
 }
 
-@media (max-width: 452px) {
+@media (max-width: 576px) {
   :host([fullscreen]) {
     width: 100% !important;
     height: 100% !important;

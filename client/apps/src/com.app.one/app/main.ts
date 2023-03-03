@@ -1,4 +1,4 @@
-import { AppArguments } from 'types'
+import { AppArguments } from 'builder'
 import css from './style.scss'
 import template from './template.html'
 
@@ -7,17 +7,11 @@ export default (kit: AppArguments) => {
   return class AppOneProgram extends WindowComponent {
     constructor() {
       super()
-      this.text = 'Test Application One'
       this.isResize = true
-      this.withBtnMinimize = true
-      this.withBtnClose = true
     }
-    connectedCallback() {
-      super.connectedCallback()
+    onMount() {
       this.shadowRoot.adoptedStyleSheets.push(css)
-    }
-    renderContent() {
-      return template
+      this.innerHTML = template
     }
   }
 }

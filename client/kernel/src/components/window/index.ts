@@ -43,10 +43,6 @@ export default class WindowComponent extends Program implements IWindow {
   }
   public set text(v: string) {
     this[__properties__].text = v
-    const textElement = this.shadowRoot.querySelector('ion-header ion-toolbar ion-title')
-    if (textElement) {
-      textElement.innerHTML = this[__properties__].text
-    }
   }
   public get text(): string {
     return this[__properties__].text
@@ -75,7 +71,7 @@ export default class WindowComponent extends Program implements IWindow {
   public set minimize(v: boolean) {
     this[__properties__].minimize = v
     if (this.isConnected) {
-      this.style.display = v ? 'none' : 'unset'
+      this.style.display = v ? 'none' : 'flex'
       if (v) {
         this.focus()
       } else {
@@ -143,46 +139,6 @@ export default class WindowComponent extends Program implements IWindow {
   public get maxHeight(): number {
     return this[__properties__].height.max
   }
-  public set withBtnMinimize(v: boolean) {
-    if (v) {
-      this[__properties__].btnMinimize = document.createElement('div')
-      this[__properties__].btnMinimize.classList.add('minimize')
-      this[__properties__].btnMinimize.addEventListener('click', () => this.minimize = true)
-      if (this.isConnected) {
-        this.shadowRoot.querySelector('.toolbar .buttons section:nth-child(1)').append(this[__properties__].btnMinimize)
-      }
-    } else {
-      if (this[__properties__].btnMinimize) {
-        if (this.isConnected) {
-          this[__properties__].btnMinimize.remove()
-        }
-        delete this[__properties__].btnMinimize
-      }
-    }
-  }
-  public get withBtnMinimize(): boolean {
-    return this[__properties__].btnMinimize !== undefined
-  }
-  public set withBtnClose(v: boolean) {
-    if (v) {
-      this[__properties__].btnClose = document.createElement('div')
-      this[__properties__].btnClose.classList.add('close')
-      this[__properties__].btnClose.addEventListener('click', () => this.remove())
-      if (this.isConnected) {
-        this.shadowRoot.querySelector('.toolbar .buttons section:nth-child(2)').append(this[__properties__].btnClose)
-      }
-    } else {
-      if (this[__properties__].btnClose) {
-        if (this.isConnected) {
-          this[__properties__].btnClose.remove()
-        }
-        delete this[__properties__].btnClose
-      }
-    }
-  }
-  public get withBtnClose(): boolean {
-    return this[__properties__].btnClose !== undefined
-  }
   public set autoFullScreen(v: boolean) {
     this[__properties__].autoFullScreen = v
     if (this.isConnected) {
@@ -219,7 +175,7 @@ export default class WindowComponent extends Program implements IWindow {
     const _this: any = this
     _this.shadowRoot.innerHTML = template
     if (_this.renderContent) {
-      this.shadowRoot.querySelector('ion-content').innerHTML = _this.renderContent()
+      this.innerHTML = _this.renderContent()
     }
     requestAnimationFrame(() => {
       if (this.isConnected) {
@@ -233,7 +189,7 @@ export default class WindowComponent extends Program implements IWindow {
         this.isResize = this.isResize
       }
     })
-    const toolbarElement = this.shadowRoot.querySelector('ion-header')
+    const toolbarElement = this.shadowRoot.querySelector('slot[name="toolbar"]')
     const dragStart = (e: MouseEvent | TouchEvent) => {
       if (this[__properties__].draggable && this[__properties__].autoFullScreen && !this[__properties__].matchMedia.matches) {
         if (e instanceof MouseEvent) {
@@ -287,8 +243,6 @@ export default class WindowComponent extends Program implements IWindow {
       this.dispatchEvent(new CustomEvent('onResize'))
     })
     this[__properties__].resizeObserver.observe(this)
-    this.withBtnMinimize = this.withBtnMinimize
-    this.withBtnClose = this.withBtnClose
     this.autoFullScreen = this.autoFullScreen
     requestAnimationFrame(() => {
       if (this[__properties__].matchMedia.matches && this.autoFullScreen) {
@@ -298,7 +252,7 @@ export default class WindowComponent extends Program implements IWindow {
     if (_this.onMount) {
       await _this.onMount()
     }
-    this.style.display = 'unset'
+    this.style.display = 'flex'
   }
   disconnectedCallback() {
     super.disconnectedCallback()
