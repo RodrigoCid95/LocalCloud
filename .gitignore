@@ -4,9 +4,6 @@ backend/package-lock.json
 backend/manifests
 backend/public/js
 
-frontend/node_modules
-frontend/package-lock.json
-
 client/apps/dist
 client/apps/node_modules
 client/apps/package-lock.json
@@ -18,9 +15,5 @@ client/kernel/dist
 client/kernel/node_modules
 client/kernel/package-lock.json
 
-apps/com.desktop.app
-apps/com.launcher.app
-apps/com.login.app
-apps/com.taskbar.app
 users
 data.db

@@ -1,10 +1,16 @@
 :host {
   position: absolute;
-  flex-direction: column;
   outline: 1px solid #222428;
-  overflow: hidden;
   height: 85%;
   width: 500px;
+  overflow: hidden;
+}
+
+slot {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: auto;
 }
 
 @media (max-width: 576px) {

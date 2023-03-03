@@ -11,7 +11,7 @@ export default class WindowComponent extends Program implements IWindow {
     icon: '',
     draggable: true,
     move: false,
-    resize: false,
+    resize: true,
     minimize: false,
     position: {
       isDragging: false,
@@ -71,7 +71,7 @@ export default class WindowComponent extends Program implements IWindow {
   public set minimize(v: boolean) {
     this[__properties__].minimize = v
     if (this.isConnected) {
-      this.style.display = v ? 'none' : 'flex'
+      this.style.display = v ? 'none' : 'block'
       if (v) {
         this.focus()
       } else {
@@ -189,7 +189,7 @@ export default class WindowComponent extends Program implements IWindow {
         this.isResize = this.isResize
       }
     })
-    const toolbarElement = this.shadowRoot.querySelector('slot[name="toolbar"]')
+    const toolbarElement = this.shadowRoot.querySelector('slot')
     const dragStart = (e: MouseEvent | TouchEvent) => {
       if (this[__properties__].draggable && this[__properties__].autoFullScreen && !this[__properties__].matchMedia.matches) {
         if (e instanceof MouseEvent) {
@@ -252,7 +252,7 @@ export default class WindowComponent extends Program implements IWindow {
     if (_this.onMount) {
       await _this.onMount()
     }
-    this.style.display = 'flex'
+    this.style.display = 'block'
   }
   disconnectedCallback() {
     super.disconnectedCallback()

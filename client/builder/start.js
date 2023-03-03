@@ -12,7 +12,7 @@ const getOpts = (entryPoints, outdir) => ({
   sourcemap: true,
   plugins,
   minify: false,
-  loader: { '.webp': 'dataurl' }
+  loader: { '.webp': 'dataurl', '.svg': 'dataurl' }
 })
 
 module.exports = async ({ input, output, manifest }) => {

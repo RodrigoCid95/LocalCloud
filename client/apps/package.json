@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "builder start --input ./src/com.login.app --output ./dist/com.login.app --manifest",
-    "build": "builder build --input ./src/com.login.app --output ./dist/com.login.app --manifest --zipper"
+    "start": "builder start --manifest",
+    "build": "builder build --manifest --zipper"
   },
   "keywords": [],
   "author": "",

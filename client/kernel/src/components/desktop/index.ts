@@ -4,6 +4,7 @@ import OS from "OS"
 import css from './style.scss'
 import template from './template.html'
 import shadow from './shadow.html'
+import iconApp from './app.svg'
 
 export default async (server: IServer, launch: OS['launch']) => {
   window.customElements.define('app-desktop', class AppDesktop extends HTMLElement {
@@ -30,6 +31,7 @@ export default async (server: IServer, launch: OS['launch']) => {
           }
         })
       }
+      console.log(manifestResults)
       for (const manifest of manifestResults) {
         const item = document.createElement('ion-item')
         item.innerHTML = `<ion-thumbnail slot="start"><img alt="${manifest.packageName}" src="${manifest.icon}" /></ion-thumbnail><ion-label>${manifest.title}</ion-label>`
@@ -41,7 +43,7 @@ export default async (server: IServer, launch: OS['launch']) => {
             (element as IWindow).tabIndex = this.querySelectorAll('[slot="app"]').length;
             (element as IWindow).style.zIndex = (element as IWindow).tabIndex.toString()
             const btnTask = document.createElement('ion-chip')
-            btnTask.innerHTML = `<ion-avatar><img alt="${name}" src="${icon}" /></ion-avatar><ion-label>${title}</ion-label><ion-icon name="close-circle"></ion-icon>`
+            btnTask.innerHTML = `<ion-avatar><img alt="${name}" src="${icon || iconApp}" /></ion-avatar><ion-label>${title}</ion-label><ion-icon name="close-circle"></ion-icon>`
             element.addEventListener('onClose', () => {
               btnTask.remove()
               orderIndexes((element.tabIndex + 1))

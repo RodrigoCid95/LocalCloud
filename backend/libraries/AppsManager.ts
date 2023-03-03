@@ -45,7 +45,7 @@ export default class AppsManager implements AppsManagerClass {
         const manifestData = JSON.parse(fs.readFileSync(manifestPath, { encoding: 'utf8' }))
         fs.rmSync(manifestPath, { force: true })
         const { title, description, author, icon, services = {}, type, tag, appSystem } = manifestData
-        if (!title || !icon || !type || !tag) {
+        if (!title || !type || !tag) {
           revert()
           throw new Error('Error de instalación')
         }
