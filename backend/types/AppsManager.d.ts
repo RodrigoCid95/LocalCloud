@@ -3,7 +3,6 @@ export interface AppsManagerClass {
   systemAppsPath: string
   install(uuid: string, packageName: string, data: Buffer): Promise<void>
   getManifest(packageName: string, uuid: string): Promise<Manifest | null>
-  getSystemManifest(packageName: string): Promise<Manifest | null>
   getManifests(uuid: string): Promise<Manifest[]>
   uninstall(uuid: string, packageName: string): Promise<void>
 }

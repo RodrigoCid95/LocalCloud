@@ -3,15 +3,10 @@ import { Model } from 'bitis/core'
 import { On, Prefix, Socket } from 'bitis/web-sockets'
 import { AppsModel } from 'models'
 
-@Prefix('apps-manager')
+@Prefix('apps')
 export class AppsController {
   @Model('AppsModel') private appsModel: AppsModel
-  @On('system/manifest')
-  public async getSystemManifest({ packageName }) {
-    const result = await this.appsModel.getManifest(packageName)
-    return result
-  }
-  @On('user/manifest')
+  @On('manifest')
   public async getUserManifest({ packageName, uuid }, socket: Socket) {
     const user: User | undefined = (socket.request as any).session.user
     if (user) {
@@ -28,7 +23,7 @@ export class AppsController {
       throw new Error('Es requerido un inicio de sesión!')
     }
   }
-  @On('user/manifests')
+  @On('manifests')
   public async getManifests({ uuid }, socket: Socket) {
     const user: User | undefined = (socket?.request as any)?.session?.user
     if (user) {

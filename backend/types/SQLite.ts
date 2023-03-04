@@ -13,7 +13,7 @@ export type FieldDefinition = {
   unique?: boolean
 }
 
-export interface SQLiteClass {
+export interface ISQLite {
   createTable(dbPath: string, nameTable: string, definitions: FieldDefinition[]): Promise<void>
   insert(dbPath: string, nameTable: string, newData: { [x: string]: string | number | boolean | null }): Promise<void>
   getAll<T = {}>(dbPath: string, nameTable: string): Promise<T[]>

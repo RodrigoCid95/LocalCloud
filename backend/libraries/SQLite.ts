@@ -1,7 +1,7 @@
-import { FieldDefinition, FieldTypes, SQLiteClass } from 'types/SQLite'
+import { FieldDefinition, FieldTypes, ISQLite } from 'types/SQLite'
 import { sqlite3, verbose } from 'sqlite3'
 
-export default class SQLite implements SQLiteClass {
+export default class SQLite implements ISQLite {
   private sqlite3: sqlite3
   constructor() {
     this.sqlite3 = verbose()

@@ -17,10 +17,6 @@ const systemDB = path.join(baseDir, 'data.db')
 if (!fs.existsSync(systemDB)) {
   fs.writeFileSync(systemDB, '', { encoding: 'utf8' })
 }
-const appsDir = path.join(baseDir, 'apps')
-if (!fs.existsSync(appsDir)) {
-  fs.mkdirSync(appsDir, { recursive: true })
-}
 const sessionMiddleware = session({ secret: v4(), saveUninitialized: true, resave: true })
 
 export const bitisHttpConfig: BitisHTTPConfigProfile = {
@@ -63,5 +59,3 @@ export const bitisSocketsConfig: BitisSocketsConfig = {
 }
 
 export const fileSystem = { baseDir }
-
-export const appsManager = { baseDir }

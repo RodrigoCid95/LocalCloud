@@ -3,9 +3,9 @@ import { Model } from 'bitis/core'
 import { Prefix, Methods, On, Request, Response } from 'bitis/http'
 import { AppsModel } from 'models'
 
-const { GET, POST, DELETE } = Methods
+const { GET, POST } = Methods
 
-@Prefix('apps-manager')
+@Prefix('apps')
 export class AppsController {
   @Model('AppsModel') private appsModel: AppsModel
   @On(POST, '/')
@@ -61,36 +61,7 @@ export class AppsController {
       res.status(500).send('El archivo adjunto no es un comprimido!')
     }
   }
-  @On(GET, '/system/manifest/:packageName')
-  public async getSystemManifest(req: Request, res: Response) {
-    const { packageName } = req.params
-    const result = await this.appsModel.getManifest(packageName)
-    res.json(result)
-  }
-  @On(GET, '/user/:uuid/manifest/:packageName')
-  public async getManifestByUUID(req: Request, res: Response) {
-    const { user } = req.session as any
-    if (user && user.role === 'admin') {
-      const { uuid, packageName } = req.params
-      const result = await this.appsModel.getManifest(packageName, uuid)
-      res.json(result)
-    } else {
-      res.status(404).end()
-    }
-  }
-  @On(GET, '/user/manifest/:packageName')
-  public async getManifest(req: Request, res: Response) {
-    const { user } = req.session as any
-    if (user) {
-      const { uuid } = user
-      const { packageName } = req.params
-      const result = await this.appsModel.getManifest(packageName, uuid)
-      res.json(result)
-    } else {
-      res.status(404).end()
-    }
-  }
-  @On(GET, '/manifests')
+  @On(GET, '/')
   public async getManifests(req: Request, res: Response) {
     const { user }: { user: User | null } = req.session as any
     if (user) {
@@ -100,7 +71,7 @@ export class AppsController {
       res.status(404).end()
     }
   }
-  @On(GET, '/:uuid/manifests')
+  @On(GET, '/:uuid')
   public async getManifestsByUUID(req: Request, res: Response) {
     const { user }: { user: User | null } = req.session as any
     if (user?.role === 'admin') {
@@ -109,41 +80,6 @@ export class AppsController {
       res.json(results)
     } else {
       res.status(404).end()
-    }
-  }
-  @On(DELETE, '/:packageName')
-  public async uninstall(req: Request, res: Response) {
-    const { user } = req.session as any
-    if (!user) {
-      res.status(500).send('Inicio de sesión requerido!')
-      return
-    }
-    const { uuid } = user
-    const { packageName } = req.params
-    try {
-      await this.appsModel.uninstall(uuid, packageName)
-      res.status(200).end()
-    } catch ({ message }) {
-      res.status(500).send(message)
-    }
-  }
-  @On(DELETE, '/:uuid/:packageName')
-  public async uninstallByUUID(req: Request, res: Response) {
-    const { user } = req.session as any
-    if (!user) {
-      res.status(500).send('Inicio de sesión requerido!')
-      return
-    }
-    if (user.role !== 'admin') {
-      res.status(500).send('No tienes permiso para hacer esto!')
-      return
-    }
-    const { uuid, packageName } = req.params
-    try {
-      await this.appsModel.uninstall(uuid, packageName)
-      res.status(200).end()
-    } catch ({ message }) {
-      res.status(500).send(message)
     }
   }
 }

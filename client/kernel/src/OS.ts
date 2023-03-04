@@ -37,7 +37,7 @@ export default class OS implements IOS {
     })
   }
   public async launch({ packageName, containerElement = this.mainElement, clearElement = false, args = {} }: LaunchArguments): Promise<ITask> {
-    const manifest: ManifestResult = await (this[__SERVER__] as IServer).emit<ManifestResult>(`apps-manager user/manifest`, { packageName })
+    const manifest: ManifestResult = await (this[__SERVER__] as IServer).emit<ManifestResult>(`apps manifest`, { packageName })
     if (!manifest) {
       throw new Error(`El paquete ${packageName} no existe!`)
     }
@@ -59,7 +59,7 @@ export default class OS implements IOS {
           author = [],
           icon
         } = manifest.services[key]
-        const servicePath = manifest.type === 'service' ? `/service/${packageName}/index.js` : `/app/user/${packageName}/services/${key}.js` // `/${manifest.type === 'service' ? 'service' : 'app'}/${packageName}/services/${key}.js`
+        const servicePath = manifest.type === 'service' ? `/service/${packageName}/index.js` : `/app/${packageName}/services/${key}.js` // `/${manifest.type === 'service' ? 'service' : 'app'}/${packageName}/services/${key}.js`
         const { default: callback } = await import(servicePath)
         const ClassService: typeof Service = await callback(Service)
         let service: Service = new ClassService(this[__SERVER__])
@@ -126,7 +126,7 @@ export default class OS implements IOS {
       element = new ClassService(this[__SERVER__])
       this[__SERVICES__].push(task)
     } else {
-      const componentPath = `/app/user/${packageName}/main.js`
+      const componentPath = `/app/${packageName}/main.js`
       const { default: callback } = await import(componentPath)
       const { [__SERVICES__]: SERVICES } = this
       const callbackArgs = {

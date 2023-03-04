@@ -1,16 +1,16 @@
 import { NewUser, User, ResultUser } from "types/Users"
 import { CipherClass } from "types/Cipher"
-import { FieldTypes, SQLiteClass } from 'types/SQLite'
-import { FileSystem } from "types/FileSystem"
+import { FieldTypes, ISQLite } from 'types/SQLite'
+import { IFileSystem } from "types/FileSystem"
 import fs from 'fs'
 import path from 'path'
 import { Lib } from "bitis/core"
 import { v4 } from 'uuid'
 
 export class UsersModel {
-  @Lib('sqlite') private sqlite: SQLiteClass
+  @Lib('sqlite') private sqlite: ISQLite
   @Lib('cipher') public cipher: CipherClass
-  @Lib('fileSystem') private fileSystem: FileSystem
+  @Lib('fileSystem') private fileSystem: IFileSystem
   private usersPath: string
   private systemDBPath: string
   constructor() {

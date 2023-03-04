@@ -1,3 +1,3 @@
-export interface FileSystem {
+export interface IFileSystem {
   baseDir: string
 }

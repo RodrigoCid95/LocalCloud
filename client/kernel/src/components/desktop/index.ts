@@ -17,7 +17,7 @@ export default async (server: IServer, launch: OS['launch']) => {
       this.shadowRoot.innerHTML = shadow
       this.innerHTML = template
       const modalLauncher: IonModal = this.querySelector('#launcher')
-      const manifestResults: ManifestResult[] = (await server.emit<ManifestResult[]>('apps-manager user/manifests', {})) || []
+      const manifestResults: ManifestResult[] = (await server.emit<ManifestResult[]>('apps manifests', {})) || []
       const modalLauncherContent = modalLauncher.querySelector('ion-content')
       modalLauncherContent.innerHTML = ''
       const orderIndexes = (start: number) => {
