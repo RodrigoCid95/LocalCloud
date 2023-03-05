@@ -31,11 +31,10 @@ export default async (server: IServer, launch: OS['launch']) => {
           }
         })
       }
-      console.log(manifestResults)
       for (const manifest of manifestResults) {
         const item = document.createElement('ion-item')
-        item.innerHTML = `<ion-thumbnail slot="start"><img alt="${manifest.packageName}" src="${manifest.icon}" /></ion-thumbnail><ion-label>${manifest.title}</ion-label>`
-        item.style.cursor = 'pointer'
+        item.setAttribute('button', '')
+        item.innerHTML = `<ion-thumbnail slot="start"><img alt="${manifest.packageName}" src="${manifest.icon}" /></ion-thumbnail><ion-label>${manifest.title}<p>${manifest.description}</p></ion-label>`
         item.addEventListener('click', async () => {
           modalLauncher.dismiss()
           const { icon, name, title, kill, element } = await launch({ packageName: manifest.packageName, containerElement: this })

@@ -12,5 +12,8 @@
   "license": "ISC",
   "devDependencies": {
     "builder": "file:../builder"
+  },
+  "dependencies": {
+    "@ionic/core": "^6.6.0"
   }
 }

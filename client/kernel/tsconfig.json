@@ -7,7 +7,7 @@
     "module": "ES2020",
     "lib": [
       "DOM",
-      "ES2017"
+      "es2021"
     ],
     "paths": {
       "components/*": [

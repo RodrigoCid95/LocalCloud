@@ -1,4 +1,4 @@
-import { IOS, IServer, IServiceTask, ManifestResult, IService, ITask, LaunchArguments } from "builder"
+import { IOS, IServer, IServiceTask, ManifestResult, IService, ITask, LaunchArguments, IWindow, AppResult, IController, ClassController, GetService } from "builder"
 import WindowComponent from "./components/window"
 
 import Service from "./Service"
@@ -11,7 +11,7 @@ export default class OS implements IOS {
   [__SERVER__]: IServer | null = null;
   [__PROGRAMS__] = [];
   [__SERVICES__] = [];
-  constructor(private mainElement: HTMLElement) {}
+  constructor(private mainElement: HTMLElement) { }
   setServer(server: IServer): void {
     this[__SERVER__] = server
     this[__SERVER__].onConnect(async () => {
@@ -21,7 +21,7 @@ export default class OS implements IOS {
       this[__SERVER__].on<Boolean>('auth/change', async auth => {
         this.mainElement.innerHTML = ''
         if (auth) {
-          const loading = await window.loadingController.create({message: 'Cargando escritorio ...'})
+          const loading = await window.loadingController.create({ message: 'Cargando escritorio ...' })
           await loading.present()
           const { default: callback } = await import('components/desktop')
           await callback(this[__SERVER__], this.launch.bind(this))
@@ -36,7 +36,7 @@ export default class OS implements IOS {
       })
     })
   }
-  public async launch({ packageName, containerElement = this.mainElement, clearElement = false, args = {} }: LaunchArguments): Promise<ITask> {
+  public async launch({ packageName, containerElement = this.mainElement, args = {} }: LaunchArguments): Promise<ITask> {
     const manifest: ManifestResult = await (this[__SERVER__] as IServer).emit<ManifestResult>(`apps manifest`, { packageName })
     if (!manifest) {
       throw new Error(`El paquete ${packageName} no existe!`)
@@ -119,6 +119,14 @@ export default class OS implements IOS {
         k(PID)
       }
     }
+    const getService = (serviceName: string) => {
+      const { [__SERVICES__]: SERVICES } = this
+      let service: IService | undefined = services.find(({ name }) => name === serviceName)?.service
+      if (!service) {
+        service = SERVICES.find(({ name }) => name === serviceName)?.service
+      }
+      return service
+    }
     if (manifest.type === 'service') {
       const servicePath = `/service/${packageName}/main.js`
       const { default: callback } = await import(servicePath)
@@ -126,40 +134,77 @@ export default class OS implements IOS {
       element = new ClassService(this[__SERVER__])
       this[__SERVICES__].push(task)
     } else {
+      const { type } = manifest
       const componentPath = `/app/${packageName}/main.js`
-      const { default: callback } = await import(componentPath)
-      const { [__SERVICES__]: SERVICES } = this
-      const callbackArgs = {
-        manifest,
-        WindowComponent,
-        getService(serviceName: string) {
-          let service: IService = services.find(({ name }) => name === serviceName)?.service
-          if (!service) {
-            service = SERVICES.find(({ name }) => name === serviceName)?.service
+      const { App, Views }: AppResult = await import(componentPath)
+      const defineComponent = (Controller: typeof ClassController) => {
+        if (window.customElements.get(Controller.tag) === undefined) {
+          window.customElements.define(Controller.tag, class extends HTMLElement {
+            constructor() {
+              super()
+              if (Controller.shadow) {
+                this.attachShadow({ mode: 'open' })
+              }
+            }
+            connectedCallback() {
+              if (Controller.shadow) {
+                this.shadowRoot.innerHTML = Controller.shadow
+              }
+              if (Controller.css) {
+                this.shadowRoot.adoptedStyleSheets.push(Controller.css)
+              }
+              this.innerHTML = Controller.template
+              const controller = new Controller();
+              (controller as any).getService = getService
+              controller.element = this
+              if (controller.onMount) {
+                controller.onMount()
+              }
+            }
+          })
+        }
+      }
+      const packageTag = packageName.replaceAll('.', '-')
+      if (type === 'app') {
+        if (Views) {
+          defineComponent(App)
+          const keys = Object.keys(Views)
+          for (const key of keys) {
+            const Controller = Views[key]
+            defineComponent(Controller)
           }
-          return service
-        },
-        launch: this.launch.bind(this),
-        args
+        }
+        const tag = Views ? packageTag : App.tag || packageTag
+        if (window.customElements.get(tag) === undefined) {
+          window.customElements.define(tag, class extends WindowComponent implements IWindow {
+            onMount() {
+              this.innerHTML = Views ? `<ion-nav root="${App.tag}"></ion-nav>` : App.template || ''
+              if (!Views) {
+                if (App.css) {
+                  this.shadowRoot.adoptedStyleSheets.push(App.css)
+                }
+                const controller = new App(args);
+                (controller as any).getService = getService
+                controller.element = this
+                if (controller.onMount) {
+                  controller.onMount()
+                }
+              }
+            }
+          })
+        }
+        element = document.createElement(tag)
+        element.addEventListener('onClose', () => {
+          const index = this[__PROGRAMS__].findIndex((task: ITask) => task.PID === PID)
+          this[__PROGRAMS__].splice(index, 1)
+        })
+        element.slot = 'app'
+        containerElement.append(element)
       }
-      if (manifest.type === 'program') {
-        callbackArgs['Program'] = Program
+      if (type === 'program') {
+        console.error('Aún no hay soporte para programas!')
+        return
       }
-      const ClassCommponent = await callback(callbackArgs)
-      if (customElements.get(manifest.tag) === undefined) {
-        customElements.define(manifest.tag, ClassCommponent)
-      }
-      element = document.createElement(manifest.tag);
-      (element as any).icon = manifest.icon
-      if (clearElement) {
-        containerElement.innerHTML = ''
-      }
-      element.addEventListener('onClose', () => {
-        const index = this[__PROGRAMS__].findIndex((task: ITask) => task.PID === PID)
-        this[__PROGRAMS__].splice(index, 1)
-      })
-      element.slot = 'app'
-      containerElement.append(element)
       this[__PROGRAMS__].push(task)
     }
     return task

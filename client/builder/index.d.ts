@@ -33,7 +33,6 @@ export interface IServer {
 export type LaunchArguments = {
   packageName: string
   containerElement?: HTMLElement
-  clearElement?: boolean
   args?: { [x: string]: any }
 }
 type BasedTask = {
@@ -46,6 +45,11 @@ type BasedTask = {
 export interface IService {
   onKill(): void | Promise<void>
 }
+export declare class ServiceClass implements IService {
+  server: IServer
+  onKill(): void | Promise<void>
+}
+export type TService = typeof ServiceClass
 export interface ITask extends BasedTask {
   readonly PID: string
   readonly services: IService[]
@@ -72,10 +76,9 @@ export interface IManifest<T> {
   }
   type: T
 }
-export interface IProgramManifest<T = 'program'> extends IManifest<T> {
-  tag: string
+export interface IProgramManifest extends IManifest<'program'> {
 }
-export interface IAppManifest extends IProgramManifest<'app'> { }
+export interface IAppManifest extends IManifest<'app'> { }
 export type ManifestResult = IProgramManifest | IAppManifest | IServiceManifest | undefined
 export interface IOS {
   setServer(server: IServer): void
@@ -97,7 +100,6 @@ export interface IWindow extends IProgram {
   autoFullScreen: boolean
   readonly isFocus: boolean
   onMount?(): void | Promise<void>
-  renderContent?(): string
 }
 export declare class Program extends HTMLElement implements IProgram { }
 export declare class WindowComponent extends Program implements IWindow {
@@ -115,14 +117,33 @@ export declare class WindowComponent extends Program implements IWindow {
   autoFullScreen: boolean
   readonly isFocus: boolean
   onMount?(): void | Promise<void>
-  renderContent?(): string
 }
 export type ProgramClass = typeof Program
 export type WindowClassComponent = typeof WindowComponent
-export type AppArguments = {
+export type GetService = <S = IService>(serviceNAme: string) => S | undefined
+export interface ProgramArguments {
   manifest: ManifestResult
-  WindowComponent: typeof WindowComponent
-  getService<S = IService>(): S
+  getService: GetService
   launch: IOS['launch']
   args: { [x: string]: any }
+  WindowComponent: typeof WindowComponent
+}
+export interface IController {
+  element: HTMLElement
+  getService?: <S = IService>(serviceNAme: string) => S
+  onMount: () => void | Promise<void>
+}
+export declare class ClassController {
+  static tag: string
+  static template: string
+  static shadow?: string
+  static css?: CSSStyleSheet
+  element: HTMLElement
+  getService?: <S = IService>(serviceNAme: string) => S | undefined
+  onMount: () => void | Promise<void>
+  constructor(args?: { [x: string]: any })
+}
+export type AppResult = {
+  App: typeof ClassController,
+  Views?: { [x: string]: typeof ClassController }
 }

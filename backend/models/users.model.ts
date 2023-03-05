@@ -89,12 +89,6 @@ export class UsersModel {
             name: 'type',
             type: FieldTypes.STRING,
             notNull: true
-          },
-          {
-            name: 'tag',
-            type: FieldTypes.STRING,
-            notNull: true,
-            unique: true
           }
         ]
       )

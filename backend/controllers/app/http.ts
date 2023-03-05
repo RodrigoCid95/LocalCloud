@@ -20,7 +20,7 @@ export class AppController {
       res.status(404).end()
     }
   }
-  @On(GET, '/:uuid/:packageName')
+  @On(GET, '/user/:uuid/:packageName')
   public async manifestByUUID(req: Request, res: Response) {
     const { uuid, packageName } = req.params
     const { user } = req.session as any
@@ -36,7 +36,6 @@ export class AppController {
     const file = req.params[0]
     const { user } = req.session as any
     if (file && user) {
-      debugger
       const { packageName } = req.params
       const baseDir = this.appsModel.resolveAppDir(packageName, user.uuid)
       const filePath = path.resolve(baseDir, file)

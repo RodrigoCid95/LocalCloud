@@ -174,9 +174,6 @@ export default class WindowComponent extends Program implements IWindow {
     this.maxHeight = this.maxHeight
     const _this: any = this
     _this.shadowRoot.innerHTML = template
-    if (_this.renderContent) {
-      this.innerHTML = _this.renderContent()
-    }
     requestAnimationFrame(() => {
       if (this.isConnected) {
         const x = (this.parentElement.clientWidth - this.clientWidth) / 2

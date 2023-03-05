@@ -18,7 +18,8 @@
   const command = argv[0]
   const { input, output, manifest = false, zipper = false } = args
   if ((command === 'start' || command === 'build') && input && output) {
+    const path = require('path')
     const builder = require(`./${command}.js`)
-    builder({ input, output, manifest, zipper })
+    builder({ input: path.resolve(process.cwd(), input), output: path.resolve(process.cwd(), output), manifest, zipper })
   }
 })(process.argv.slice(2))
