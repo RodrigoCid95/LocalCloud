@@ -3,7 +3,6 @@ import template from './template.html'
 
 export default class AppOne implements IController {
   static template = template
-  static tag = 'app-one-index'
   getService: GetService
   element: WindowComponent
   constructor(args: object) {

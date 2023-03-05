@@ -1,11 +1,8 @@
 import { IWindow } from 'builder'
-
-import Program from 'libs/Program'
 import css from './style.scss'
-import template from './template.html'
 
 const __properties__ = Symbol()
-export default class WindowComponent extends Program implements IWindow {
+export default class WindowComponent extends HTMLElement implements IWindow {
   [__properties__] = {
     text: '',
     icon: '',
@@ -22,7 +19,6 @@ export default class WindowComponent extends Program implements IWindow {
       xOffset: 0,
       yOffset: 0
     },
-    template,
     isFocus: false,
     width: {
       value: 0,
@@ -41,6 +37,7 @@ export default class WindowComponent extends Program implements IWindow {
     callbackAutoFullScreen: undefined,
     matchMedia: window.matchMedia('(max-width: 452px)')
   }
+  onMount?: () => void | Promise<void>
   public set text(v: string) {
     this[__properties__].text = v
   }
@@ -154,6 +151,7 @@ export default class WindowComponent extends Program implements IWindow {
   }
   constructor() {
     super()
+    this.attachShadow({ mode: 'open' })
     this[__properties__].callbackAutoFullScreen = ({ matches }) => {
       if (matches) {
         this.setAttribute('fullscreen', '')
@@ -163,7 +161,6 @@ export default class WindowComponent extends Program implements IWindow {
     }
   }
   async connectedCallback() {
-    super.connectedCallback()
     this.style.display = 'none'
     this.shadowRoot.adoptedStyleSheets.push(css)
     this.width = this.width
@@ -172,8 +169,7 @@ export default class WindowComponent extends Program implements IWindow {
     this.height = this.height
     this.minHeight = this.minHeight
     this.maxHeight = this.maxHeight
-    const _this: any = this
-    _this.shadowRoot.innerHTML = template
+    this.shadowRoot.innerHTML = '<slot></slot>'
     requestAnimationFrame(() => {
       if (this.isConnected) {
         const x = (this.parentElement.clientWidth - this.clientWidth) / 2
@@ -246,13 +242,13 @@ export default class WindowComponent extends Program implements IWindow {
         this.setAttribute('fullscreen', '')
       }
     })
-    if (_this.onMount) {
-      await _this.onMount()
+    if (this.onMount) {
+      await this.onMount()
     }
     this.style.display = 'block'
   }
   disconnectedCallback() {
-    super.disconnectedCallback()
+    this.dispatchEvent(new CustomEvent('onClose'))
     this[__properties__]?.resizeObserver?.unobserve(this)
   }
 }

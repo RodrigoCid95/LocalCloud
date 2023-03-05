@@ -1,43 +1,16 @@
-import { IOS, IServer, IServiceTask, ManifestResult, IService, ITask, LaunchArguments, IWindow, AppResult, IController, ClassController, GetService } from "builder"
+import { IOS, IServer, IServiceTask, ManifestResult, IService, ITask, LaunchArguments, IWindow, AppResult, ClassController } from "builder"
 import WindowComponent from "./components/window"
 
 import Service from "./Service"
-import Program from "libs/Program"
 
 const __PROGRAMS__ = Symbol()
 const __SERVICES__ = Symbol()
-const __SERVER__ = Symbol()
 export default class OS implements IOS {
-  [__SERVER__]: IServer | null = null;
   [__PROGRAMS__] = [];
   [__SERVICES__] = [];
-  constructor(private mainElement: HTMLElement) { }
-  setServer(server: IServer): void {
-    this[__SERVER__] = server
-    this[__SERVER__].onConnect(async () => {
-      const { default: callback } = await import('components/login')
-      callback(this[__SERVER__])
-      this.mainElement.innerHTML = '<app-login></app-login>'
-      this[__SERVER__].on<Boolean>('auth/change', async auth => {
-        this.mainElement.innerHTML = ''
-        if (auth) {
-          const loading = await window.loadingController.create({ message: 'Cargando escritorio ...' })
-          await loading.present()
-          const { default: callback } = await import('components/desktop')
-          await callback(this[__SERVER__], this.launch.bind(this))
-          const appDesktop = document.createElement('app-desktop')
-          this.mainElement.append(appDesktop)
-          appDesktop.addEventListener('onReady', () => loading.dismiss())
-        } else {
-          this[__PROGRAMS__] = []
-          this[__SERVICES__] = []
-          this.mainElement.innerHTML = '<app-login></app-login>'
-        }
-      })
-    })
-  }
+  constructor(private mainElement: HTMLElement, private server: IServer) { }
   public async launch({ packageName, containerElement = this.mainElement, args = {} }: LaunchArguments): Promise<ITask> {
-    const manifest: ManifestResult = await (this[__SERVER__] as IServer).emit<ManifestResult>(`apps manifest`, { packageName })
+    const manifest: ManifestResult = await this.server.emit<ManifestResult>(`apps manifest`, { packageName })
     if (!manifest) {
       throw new Error(`El paquete ${packageName} no existe!`)
     }
@@ -62,7 +35,7 @@ export default class OS implements IOS {
         const servicePath = manifest.type === 'service' ? `/service/${packageName}/index.js` : `/app/${packageName}/services/${key}.js` // `/${manifest.type === 'service' ? 'service' : 'app'}/${packageName}/services/${key}.js`
         const { default: callback } = await import(servicePath)
         const ClassService: typeof Service = await callback(Service)
-        let service: Service = new ClassService(this[__SERVER__])
+        let service: Service = new ClassService(this.server)
         services.push({
           get name() {
             return key
@@ -86,7 +59,7 @@ export default class OS implements IOS {
       }
     }
     let element: HTMLElement | Service
-    const k = this.kill.bind(this)
+    const kill = this.kill.bind(this)
     const task = {
       get PID(): string {
         return PID
@@ -115,8 +88,8 @@ export default class OS implements IOS {
       get element() {
         return element
       },
-      async kill() {
-        k(PID)
+      kill() {
+        kill(PID)
       }
     }
     const getService = (serviceName: string) => {
@@ -131,7 +104,7 @@ export default class OS implements IOS {
       const servicePath = `/service/${packageName}/main.js`
       const { default: callback } = await import(servicePath)
       const ClassService: typeof Service = await callback(Service, args)
-      element = new ClassService(this[__SERVER__])
+      element = new ClassService(this.server)
       this[__SERVICES__].push(task)
     } else {
       const { type } = manifest
@@ -177,7 +150,7 @@ export default class OS implements IOS {
         const tag = Views ? packageTag : App.tag || packageTag
         if (window.customElements.get(tag) === undefined) {
           window.customElements.define(tag, class extends WindowComponent implements IWindow {
-            onMount() {
+            onMount = () => {
               this.innerHTML = Views ? `<ion-nav root="${App.tag}"></ion-nav>` : App.template || ''
               if (!Views) {
                 if (App.css) {

@@ -55,13 +55,10 @@ export interface ITask extends BasedTask {
   readonly services: IService[]
   readonly type: 'service' | 'program' | 'app'
   readonly element: HTMLElement | IService
-  kill(): Promise<void>
+  kill(): void
 }
 export interface IServiceTask extends BasedTask {
   service: IService
-}
-export interface IProgram extends HTMLElement {
-  template?: string
 }
 export interface IServiceManifest extends IManifest<'service'> { }
 export type ChildService = Omit<Omit<IServiceManifest, 'services'>, 'type'>
@@ -81,11 +78,10 @@ export interface IProgramManifest extends IManifest<'program'> {
 export interface IAppManifest extends IManifest<'app'> { }
 export type ManifestResult = IProgramManifest | IAppManifest | IServiceManifest | undefined
 export interface IOS {
-  setServer(server: IServer): void
   launch(args: LaunchArguments): Promise<ITask>
   kill(PID: string): void
 }
-export interface IWindow extends IProgram {
+export interface IWindow extends HTMLElement {
   text: string
   icon: string
   isDraggable: boolean
@@ -101,8 +97,7 @@ export interface IWindow extends IProgram {
   readonly isFocus: boolean
   onMount?(): void | Promise<void>
 }
-export declare class Program extends HTMLElement implements IProgram { }
-export declare class WindowComponent extends Program implements IWindow {
+export declare class WindowComponent extends HTMLElement implements IWindow {
   text: string
   icon: string
   isDraggable: boolean
@@ -118,7 +113,6 @@ export declare class WindowComponent extends Program implements IWindow {
   readonly isFocus: boolean
   onMount?(): void | Promise<void>
 }
-export type ProgramClass = typeof Program
 export type WindowClassComponent = typeof WindowComponent
 export type GetService = <S = IService>(serviceNAme: string) => S | undefined
 export interface ProgramArguments {
