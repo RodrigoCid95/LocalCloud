@@ -1,8 +1,7 @@
 backend/node_modules
 backend/.debugger
 backend/package-lock.json
-backend/manifests
-backend/public/js
+backend/public
 
 client/apps/dist
 client/apps/node_modules
@@ -14,6 +13,9 @@ client/builder/package-lock.json
 client/kernel/dist
 client/kernel/node_modules
 client/kernel/package-lock.json
+
+client/local-cloud-os/node_modules
+client/local-cloud-os/package-lock.json
 
 users
 data.db

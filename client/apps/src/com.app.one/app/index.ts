@@ -1,4 +1,4 @@
-import { GetService, IController, WindowComponent } from 'builder'
+import { IController, GetService, WindowComponent } from 'builder/types/task-manager'
 import template from './template.html'
 
 export default class AppOne implements IController {
