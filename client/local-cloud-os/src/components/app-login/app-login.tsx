@@ -37,7 +37,7 @@ export class AppLogin {
       }
       await loading.dismiss()
     }
-    modal.present().then(() => sendButton.click())
+    modal.present()
   }
   render() {
     return (
@@ -50,11 +50,11 @@ export class AppLogin {
         <ion-content class="ion-padding">
           <ion-item>
             <ion-label position="floating">Nombre de usuario:</ion-label>
-            <ion-input id="username" value="rodrigocid"></ion-input>
+            <ion-input id="username"></ion-input>
           </ion-item>
           <ion-item>
             <ion-label position="floating">Contraseña:</ion-label>
-            <ion-input id="password" type="password" value="A.1b2c3d4"></ion-input>
+            <ion-input id="password" type="password"></ion-input>
           </ion-item>
           <ion-button expand="full">Entrar</ion-button>
         </ion-content>

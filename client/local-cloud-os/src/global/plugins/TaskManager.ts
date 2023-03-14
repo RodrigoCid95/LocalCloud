@@ -185,7 +185,9 @@ export class TaskManager extends WebPlugin implements ITaskManager {
     const task: ITask | undefined = this._tasks.find(task => task.PID === PID)
     if (task) {
       for (const service of task.services) {
-        service?.onKill()
+        if (service.onKill) {
+          service.onKill()
+        }
       }
       task.element.remove()
       await this.eventEmmiters.emmit('onTMKill')

@@ -21,7 +21,8 @@
     "jest": "^27.5.1",
     "jest-cli": "^27.5.1",
     "puppeteer": "^16.2.0",
-    "socket.io-client": "^4.6.1"
+    "socket.io-client": "^4.6.1",
+    "workbox-build": "^6.5.4"
   },
   "license": "MIT"
 }
