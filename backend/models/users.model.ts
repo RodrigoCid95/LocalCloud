@@ -4,7 +4,7 @@ import { FieldTypes, ISQLite } from 'types/SQLite'
 import { IFileSystem } from "types/FileSystem"
 import fs from 'fs'
 import path from 'path'
-import { Lib } from "bitis/core"
+import { Lib } from "phoenix-js/core"
 import { v4 } from 'uuid'
 
 export class UsersModel {

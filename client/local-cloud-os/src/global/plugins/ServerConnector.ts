@@ -1,8 +1,7 @@
 import { ICapacitor } from 'types/capacitor'
 import { Callback, IServerConnector, SendArguments, Response } from 'types/server'
-import { Build } from '@stencil/core'
 import { WebPlugin } from '@capacitor/core'
-import { Socket, Manager } from 'socket.io-client'
+import { Socket, io } from 'socket.io-client'
 
 declare const Capacitor: ICapacitor
 
@@ -10,8 +9,7 @@ export class ServerConnector extends WebPlugin implements IServerConnector {
   private socket: Socket
   constructor() {
     super()
-    const manager = new Manager(Build.isDev ? 'http://localhost:3001' : location.origin)
-    this.socket = manager.socket('/')
+    this.socket = io()
   }
   async onConnect(callback: () => void | Promise<void>): Promise<void> {
     this.socket.on('connect', callback)

@@ -1,5 +1,6 @@
 backend/node_modules
 backend/.debugger
+backend/.release
 backend/package-lock.json
 backend/public
 

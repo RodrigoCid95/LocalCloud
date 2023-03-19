@@ -1,6 +1,8 @@
 import { IController, GetService, WindowComponent } from 'builder/types/task-manager'
 import template from './template.html'
 
+declare const Capacitor: any
+
 export default class AppOne implements IController {
   static template = template
   getService: GetService

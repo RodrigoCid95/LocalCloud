@@ -3,14 +3,14 @@
 	"version": "1.0.0",
 	"main": "index.js",
 	"scripts": {
-		"start": "bitis start",
-		"build": "bitis build"
+		"start": "phoenix start",
+		"build": "phoenix build"
 	},
 	"keywords": [],
 	"author": "",
 	"license": "ISC",
 	"description": "",
-	"bitis": {
+	"phoenix": {
 		"type": "http-sockets",
 		"boot": "auto",
 		"public-paths": [
@@ -18,7 +18,7 @@
 		]
 	},
 	"dependencies": {
-		"bitis": "github:RodrigoCid95/Bitis-Framework",
+		"phoenix-js": "github:RodrigoCid95/PhoenixJS",
 		"express-fileupload": "^1.4.0",
 		"express-session": "^1.17.3",
 		"sqlite3": "^5.1.4",

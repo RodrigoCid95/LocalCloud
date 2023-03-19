@@ -1,5 +1,5 @@
 import { CipherClass } from "types/Cipher"
-import { Lib } from 'bitis/core'
+import { Lib } from 'phoenix-js/core'
 
 export class CipherModel {
   @Lib('cipher') private cipher: CipherClass

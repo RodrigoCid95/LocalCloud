@@ -1,5 +1,5 @@
-import { Model } from 'bitis/core'
-import { Prefix, Methods, On, Request, Response, Next } from 'bitis/http'
+import { Model } from 'phoenix-js/core'
+import { Prefix, Methods, On, Request, Response, Next } from 'phoenix-js/http'
 import { UsersModel } from 'models'
 import { User } from 'types/Users'
 

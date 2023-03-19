@@ -1,4 +1,4 @@
-import { Lib } from 'bitis/core'
+import { Lib } from 'phoenix-js/core'
 import { ISQLite } from 'types/SQLite'
 import { AppsManagerClass, Manifest, ManifestResult } from 'types/AppsManager'
 import { IFileSystem } from 'types/FileSystem'

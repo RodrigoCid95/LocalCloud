@@ -1,4 +1,4 @@
-import { InitLibrary } from 'bitis/core'
+import { InitLibrary } from 'phoenix-js/core'
 import Cipher from './Cipher'
 import FileSystem from './FileSystem'
 import SQLite from './SQLite'

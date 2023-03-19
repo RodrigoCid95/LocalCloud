@@ -1,6 +1,6 @@
-import { Model } from 'bitis/core'
 import path from 'path'
-import { Prefix, Methods, On, Request, Response } from 'bitis/http'
+import { Model } from 'phoenix-js/core'
+import { Prefix, Methods, On, Request, Response } from 'phoenix-js/http'
 import { AppsModel } from 'models'
 
 const { GET, DELETE } = Methods

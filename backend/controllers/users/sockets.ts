@@ -1,5 +1,5 @@
-import { Model } from 'bitis/core'
-import { Prefix, On, Socket } from 'bitis/web-sockets'
+import { Model } from 'phoenix-js/core'
+import { Prefix, On, Socket } from 'phoenix-js/web-sockets'
 import { UsersModel } from 'models'
 
 @Prefix('users')

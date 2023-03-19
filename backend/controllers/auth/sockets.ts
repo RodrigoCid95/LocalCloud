@@ -1,5 +1,5 @@
-import { Model } from 'bitis/core'
-import { On, Prefix, Socket } from 'bitis/web-sockets'
+import { Model } from 'phoenix-js/core'
+import { On, Prefix, Socket } from 'phoenix-js/web-sockets'
 import { UsersModel, CipherModel } from 'models'
 import { User } from 'types/Users'
 

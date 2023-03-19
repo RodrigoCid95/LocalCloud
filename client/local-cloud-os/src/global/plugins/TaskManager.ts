@@ -1,6 +1,5 @@
 import { ITaskManager, ITask, ITasks, LaunchArguments, ManifestResult, IServiceTask, IService, AppResult, ClassController, IWindow, ServiceResults } from 'types/task-manager'
 import { ICapacitor } from 'types/capacitor'
-import { Build } from '@stencil/core'
 import { WebPlugin } from '@capacitor/core'
 import { Emmiters } from './EventEmmiters'
 
@@ -40,8 +39,7 @@ export class TaskManager extends WebPlugin implements ITaskManager {
           author = [],
           icon
         } = manifest.services[key]
-        const servicePath = `app/${packageName}/services/${key}.js`
-        const serviceURL = `${Build.isDev ? 'http://localhost:3001' : location.origin}/${servicePath}`
+        const serviceURL = `/app/${packageName}/services/${key}.js`
         const { default: callback } = await import(serviceURL)
         const ClassService: any = await callback()
         let service: IService = new ClassService()
@@ -102,8 +100,7 @@ export class TaskManager extends WebPlugin implements ITaskManager {
       }
     }
     const { type } = manifest
-    const componentPath = `app/${packageName}/main.js`
-    const componentURL = `${Build.isDev ? 'http://localhost:3001' : location.origin}/${componentPath}`
+    const componentURL = `/app/${packageName}/main.js`
     const { App, Views }: AppResult = await import(componentURL)
     const serviceResults: ServiceResults = {}
     for (const { name, service } of services) {

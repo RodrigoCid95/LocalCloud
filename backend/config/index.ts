@@ -1,9 +1,9 @@
 import { CipherClass } from 'types/Cipher'
 import path from 'path'
 import fs from 'fs'
-import { Flags } from 'bitis/core'
-import { BitisHTTPConfigProfile } from 'bitis/http'
-import { BitisSocketsConfig, Socket } from 'bitis/web-sockets'
+import { Flags } from 'phoenix-js/core'
+import { PhoenixHTTPConfigProfile } from 'phoenix-js/http'
+import { PhoenixSocketsConfig, Socket } from 'phoenix-js/web-sockets'
 import session from 'express-session'
 import fileUpload from 'express-fileupload'
 import { v4 } from 'uuid'
@@ -19,12 +19,12 @@ if (!fs.existsSync(systemDB)) {
 }
 const sessionMiddleware = session({ secret: v4(), saveUninitialized: true, resave: true })
 
-export const bitisHttpConfig: BitisHTTPConfigProfile = {
+export const phoenixHttpConfig: PhoenixHTTPConfigProfile = {
   middlewares: [fileUpload(), sessionMiddleware],
   pathsPublic: [{ route: '/', dir: 'public' }]
 }
 
-export const bitisSocketsConfig: BitisSocketsConfig = {
+export const phoenixSocketsConfig: PhoenixSocketsConfig = {
   events: {
     onConnect(socket: Socket) {
       const req: any = socket.request
