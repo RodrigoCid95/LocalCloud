@@ -14,13 +14,16 @@
 		"type": "http-sockets",
 		"boot": "auto",
 		"public-paths": [
-			"public"
+			"public",
+			"ecosystem.config.js"
 		]
 	},
 	"dependencies": {
-		"phoenix-js": "github:RodrigoCid95/PhoenixJS",
+		"@socket.io/cluster-adapter": "^0.2.1",
+		"@socket.io/sticky": "^1.0.3",
 		"express-fileupload": "^1.4.0",
 		"express-session": "^1.17.3",
+		"phoenix-js": "github:RodrigoCid95/PhoenixJS",
 		"sqlite3": "^5.1.4",
 		"unzipper": "^0.10.11",
 		"uuid": "^9.0.0"

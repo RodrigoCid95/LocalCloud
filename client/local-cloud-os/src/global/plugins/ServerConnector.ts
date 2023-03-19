@@ -2,6 +2,7 @@ import { ICapacitor } from 'types/capacitor'
 import { Callback, IServerConnector, SendArguments, Response } from 'types/server'
 import { WebPlugin } from '@capacitor/core'
 import { Socket, io } from 'socket.io-client'
+import { Build } from '@stencil/core'
 
 declare const Capacitor: ICapacitor
 
@@ -9,7 +10,7 @@ export class ServerConnector extends WebPlugin implements IServerConnector {
   private socket: Socket
   constructor() {
     super()
-    this.socket = io()
+    this.socket = Build.isDev ? io() : io({ transports: ["websocket"] })
   }
   async onConnect(callback: () => void | Promise<void>): Promise<void> {
     this.socket.on('connect', callback)
@@ -36,12 +37,12 @@ export class ServerConnector extends WebPlugin implements IServerConnector {
   async emit<T = null>(event: string, data?: object): Promise<T> {
     let response: string = ''
     if (data) {
-      const request = Capacitor.Plugins.Cipher.isEnable() ? { request: await Capacitor.Plugins.Cipher.encrypt(this.socket.id, JSON.stringify(data)) } : data
+      const request = await Capacitor.Plugins.Cipher.isEnable() ? { request: await Capacitor.Plugins.Cipher.encrypt(this.socket.id, JSON.stringify(data)) } : data
       response = await new Promise(resolve => this.socket.emit(event, request, resolve))
     } else {
       response = await new Promise(resolve => this.socket.emit(event, resolve))
     }
-    const result = Capacitor.Plugins.Cipher.isEnable() ? JSON.parse(await Capacitor.Plugins.Cipher.decrypt(this.socket.id, response)) : response
+    const result = await Capacitor.Plugins.Cipher.isEnable() ? JSON.parse(await Capacitor.Plugins.Cipher.decrypt(this.socket.id, response)) : response
     const { data: dataResult, error }: Response<T> = result
     if (typeof dataResult !== 'undefined') {
       return dataResult
@@ -52,7 +53,7 @@ export class ServerConnector extends WebPlugin implements IServerConnector {
   }
   async on<T = {}>(event: string, callback: Callback<T>): Promise<void> {
     this.socket.on(event, async (response: any) => {
-      if (Capacitor.Plugins.Cipher.isEnable()) {
+      if (await Capacitor.Plugins.Cipher.isEnable()) {
         const result = await Capacitor.Plugins.Cipher.decrypt(this.socket.id, response)
         const res = JSON.parse(result)
         callback(res)

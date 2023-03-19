@@ -33,6 +33,12 @@ export const phoenixSocketsConfig: PhoenixSocketsConfig = {
       socket.use((__, next) => req.session.reload(err => err ? socket.disconnect() : next()))
     },
     onBeforeConfig(io) {
+      if (flags.get('prod')) {
+        const { createAdapter } = require('@socket.io/cluster-adapter')
+        const { setupWorker } = require('@socket.io/sticky')
+        io.adapter(createAdapter())
+        setupWorker(io)
+      }
       const wrap = middleware => (socket, next) => middleware(socket.request, {}, next)
       io.use(wrap(sessionMiddleware))
       return io
