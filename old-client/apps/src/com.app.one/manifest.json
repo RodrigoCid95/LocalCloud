@@ -4,6 +4,7 @@
   "author": [
     "Rodrigo Cid"
   ],
+  "tag": "app-one",
   "type": "app",
   "services": {}
 }

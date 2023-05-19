@@ -43,15 +43,16 @@ export default class SQLite implements ISQLite {
     const keys = Object.keys(newData)
     const sql = `INSERT INTO "${nameTable}" (${keys.join(', ')}) values (${keys.map(() => '?').join(', ')})`
     const values = keys.map(key => newData[key])
-    await new Promise(resolve =>
+    const res = await new Promise(resolve =>
       db.run(sql, values, resolve)
     )
+    console.log(res)
     await new Promise(resolve => db.close(resolve))
   }
   public async getAll<T = {}>(dbPath: string, nameTable: string): Promise<T[]> {
     const db = new this.sqlite3.Database(dbPath)
     const rows: T[] = await new Promise(resolve =>
-      db.all(
+      db.all<T>(
         `SELECT * from "${nameTable}"`,
         (_, rows) =>
           resolve(rows || [])
@@ -70,7 +71,7 @@ export default class SQLite implements ISQLite {
     const sql = `SELECT * FROM "${nameTable}" WHERE ${where.join(', ')}`
     const values = keys.map(key => query[key])
     const result = await new Promise<T[]>(resolve =>
-      db.all(
+      db.all<T>(
         sql,
         values,
         (_, rows) => resolve(rows || [])
@@ -89,7 +90,7 @@ export default class SQLite implements ISQLite {
     const sql = `SELECT * FROM "${nameTable}" WHERE ${where.join(', ')}`
     const values = keys.map(key => query[key])
     const result = await new Promise<T | null>(resolve =>
-      db.get(
+      db.get<T>(
         sql,
         values,
         (_, rows) => resolve(rows || null)

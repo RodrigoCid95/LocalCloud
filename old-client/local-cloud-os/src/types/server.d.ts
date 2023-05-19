@@ -13,8 +13,7 @@ export type SendArguments = {
 }
 export type Callback<T> = (response: T) => void | Promise<void>
 export interface IServerConnector {
-  socket: any
-  onConnect(callback: () => void | Promise<void>): void
+  onConnect(callback: () => void | Promise<void>): Promise<void>
   send<T = null>(args: SendArguments): Promise<T>
   emit<T = null>(event: string, data?: object): Promise<T>
   on<T = {}>(event: string, callback: Callback<T>): Promise<void>

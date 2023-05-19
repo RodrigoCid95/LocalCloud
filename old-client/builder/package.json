@@ -1,0 +1,27 @@
+{
+  "name": "builder",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "bin": {
+    "builder": "./index.js"
+  },
+  "types": "types/index.d.ts",
+  "scripts": {
+    "start": "node ."
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/minify": "^9.1.0",
+    "archiver": "^5.3.1",
+    "esbuild": "^0.17.10",
+    "html-minifier-terser": "^7.1.0",
+    "minify": "^9.2.0",
+    "sass": "^1.58.3"
+  },
+  "devDependencies": {
+    "@types/archiver": "^5.3.1"
+  }
+}

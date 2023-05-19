@@ -1,0 +1,15 @@
+{
+  "name": "local-cloud-kernel",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "start": "builder start --input src --output ../../backend/public/js/kernel"
+  },
+  "keywords": [],
+  "author": "Rodrigo Cid",
+  "license": "ISC",
+  "dependencies": {
+    "builder": "file:../builder",
+    "socket.io-client": "^4.6.1"
+  }
+}

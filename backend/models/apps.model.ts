@@ -45,11 +45,11 @@ export class AppsModel implements AppsManagerClass {
         const manifestData = JSON.parse(fs.readFileSync(manifestPath, { encoding: 'utf8' }))
         fs.rmSync(manifestPath, { force: true })
         const { title, description, author, icon, services = {}, type, tag, appSystem } = manifestData
-        if (!title || !type || !tag) {
+        if (!title || !type) {
           revert()
           throw new Error('Error de instalación')
         }
-        await this.sqlite.insert(
+        const result = await this.sqlite.insert(
           userDBPath,
           'apps',
           {
@@ -60,9 +60,10 @@ export class AppsModel implements AppsManagerClass {
             icon,
             services: JSON.stringify(services),
             type,
-            tag,
-            appSystem: appSystem ? 1 : 0
+            // tag,
+            // appSystem: appSystem ? 1 : 0
           })
+        console.log(result)
       } catch (error) {
         revert()
         throw new Error('Error de instalación')
