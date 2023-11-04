@@ -1,0 +1,51 @@
+{
+	"name": "backend",
+	"version": "1.0.0",
+	"description": "",
+	"main": "builder/cli.js",
+	"scripts": {
+		"start": "phoenix start",
+		"build": "phoenix build",
+		"start:app": "node . start",
+		"start:core": "node . start --input apps/system/core --output public/js/core",
+		"start:users": "npm run start:app -- --input apps/com.users.sys --output system/apps/com.users.sys/public",
+		"build:users": "npm run build:app -- --input apps/com.users.sys --output system/apps/com.users.sys/public",
+		"build:system": "npm run build:core && npm run build:app -- --input apps/system/install --output public/js/install && npm run build:app -- --input apps/system/login --output public/js/login && npm run build:app -- --input apps/system/dashboard --output public/js/dashboard",
+		"build:apps": "npm run build:users && npm run build:app -- --input apps/com.test.sys --output system/apps/com.test.sys/public",
+		"build:app": "node . build",
+		"build:core": "node . build --input apps/system/core --output public/js/core"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"phoenix": {
+		"type": "http",
+		"boot": "auto",
+		"resources": [
+			"public",
+			"views",
+			"builder"
+		]
+	},
+	"dependencies": {
+		"archiver": "^6.0.1",
+		"autoprefixer": "^10.4.16",
+		"express-session": "^1.17.3",
+		"html-minifier-terser": "^7.2.0",
+		"liquidjs": "^10.9.3",
+		"phoenix-js": "github:RodrigoCid95/PhoenixJS",
+		"postcss": "^8.4.31",
+		"postcss-nested": "^6.0.1",
+		"sass": "^1.69.5",
+		"sqlite3": "^5.1.6",
+		"uglifycss": "^0.0.29",
+		"uuid": "^9.0.1"
+	},
+	"devDependencies": {
+		"@ionic/core": "^7.5.3",
+		"@types/express-session": "^1.17.9",
+		"@types/uuid": "^9.0.6",
+		"esbuild": "^0.19.5",
+		"reflect-metadata": "^0.1.13"
+	}
+}

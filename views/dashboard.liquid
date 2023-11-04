@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LocalCloud - Dashboard</title>
+    <script>
+      window.apps = {{ apps | json }}
+    </script>
+    <script src="/js/core/main.js" type="module"></script>
+    <script src="/js/dashboard/main.js"></script>
+  </head>
+
+  <body>
+    <input
+      type="hidden"
+      name="key"
+      value="{{ key }}">
+    <input
+      type="hidden"
+      name="token"
+      value="{{ token }}">
+    {% render './components/loader.liquid' %}
+  </body>
+</html>

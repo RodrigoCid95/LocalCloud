@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ app.title }}</title>
+    <script src="/js/core/main.js" type="module"></script>
+    <script src="/app/{{app.packageName}}/main.js" type="module"></script>
+  </head>
+
+  <body>
+    <input
+      type="hidden"
+      name="key"
+      value="{{ key }}">
+    <input
+      type="hidden"
+      name="token"
+      value="{{ token }}">
+    {% render './components/loader.liquid' %}
+  </body>
+</html>
