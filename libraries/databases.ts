@@ -1,5 +1,5 @@
 import type { sqlite3, Database } from 'sqlite3'
-import type { CallbackResults, ConnectorArgs, DataBasesConfigProfile, DataBasesLib, GetConnectorArgs, GetQueryArgs } from 'interfaces/DataBases'
+import type { CallbackResults, CallbackTask, ConnectorArgs, DataBasesConfigProfile, DataBasesLib, GetConnectorArgs, GetSelectQueryArgs, GetUpdateQueryArgs } from 'interfaces/DataBases'
 import fs from 'node:fs'
 import path from 'node:path'
 import { InitLibrary } from "phoenix-js/core"
@@ -74,7 +74,7 @@ class DataBases implements DataBasesLib {
       }
     }
   }
-  public getQuery<R = any, Q = any>(args: GetQueryArgs<Q, R>): CallbackResults<R> {
+  public getSelectQuery<R = any, Q = any>(args: GetSelectQueryArgs<Q, R>): CallbackResults<R> {
     if (args.query) {
       const fields: string[] = []
       const values: any[] = []
@@ -96,6 +96,21 @@ class DataBases implements DataBasesLib {
         (error, rows) => resolve({ error, rows })
       )
     }
+  }
+  public getUpdateQuery<Q = any, R = any>(args: GetUpdateQueryArgs<Q, R>): CallbackTask {
+    const { db, table, id: { key: id, value: idValue }, data, keys = {} } = args
+    const fields: string[] = []
+    const values: any[] = []
+    const indices: string[] = Object.keys(data)
+    for (const indice of indices) {
+      fields.push(keys[indice] || indice)
+      values.push(data[indice])
+    }
+    return resolve => db.run(
+      `UPDATE '${table}' set ${fields.map(f => `${f} = ?`).join(', ')} WHERE ${id} = ?`,
+      [...values, idValue],
+      (_: any, error: Error | null) => resolve(error)
+    )
   }
 }
 

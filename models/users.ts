@@ -39,7 +39,7 @@ export class UsersModel {
   }
   public async find(query?: Partial<User>): Promise<User[]> {
     const { rows: userResults } = await new Promise(
-      this.databases.getQuery<UserDBResult, User>({
+      this.databases.getSelectQuery<UserDBResult, User>({
         db: this.systemDBRef,
         table: 'users',
         query,
@@ -49,25 +49,25 @@ export class UsersModel {
     if (!userResults) {
       return []
     }
-    return userResults.map(({ uuid, user_name, full_name, photo, email, phone }) => ({ uuid, userName: user_name, fullName: full_name, photo, email, phone }))
+    return userResults.map(({ uuid, user_name, full_name, photo, email, phone }) => ({ uuid, userName: user_name, fullName: full_name || '', photo: photo || '', email: email || '', phone: phone || '' }))
   }
   public async update(uuid: string, query: Partial<Omit<User, 'uuid'>>): Promise<void> {
     const [user] = await this.find({ uuid })
     if (!user) {
       throw new Error(`El usuario con uuid "${uuid}" no existe!`)
     }
-    const fields: string[] = []
-    const values: any[] = []
-    const keys = Object.keys(query)
-    for (const key of keys) {
-      fields.push(`${key} = ?`)
-      values.push(query[key])
-    }
-    await new Promise(resolve => this.systemDBRef.run(
-      `UPDATE 'users' SET ${fields.join(', ')} WHERE uuid = ?`,
-      [...values, uuid],
-      resolve
-    ))
+    await new Promise(this.databases.getUpdateQuery<Partial<Omit<User, 'uuid'>>, UserDBResult>({
+      db: this.systemDBRef,
+      table: "users",
+      id: {
+        key: "uuid",
+        value: uuid
+      },
+      data: query,
+      keys: {
+        fullName: 'full_name'
+      }
+    }))
     this.onChange.emmit()
   }
   public async delete(uuid: string): Promise<void> {
@@ -87,7 +87,7 @@ export class UsersModel {
   }
   public async verifyPassword(uuid: string, password: string): Promise<boolean> {
     const { rows: [user] } = await new Promise(
-      this.databases.getQuery<UserDBResult, User>({
+      this.databases.getSelectQuery<UserDBResult, User>({
         db: this.systemDBRef,
         table: 'users',
         query: { uuid }

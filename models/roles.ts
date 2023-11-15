@@ -39,7 +39,7 @@ export class RolesModel {
   }
   public async find(query?: Partial<Rol>): Promise<Rol[]> {
     const { error, rows } = await new Promise(
-      this.databases.getQuery<RolDBResult, Rol>({
+      this.databases.getSelectQuery<RolDBResult, Rol>({
         db: this.systemDBRef,
         table: 'roles',
         query,

@@ -11,7 +11,7 @@ export class AppsModel {
     return this.databases.getConnector({})
   }
   public async create({ packageName, title, description, author = '', icon = '', dependences = [], secureSources = { font: "'self'", img: "'self'", connect: "'self'", script: "'self'" } }: NewApp, zip?: any): Promise<void> {
-    const { font = "'self'", img = "'self'", connect = "'self'", script = "'self'" } = secureSources
+    const { font = "'self'", img = "'self' data:", connect = "'self'", script = "'self'" } = secureSources
     const [app] = await this.find({ packageName })
     if (app) {
       throw new Error(`El usuario ${packageName} ya existe!`)
@@ -28,14 +28,14 @@ export class AppsModel {
   }
   public async find(query?: Partial<App>): Promise<App[]> {
     const { rows: appsResult } = await new Promise(
-      this.databases.getQuery<AppDBResult, App>({
+      this.databases.getSelectQuery<AppDBResult, App>({
         db: this.systemDBRef,
         table: 'apps',
         query,
         keys: { id: 'id_app', packageName: 'package_name' }
       })
     )
-    return appsResult.map(({ id_app, package_name, title, description, author, icon, dependences, font, img, connect, script }) => ({ id: id_app, packageName: package_name, title, description, author, icon, dependences: dependences.split(','), secureSources: { font, img, connect, script } }))
+    return appsResult.map(({ id_app, package_name, title, description = '', author = '', icon = '', dependences = '', font, img, connect, script }) => ({ id: id_app, packageName: package_name, title, description, author, icon, dependences: dependences.split(','), secureSources: { font, img, connect, script } }))
   }
   public resolveAsset(packageName: string, ...paths: string[]): string {
     return this.paths.getSystemAppAsset(packageName, ...paths)

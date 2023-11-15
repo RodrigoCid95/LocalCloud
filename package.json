@@ -5,7 +5,7 @@
 	"main": "builder/cli.js",
 	"scripts": {
 		"start": "phoenix start",
-		"build": "phoenix build",
+		"build": "npm run build:system && phoenix build",
 		"start:app": "node . start",
 		"start:core": "node . start --input apps/system/core --output public/js/core",
 		"start:users": "npm run start:app -- --input apps/com.users.sys --output system/apps/com.users.sys/public",
@@ -30,8 +30,10 @@
 	"dependencies": {
 		"archiver": "^6.0.1",
 		"autoprefixer": "^10.4.16",
+		"compression": "^1.7.4",
 		"express-session": "^1.17.3",
 		"html-minifier-terser": "^7.2.0",
+		"ionicons": "^7.2.1",
 		"liquidjs": "^10.9.3",
 		"phoenix-js": "github:RodrigoCid95/PhoenixJS",
 		"postcss": "^8.4.31",
@@ -43,6 +45,7 @@
 	},
 	"devDependencies": {
 		"@ionic/core": "^7.5.3",
+		"@types/compression": "^1.7.4",
 		"@types/express-session": "^1.17.9",
 		"@types/uuid": "^9.0.6",
 		"esbuild": "^0.19.5",

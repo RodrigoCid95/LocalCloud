@@ -20,10 +20,24 @@ export interface ConnectorArgs {
 }
 export interface GetConnectorArgs extends Omit<Partial<ConnectorArgs>, 'queries'> {
 }
-export interface GetQueryArgs<Q = any, R = any> {
+export interface GetSelectQueryArgs<Q = any, R = any> {
   db: Database
   table: string
   query?: Partial<Q>
+  keys?: {
+    [Property in keyof Q]?: keyof R
+  }
+}
+export interface GetUpdateQueryArgs<Q = any, R = any> {
+  db: Database
+  table: string
+  id: {
+    key: string
+    value: any
+  }
+  data: {
+    [Property in keyof Q]: Q[Property]
+  }
   keys?: {
     [Property in keyof Q]?: keyof R
   }
@@ -42,9 +56,13 @@ export interface DataBasesLib {
    */
   closeDBs(prefix: string): Promise<void>
   /**
-   * Devuelve un callback para hacer una consulta sql.
+   * Devuelve un callback para hacer una consulta SELECT sql.
    */
-  getQuery<R = any, Q = any>(args: GetQueryArgs<Q, R>): CallbackResults<R>
+  getSelectQuery<R = any, Q = any>(args: GetSelectQueryArgs<Q, R>): CallbackResults<R>
+  /**
+   * Devuelve un callback para hacer una consulta Update sql.
+   */
+  getUpdateQuery<Q = any, R = any>(args: GetUpdateQueryArgs<Q, R>): CallbackTask
 }
 export interface RunResult {
   error: Error | null
@@ -57,3 +75,4 @@ export interface DataResults<T = any> extends RunResult {
 }
 export type CallbackResult<T = any> = (resolve: (result: DataResult<T>) => void) => void
 export type CallbackResults<T = any> = (resolve: (result: DataResults<T>) => void) => void
+export type CallbackTask = (resolve: (error: Error| null) => void) => void

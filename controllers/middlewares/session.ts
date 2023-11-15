@@ -24,13 +24,13 @@ export const verifyPageSession = (req: Request<LocalCloud.SessionData>, res: Res
 }
 export const decryptRequest = async (req: Request<LocalCloud.SessionData>, res: Response, next: Next) => {
   let nextError: any = undefined
-  if (req.headers['key'] && req.headers['key'] === req.session.key && req.body.data) {
+  if (req.headers['key'] && req.headers['key'] === req.session.key && typeof req.body === 'string') {
     try {
-      const result = await encryptor.decrypt(req.headers['key'], req.body.data)
+      const result = await encryptor.decrypt(req.headers['key'], req.body)
       if (isJSON(result)) {
         req.body = JSON.parse(result)
       } else {
-        req.body.data = result
+        req.body = result
       }
     } catch (error) {
       nextError = deniedError
@@ -40,7 +40,7 @@ export const decryptRequest = async (req: Request<LocalCloud.SessionData>, res: 
   }
   next(nextError)
 }
-export const verifyAPISession = async (req: Request<LocalCloud.SessionData>, res: Response, next: Next) => {
+export const verifyAPIPermission = async (req: Request<LocalCloud.SessionData>, res: Response, next: Next) => {
   let nextError: any = undefined
   if (!req.session.user) {
     nextError = deniedError

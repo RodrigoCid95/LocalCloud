@@ -4,8 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ app.title }}</title>
-    <script src="/js/core/main.js" type="module"></script>
-    <script src="/app/{{app.packageName}}/main.js" type="module"></script>
+    <script
+      src="/js/core/main.js"
+      type="module"
+      defer></script>
+    <script
+      src="/app/{{app.packageName}}/main.js"
+      type="module"
+      defer></script>
   </head>
 
   <body>

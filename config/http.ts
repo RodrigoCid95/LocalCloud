@@ -1,6 +1,7 @@
 import type { PhoenixHTTPConfigProfile } from "phoenix-js/http"
 import path from 'node:path'
 import session from 'express-session'
+import compression from 'compression'
 import { Liquid } from 'liquidjs'
 import { v4 } from 'uuid'
 
@@ -16,6 +17,7 @@ export const phoenixHttpConfig: PhoenixHTTPConfigProfile = {
     dirViews: path.resolve(__dirname, '..', 'views')
   },
   middlewares: [
+    compression(),
     session({
       saveUninitialized: false,
       resave: false,
@@ -25,7 +27,7 @@ export const phoenixHttpConfig: PhoenixHTTPConfigProfile = {
   events: {
     onError(err, req, res, next) {
       if (err) {
-        res.status(404).json(err)
+        res.status(500).json(err)
       } else {
         next()
       }
@@ -34,6 +36,10 @@ export const phoenixHttpConfig: PhoenixHTTPConfigProfile = {
   pathsPublic: [
     {
       route: '/',
+      dir: path.resolve(__dirname, '..', 'public')
+    },
+    {
+      route: '/app',
       dir: path.resolve(__dirname, '..', 'public')
     }
   ]
