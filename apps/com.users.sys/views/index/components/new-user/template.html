@@ -1,0 +1,33 @@
+<ion-modal id="create-user-modal">
+  <ion-header>
+    <ion-toolbar>
+      <ion-buttons slot="start">
+        <ion-button id="create-user-cancel">Cancelar</ion-button>
+      </ion-buttons>
+      <ion-title>Nuevo usuario</ion-title>
+      <ion-buttons slot="end">
+        <ion-button id="create-user-confirm" strong="true">Guardar</ion-button>
+      </ion-buttons>
+    </ion-toolbar>
+  </ion-header>
+  <ion-content class="ion-padding">
+    <input type="hidden" name="uuid">
+    <ion-list inset>
+      <ion-item>
+        <ion-input label="Nombre de usuario" label-placement="floating" error-text="Campo requerido"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-input label="Nombre completo" label-placement="floating" error-text="Campo requerido"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-input label="Correo electrónico" label-placement="floating" type="email" error-text="Campo requerido"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-input label="Teléfono" label-placement="floating" type="tel" error-text="Campo requerido"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-input label="Contraseña" label-placement="floating" type="password" error-text="Campo requerido"></ion-input>
+      </ion-item>
+    </ion-list>
+  </ion-content>
+</ion-modal>

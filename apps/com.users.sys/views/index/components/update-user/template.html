@@ -1,0 +1,40 @@
+<ion-modal id="update-user-modal">
+  <ion-header>
+    <ion-toolbar>
+      <ion-buttons slot="start">
+        <ion-button id="update-user-cancel">Cancelar</ion-button>
+      </ion-buttons>
+      <ion-title id="update-user-title"></ion-title>
+      <ion-buttons slot="end">
+        <ion-button id="update-user-confirm" strong="true">Guardar</ion-button>
+      </ion-buttons>
+    </ion-toolbar>
+  </ion-header>
+  <ion-content class="ion-padding">
+    <input type="hidden" name="uuid">
+    <ion-list inset>
+      <ion-item>
+        <style>
+          .thumbnail {
+            --size: 140px;
+            --border-radius: 14px;
+            margin: 0 auto;
+            cursor: pointer;
+          }
+        </style>
+        <ion-thumbnail class="thumbnail">
+          <img alt="Usuario" src="" />
+        </ion-thumbnail>
+      </ion-item>
+      <ion-item>
+        <ion-input label="Nombre completo" label-placement="floating"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-input label="Correo electrónico" label-placement="floating" type="email"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-input label="Teléfono" label-placement="floating" type="tel"></ion-input>
+      </ion-item>
+    </ion-list>
+  </ion-content>
+</ion-modal>

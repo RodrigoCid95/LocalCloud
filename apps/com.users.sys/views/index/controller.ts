@@ -2,6 +2,9 @@ import type { User } from "interfaces/Users"
 import template from "./template.html"
 import thumbnail from './thumbnail.svg'
 
+import './components/new-user'
+import './components/update-user'
+
 export class IndexController {
   static template = template
   progressBarRef: HTMLProgressElement
@@ -23,7 +26,7 @@ export class IndexController {
     this.contentRef = this.element.querySelector('ion-row') as HTMLIonRowElement
     this.refreshButtonRef = this.element.querySelector('#refresh') as HTMLIonButtonElement
     this.refreshButtonRef.addEventListener('click', this.#getUsers.bind(this))
-    this.createModal = this.element.querySelector('#create-user-modal') as HTMLIonModalElement
+    /* this.createModal = this.element.querySelector('#create-user-modal') as HTMLIonModalElement
     this.createModal.addEventListener('ionModalDidDismiss', this.#getUsers.bind(this))
     const [userNameRef, fullNameRef, emailRef, phoneRef, passwordRef] = this.createModal.querySelectorAll('ion-input').values()
     const fields = [userNameRef, fullNameRef, emailRef, phoneRef, passwordRef]
@@ -59,12 +62,8 @@ export class IndexController {
           phone: phoneRef.value,
           password: passwordRef.value
         }
-        /* try {
-          await window.server.send('/users', { data, method: 'post' })
-          await this.createModal.dismiss()
-        } catch (error) {
-          console.log(error)
-        } */
+        await window.server.send('/users', { data, method: 'post' })
+        await this.createModal.dismiss()
         window.server.send('/users', { data, method: 'post' })
           .then(() => this.createModal.dismiss())
           .catch(error => console.log(error))
@@ -89,7 +88,7 @@ export class IndexController {
     const [fullName, email, phone] = this.updateModal.querySelectorAll('ion-input').values() as unknown as HTMLIonInputElement[]
     const photo = this.updateModal.querySelector('ion-thumbnail img') as HTMLImageElement
     const userName = this.updateModal.querySelector('#update-user-title') as HTMLIonTitleElement
-    this.updateFormRefs = { uuid, photo, userName, fullName, email, phone }
+    this.updateFormRefs = { uuid, photo, userName, fullName, email, phone } */
     this.#getUsers()
   }
   async #getUsers(): Promise<void> {
