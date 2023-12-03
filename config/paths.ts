@@ -1,7 +1,7 @@
 import type { PathsConfigProfile } from 'interfaces/Paths'
 import path from 'node:path'
 
-const system = path.resolve(__dirname, '..', 'system')
+const system = path.resolve(__dirname, '..', '.system')
 const systemApps = path.join(system, 'apps')
 const systemApp = path.join(system, 'apps', ':packagename')
 const systemDatabases = path.join(systemApp, 'data')
