@@ -9,7 +9,7 @@ const { POST } = Methods
 
 @Prefix('api/install')
 export class InstallController {
-  @Model('WelcomeModel') private indexModel: IndexModel
+  @Model('IndexModel') private indexModel: IndexModel
   @Model('UsersModel') private usersModel: UsersModel
   @Model('RolesModel') private rolesModel: RolesModel
   @On(POST, '/')
