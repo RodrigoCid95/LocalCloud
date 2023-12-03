@@ -1,8 +1,7 @@
 .release
 .debugger
 .system
+.users
 node_modules
 package-lock.json
 public/js
-system
-users

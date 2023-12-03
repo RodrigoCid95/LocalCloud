@@ -6,7 +6,7 @@ const systemApps = path.join(system, 'apps')
 const systemApp = path.join(system, 'apps', ':packagename')
 const systemDatabases = path.join(systemApp, 'data')
 
-const users = path.resolve(__dirname, '..', 'users')
+const users = path.resolve(__dirname, '..', '.users')
 const user = path.join(users, ':uuid')
 
 export const paths: PathsConfigProfile = {
