@@ -50,4 +50,5 @@ export class IndexController {
 export * from './app'
 export * from './api/auth'
 export * from './api/install'
+export * from './api/profile'
 export * from './api/users'

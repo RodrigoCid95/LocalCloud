@@ -8,6 +8,7 @@ import floatElements from '@ionic/core/css/float-elements.css'
 import textAlignment from '@ionic/core/css/text-alignment.css'
 import textTransformation from '@ionic/core/css/text-transformation.css'
 import flexUtils from '@ionic/core/css/flex-utils.css'
+import display from '@ionic/core/css/display.css'
 import { defineCustomElement as defineIonAccordionGroup } from '@ionic/core/components/ion-accordion-group'
 import { defineCustomElement as defineIonAccordion } from '@ionic/core/components/ion-accordion'
 import { defineCustomElement as defineIonActionSheet } from '@ionic/core/components/ion-action-sheet'
@@ -108,7 +109,8 @@ export const defineCustomElements = async () => {
     floatElements,
     textAlignment,
     textTransformation,
-    flexUtils
+    flexUtils,
+    display
   ]
   const styles: string[] = []
   for (const module of cssModules) {

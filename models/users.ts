@@ -19,7 +19,7 @@ export class UsersModel {
   private getPasswordHash(uuid: string, password: string) {
     return crypto.createHmac('sha1', uuid).update(password).digest('hex')
   }
-  public async create({ userName, photo, email, phone, password }: NewUser): Promise<void> {
+  public async create({ userName, fullName, photo, email, phone, password }: NewUser): Promise<void> {
     const [user] = await this.find({ userName })
     if (user) {
       throw new Error(`El usuario ${userName} ya existe!`)
@@ -27,8 +27,8 @@ export class UsersModel {
     const uuid = v4()
     password = this.getPasswordHash(uuid, password)
     const { error: error2 } = await new Promise<RunResult>(resolve => this.systemDBRef.run(
-      "INSERT INTO users ('uuid', 'user_name', 'password_hash', 'photo', 'email', 'phone') VALUES (?, ?, ?, ?, ?, ?);",
-      [uuid, userName, password, photo, email, phone],
+      "INSERT INTO users ('uuid', 'user_name', 'full_name', 'password_hash', 'photo', 'email', 'phone') VALUES (?, ?, ?, ?, ?, ?, ?);",
+      [uuid, userName, fullName, password, photo, email, phone],
       error => resolve({ error })
     ))
     if (error2) {

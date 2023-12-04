@@ -5,11 +5,19 @@ import { Model } from 'phoenix-js/core'
 import { Prefix, On, Methods, beforeMiddelware } from 'phoenix-js/http'
 import { decryptRequest } from '../middlewares/session'
 
-const { POST, DELETE } = Methods
+const { GET, POST, DELETE } = Methods
 
 @Prefix('api/auth')
 export class AuthController {
   @Model('UsersModel') private model: UsersModel
+  @On(GET, '/')
+  public index(req: Request<LocalCloud.SessionData>, res: Response): void {
+    if (req.session.user) {
+      res.json(req.session.user)
+    } else {
+      res.json(null)
+    }
+  }
   @On(POST, '/')
   @beforeMiddelware([decryptRequest])
   public async login(req: Request<LocalCloud.SessionData>, res: Response): Promise<void> {
