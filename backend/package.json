@@ -1,0 +1,44 @@
+{
+	"name": "backend",
+	"version": "1.0.0",
+	"description": "",
+	"main": "builder/cli.js",
+	"scripts": {
+		"start": "phoenix start",
+		"build": "phoenix build"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"phoenix": {
+		"type": "http",
+		"boot": "auto",
+		"resources": [
+			"views"
+		]
+	},
+	"dependencies": {
+		"archiver": "^6.0.1",
+		"autoprefixer": "^10.4.16",
+		"compression": "^1.7.4",
+		"express-session": "^1.17.3",
+		"html-minifier-terser": "^7.2.0",
+		"ionicons": "^7.2.1",
+		"liquidjs": "^10.9.3",
+		"phoenix-js": "github:RodrigoCid95/PhoenixJS",
+		"postcss": "^8.4.31",
+		"postcss-nested": "^6.0.1",
+		"sass": "^1.69.5",
+		"sqlite3": "^5.1.6",
+		"uglifycss": "^0.0.29",
+		"uuid": "^9.0.1"
+	},
+	"devDependencies": {
+		"@ionic/core": "^7.5.3",
+		"@types/compression": "^1.7.4",
+		"@types/express-session": "^1.17.9",
+		"@types/uuid": "^9.0.6",
+		"esbuild": "^0.19.5",
+		"reflect-metadata": "^0.1.13"
+	}
+}

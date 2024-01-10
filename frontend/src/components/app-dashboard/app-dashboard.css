@@ -1,0 +1,10 @@
+app-profile ion-thumbnail {
+  margin: 0 auto;
+  --size: 140px;
+  --border-radius: 14px;
+}
+
+app-menu-profile,
+app-menu-settings {
+  display: contents;
+}
