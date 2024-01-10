@@ -4,7 +4,10 @@
 			"path": "backend"
 		},
 		{
-			"path": "frontend"
+			"path": "frontend/os"
+		},
+		{
+			"path": "frontend/apps"
 		}
 	],
 	"settings": {}

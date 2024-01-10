@@ -1,12 +1,13 @@
+.system
+.users
+
 backend/.release
 backend/.debugger
-backend/.system
-backend/.users
 backend/node_modules
 backend/package-lock.json
 
-frontend/package-lock.json
-frontend/dist
-frontend/node_modules
+frontend/os/package-lock.json
+frontend/os/dist
+frontend/os/node_modules
 
 public

@@ -18,18 +18,21 @@ const isJSON = (text: string): boolean => {
 }
 
 export class ServerController implements ServerConnector {
-  #key: string
+  #headers: Headers
   #encryptor: EncryptorLib
   constructor() {
     const keyRef = document.querySelector('[name="key"]') as HTMLInputElement
-    this.#key = keyRef.value
-    keyRef.remove()
+    const tokenRef = document.querySelector('[name="token"]') as HTMLInputElement
+    this.#headers = new Headers()
+    if (keyRef) {
+      this.#headers.append('key', keyRef.value)
+      keyRef.remove()
+    }
+    if (tokenRef) {
+      this.#headers.append('token', tokenRef.value)
+      tokenRef.remove()
+    }
     this.#encryptor = new Encryptor()
-  }
-  #getHeaders(): Headers {
-    const headers = new Headers()
-    headers.append('key', this.#key)
-    return headers
   }
   #getURL(endpoint: string, params = {}): string {
     const url = new URL(endpoint, window.location.origin)
@@ -42,7 +45,7 @@ export class ServerController implements ServerConnector {
   async #requestWithResponse({ endpoint, params = {} }: RequestWithResponseArgs): Promise<any> {
     const response = await (await fetch(
       this.#getURL(endpoint, params),
-      { headers: this.#getHeaders() }
+      { headers: this.#headers }
     )).text()
     if (isJSON(response)) {
       return JSON.parse(response)
@@ -50,12 +53,12 @@ export class ServerController implements ServerConnector {
     return response
   }
   async #requestWithoutResponse({ endpoint, method, data = {} }: RequestWithoutResponseArgs): Promise<void> {
-    const body = await this.#encryptor.encrypt(this.#key, JSON.stringify(data))
+    const body = await this.#encryptor.encrypt(this.#headers.get('key') || '12341234', JSON.stringify(data))
     await fetch(
       this.#getURL(endpoint),
       {
         method,
-        headers: this.#getHeaders(),
+        headers: this.#headers,
         body
       }
     )

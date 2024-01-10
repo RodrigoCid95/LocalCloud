@@ -8,7 +8,7 @@ export const config: Config = {
   outputTargets: [
     {
       type: 'dist',
-      buildDir: './../../public'
+      buildDir: './../../../public'
     }
   ],
   sourceMap: process.env.NODE_ENV !== 'production'

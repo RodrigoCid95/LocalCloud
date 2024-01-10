@@ -1,4 +1,4 @@
-import { Component, h, Fragment } from '@stencil/core'
+import { Component, h, State, Fragment } from '@stencil/core'
 import { AppMenu } from './app-menu'
 
 @Component({
@@ -6,6 +6,8 @@ import { AppMenu } from './app-menu'
   styleUrl: 'app-dashboard.css'
 })
 export class AppRoot {
+  @State() loading: boolean = true
+
   render() {
     return (
       <Fragment>
@@ -13,14 +15,14 @@ export class AppRoot {
         <ion-page id="main-content">
           <ion-header>
             <ion-toolbar>
-              <ion-title>Apps</ion-title>
+              <ion-title>Inicio</ion-title>
               <ion-buttons slot="end">
                 <ion-menu-button></ion-menu-button>
               </ion-buttons>
             </ion-toolbar>
+            {this.loading && <ion-progress-bar type="indeterminate"></ion-progress-bar>}
           </ion-header>
           <ion-content class="ion-padding">
-
           </ion-content>
         </ion-page>
       </Fragment>
