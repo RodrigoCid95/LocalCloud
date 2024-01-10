@@ -14,7 +14,11 @@
 		"type": "http",
 		"boot": "auto",
 		"resources": [
-			"views"
+			"views",
+			"../public",
+			"public",
+			"../.system/apps",
+			".system"
 		]
 	},
 	"dependencies": {
