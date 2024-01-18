@@ -1,4 +1,4 @@
-import type { loadingController, modalController, pickerController, toastController, menuController } from '@ionic/core'
+import type { loadingController, modalController, pickerController, toastController, menuController, alertController } from '@ionic/core'
 
 export interface GetArgs {
   endpoint: string
@@ -25,7 +25,7 @@ export interface DeleteArgs {
 
 export interface ServerConnector {
   send<R = {}>(args: GetArgs): Promise<R>
-  send<T = {}>(args: PostArgs<T> | PutArgs<T> | DeleteArgs): Promise<void>
+  send<T = {}, R = void>(args: PostArgs<T> | PutArgs<T> | DeleteArgs): Promise<R>
 }
 
 declare global {
@@ -35,6 +35,7 @@ declare global {
     pickerController: typeof pickerController
     toastController: typeof toastController
     menuController: typeof menuController
+    alertController: typeof alertController
     server: ServerConnector
   }
 }

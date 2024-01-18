@@ -1,9 +1,15 @@
-import { Component, h, State } from '@stencil/core'
+import { Component, h, State, Event, EventEmitter } from '@stencil/core'
+
+export interface Detail {
+  ok: boolean
+  message?: string
+}
 
 @Component({
-  tag: 'app-login'
+  tag: 'lco-auth'
 })
-export class AppRoot {
+export class LCOAuth {
+  @Event({ eventName: 'logged-in' }) logged: EventEmitter<Detail>
   @State() private userName: string = 'rcid'
   @State() private password: string = 'A.1b2c3d4'
 
@@ -13,13 +19,15 @@ export class AppRoot {
       password: this.password
     }
     if (!Object.values(data).includes('')) {
-      await (await window.loadingController.create({ message: 'Inicaindo sesión ...' })).present()
-      await window.server.send({
+      const laoding = await window.loadingController.create({ message: 'Inicaindo sesión ...' })
+      await laoding.present()
+      const response = await window.server.send<any, Detail>({
         method: 'post',
         endpoint: 'api/auth',
         data
       })
-      window.location.reload()
+      await laoding.dismiss()
+      this.logged.emit(response)
     }
   }
 
@@ -28,7 +36,7 @@ export class AppRoot {
       <ion-app>
         <ion-header>
           <ion-toolbar>
-            <ion-title>Instalación</ion-title>
+            <ion-title>Inicio de sesión</ion-title>
           </ion-toolbar>
         </ion-header>
         <ion-content fullscreen>

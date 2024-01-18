@@ -2,17 +2,6 @@ import type { EncryptorLib } from './../interfaces/Encryptor'
 import type { ServerConnector } from './../interfaces/Server'
 import { Encryptor } from './encryptor'
 
-interface RequestWithResponseArgs {
-  endpoint: string
-  params?: any
-}
-
-interface RequestWithoutResponseArgs {
-  endpoint: string
-  method: string
-  data?: any
-}
-
 const isJSON = (text: string): boolean => {
   return /^[\],:{}\s]*$/.test(text.replace(/\\["\\\/bfnrtu]/g, '@').replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']').replace(/(?:^|:|,)(?:\s*\[)+/g, ''))
 }
@@ -42,33 +31,31 @@ export class ServerController implements ServerConnector {
     }
     return url.href
   }
-  async #requestWithResponse({ endpoint, params = {} }: RequestWithResponseArgs): Promise<any> {
-    const response = await (await fetch(
-      this.#getURL(endpoint, params),
-      { headers: this.#headers }
-    )).text()
-    if (isJSON(response)) {
-      return JSON.parse(response)
-    }
-    return response
-  }
-  async #requestWithoutResponse({ endpoint, method, data = {} }: RequestWithoutResponseArgs): Promise<void> {
-    const body = await this.#encryptor.encrypt(this.#headers.get('key') || '12341234', JSON.stringify(data))
-    await fetch(
-      this.#getURL(endpoint),
-      {
-        method,
-        headers: this.#headers,
-        body
-      }
-    )
-  }
   async send({ endpoint, method, data, params }: any): Promise<any> {
     if (['get', 'post', 'put', 'delete'].includes(method)) {
+      let response: Response | string
       if (method === 'get') {
-        return this.#requestWithResponse({ endpoint, params })
+        response = await fetch(
+          this.#getURL(endpoint, params),
+          { headers: this.#headers }
+        )
+      } else {
+        const key = this.#headers.get('key')
+        const body = await this.#encryptor.encrypt(key || '12341234', JSON.stringify(data))
+        response = await fetch(
+          this.#getURL(endpoint),
+          {
+            method,
+            headers: this.#headers,
+            body
+          }
+        )
       }
-      await this.#requestWithoutResponse({ endpoint, method, data })
+      response = await response.text()
+      if (isJSON(response)) {
+        return JSON.parse(response)
+      }
+      return response
     } else {
       throw new Error(`El método ${method} no es válido, utiliza 'get', 'post', 'put' o 'delete'.`)
     }

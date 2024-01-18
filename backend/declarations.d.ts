@@ -13,5 +13,6 @@ declare namespace LocalCloud {
       [x: string]: SessionApp
     }
     key?: string
+    systemToken: string
   }
 }

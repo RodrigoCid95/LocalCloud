@@ -31,12 +31,12 @@ export class AuthController {
             req.session.apps = {}
             res.status(200).json({ ok: true })
           } else {
-            res.status(400).json({ message: 'La contraseña es incorrecta!' })
+            res.status(400).json({ ok: false, message: 'La contraseña es incorrecta!' })
           }
         })
         .catch(({ message }) => res.status(400).json({ message }))
     } else {
-      res.status(400).json({ message: `El usuario "${userName}" no existe!` })
+      res.status(400).json({ ok: false, message: `El usuario "${userName}" no existe!` })
     }
   }
   @On(DELETE, '/')

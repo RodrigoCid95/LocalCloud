@@ -1,12 +1,10 @@
 {
-  "name": "localcloud",
+  "name": "os",
   "private": true,
   "version": "0.0.1",
   "description": "Stencil Ionic App Starter",
-  "main": "./dist/index.cjs.js",
-  "collection": "./dist/collection/collection-manifest.json",
   "scripts": {
-    "build": "NODE_ENV=production stencil build --prod",
+    "build": "stencil build --prod",
     "start": "stencil build --dev --watch",
     "test": "stencil test --spec --e2e",
     "test.watch": "stencil test --spec --e2e --watchAll",

@@ -5,111 +5,53 @@
  * It contains typing information for all components that exist in this project.
  */
 import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
+import { Detail } from "./components/lco-auth";
+export { Detail } from "./components/lco-auth";
 export namespace Components {
-    interface AppDashboard {
+    interface LcoAuth {
     }
-    interface AppInstall {
-    }
-    interface AppLogin {
-    }
-    interface AppMenuProfile {
-    }
-    interface AppMenuSettings {
-    }
-    interface AppNotFound {
-    }
-    interface AppRoot {
+    interface LcoDashboard {
     }
 }
+export interface LcoAuthCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLLcoAuthElement;
+}
 declare global {
-    interface HTMLAppDashboardElement extends Components.AppDashboard, HTMLStencilElement {
+    interface HTMLLcoAuthElement extends Components.LcoAuth, HTMLStencilElement {
     }
-    var HTMLAppDashboardElement: {
-        prototype: HTMLAppDashboardElement;
-        new (): HTMLAppDashboardElement;
+    var HTMLLcoAuthElement: {
+        prototype: HTMLLcoAuthElement;
+        new (): HTMLLcoAuthElement;
     };
-    interface HTMLAppInstallElement extends Components.AppInstall, HTMLStencilElement {
+    interface HTMLLcoDashboardElement extends Components.LcoDashboard, HTMLStencilElement {
     }
-    var HTMLAppInstallElement: {
-        prototype: HTMLAppInstallElement;
-        new (): HTMLAppInstallElement;
-    };
-    interface HTMLAppLoginElement extends Components.AppLogin, HTMLStencilElement {
-    }
-    var HTMLAppLoginElement: {
-        prototype: HTMLAppLoginElement;
-        new (): HTMLAppLoginElement;
-    };
-    interface HTMLAppMenuProfileElement extends Components.AppMenuProfile, HTMLStencilElement {
-    }
-    var HTMLAppMenuProfileElement: {
-        prototype: HTMLAppMenuProfileElement;
-        new (): HTMLAppMenuProfileElement;
-    };
-    interface HTMLAppMenuSettingsElement extends Components.AppMenuSettings, HTMLStencilElement {
-    }
-    var HTMLAppMenuSettingsElement: {
-        prototype: HTMLAppMenuSettingsElement;
-        new (): HTMLAppMenuSettingsElement;
-    };
-    interface HTMLAppNotFoundElement extends Components.AppNotFound, HTMLStencilElement {
-    }
-    var HTMLAppNotFoundElement: {
-        prototype: HTMLAppNotFoundElement;
-        new (): HTMLAppNotFoundElement;
-    };
-    interface HTMLAppRootElement extends Components.AppRoot, HTMLStencilElement {
-    }
-    var HTMLAppRootElement: {
-        prototype: HTMLAppRootElement;
-        new (): HTMLAppRootElement;
+    var HTMLLcoDashboardElement: {
+        prototype: HTMLLcoDashboardElement;
+        new (): HTMLLcoDashboardElement;
     };
     interface HTMLElementTagNameMap {
-        "app-dashboard": HTMLAppDashboardElement;
-        "app-install": HTMLAppInstallElement;
-        "app-login": HTMLAppLoginElement;
-        "app-menu-profile": HTMLAppMenuProfileElement;
-        "app-menu-settings": HTMLAppMenuSettingsElement;
-        "app-not-found": HTMLAppNotFoundElement;
-        "app-root": HTMLAppRootElement;
+        "lco-auth": HTMLLcoAuthElement;
+        "lco-dashboard": HTMLLcoDashboardElement;
     }
 }
 declare namespace LocalJSX {
-    interface AppDashboard {
+    interface LcoAuth {
+        "onLogged-in"?: (event: LcoAuthCustomEvent<Detail>) => void;
     }
-    interface AppInstall {
-    }
-    interface AppLogin {
-    }
-    interface AppMenuProfile {
-    }
-    interface AppMenuSettings {
-    }
-    interface AppNotFound {
-    }
-    interface AppRoot {
+    interface LcoDashboard {
     }
     interface IntrinsicElements {
-        "app-dashboard": AppDashboard;
-        "app-install": AppInstall;
-        "app-login": AppLogin;
-        "app-menu-profile": AppMenuProfile;
-        "app-menu-settings": AppMenuSettings;
-        "app-not-found": AppNotFound;
-        "app-root": AppRoot;
+        "lco-auth": LcoAuth;
+        "lco-dashboard": LcoDashboard;
     }
 }
 export { LocalJSX as JSX };
 declare module "@stencil/core" {
     export namespace JSX {
         interface IntrinsicElements {
-            "app-dashboard": LocalJSX.AppDashboard & JSXBase.HTMLAttributes<HTMLAppDashboardElement>;
-            "app-install": LocalJSX.AppInstall & JSXBase.HTMLAttributes<HTMLAppInstallElement>;
-            "app-login": LocalJSX.AppLogin & JSXBase.HTMLAttributes<HTMLAppLoginElement>;
-            "app-menu-profile": LocalJSX.AppMenuProfile & JSXBase.HTMLAttributes<HTMLAppMenuProfileElement>;
-            "app-menu-settings": LocalJSX.AppMenuSettings & JSXBase.HTMLAttributes<HTMLAppMenuSettingsElement>;
-            "app-not-found": LocalJSX.AppNotFound & JSXBase.HTMLAttributes<HTMLAppNotFoundElement>;
-            "app-root": LocalJSX.AppRoot & JSXBase.HTMLAttributes<HTMLAppRootElement>;
+            "lco-auth": LocalJSX.LcoAuth & JSXBase.HTMLAttributes<HTMLLcoAuthElement>;
+            "lco-dashboard": LocalJSX.LcoDashboard & JSXBase.HTMLAttributes<HTMLLcoDashboardElement>;
         }
     }
 }

@@ -1,9 +1,9 @@
-import { Request, Response } from 'phoenix-js/http'
+import { Request, Response, beforeMiddelware } from 'phoenix-js/http'
 import type { LocalCloud } from 'declarations'
 import type { AppsModel, RolesModel, UsersModel, IndexModel } from 'models'
 import { Model } from 'phoenix-js/core'
 import { On, Methods } from 'phoenix-js/http'
-import { v4 } from 'uuid'
+import { tokens } from './middlewares/tokens'
 
 const { GET, POST } = Methods
 
@@ -13,8 +13,12 @@ export class IndexController {
   @Model('UsersModel') private usersModel: UsersModel
   @Model('IndexModel') private welcomeModel: IndexModel
   @On(GET, '/')
+  @beforeMiddelware([tokens])
   public async index(req: Request<LocalCloud.SessionData>, res: Response): Promise<void> {
-    req.session.key = v4()
+    const tokens = {
+      key: req.session.key,
+      systemToken: req.session.systemToken
+    }
     const isInstall = await this.welcomeModel.checkInstallation()
     if (isInstall) {
       if (req.session.user) {
@@ -22,16 +26,16 @@ export class IndexController {
         if (dest) {
           res.redirect(dest as string)
         } else {
-          res.render('index', { key: req.session.key, bodyClass: 'logged-in' })
+          res.render('index', tokens)
         }
       } else {
-        res.render('index', { key: req.session.key, bodyClass: 'logged-out' })
+        res.render('index', tokens)
       }
     } else {
-      res.render('index', { key: req.session.key, bodyClass: 'installation' })
+      res.render('installation', tokens)
     }
   }
-  
+
   @On(GET, '/test')
   public async test(req: Request<LocalCloud.SessionData>, res: Response): Promise<void> {
     /* await this.appsModel.create({

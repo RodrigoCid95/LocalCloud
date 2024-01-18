@@ -5,6 +5,7 @@ backend/.release
 backend/.debugger
 backend/node_modules
 backend/package-lock.json
+backend/views/index.liquid
 
 frontend/os/package-lock.json
 frontend/os/dist
