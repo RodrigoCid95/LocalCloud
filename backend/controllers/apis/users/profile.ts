@@ -3,15 +3,16 @@ import type { LocalCloud } from "declarations"
 import type { UsersModel } from "models/users"
 import { Model } from "phoenix-js/core"
 import { Prefix, On, Methods, beforeMiddelware } from "phoenix-js/http"
-import { decryptRequest } from "../middlewares/session"
+import { decryptRequest, verifySession } from "controllers/middlewares/session"
+import { userAccess } from "controllers/middlewares/access"
 
-const { GET, POST, PUT, DELETE } = Methods
+const { POST } = Methods
 
-@Prefix('api/profile')
+@Prefix('api/user/profile')
 export class ProfileController {
   @Model('UsersModel') private model: UsersModel
   @On(POST, '/')
-  @beforeMiddelware([decryptRequest])
+  @beforeMiddelware([verifySession, decryptRequest, userAccess])
   public async update(req: Request<LocalCloud.SessionData>, res: Response): Promise<void> {
     const { fullName, email, phone } = req.body
     await this.model.update(req.session.user?.uuid || '', { fullName, email, phone })

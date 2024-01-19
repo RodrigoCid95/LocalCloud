@@ -14,6 +14,7 @@ interface Status {
 export class AppDashboard {
   @Element() el: HTMLElement
   @State() status: keyof Status = 'WAIT'
+  @State() apps: any[] = []
 
   componentDidRender() {
     document.addEventListener('onReady', async () => {
@@ -30,7 +31,11 @@ export class AppDashboard {
     if (loginElement) {
       loginElement.addEventListener('logged-in', async (e: CustomEvent) => {
         if (e.detail.ok) {
-          this.status = 'AUTHENTICATED'
+          if ((new URLSearchParams(location.search)).has('dest')) {
+            window.location.reload()
+          } else {
+            this.status = 'AUTHENTICATED'
+          }
         } else {
           await (await window.alertController.create({
             header: 'Mensaje',
@@ -55,7 +60,7 @@ export class AppDashboard {
 
   render() {
     if (this.status === 'AUTHENTICATED') {
-      return <Desktop />
+      return <Desktop apps={this.apps} />
     }
     if (this.status === 'NOAUTHENTICATED') {
       return <lco-auth></lco-auth>

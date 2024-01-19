@@ -7,12 +7,12 @@ const encryptor = new Encryptor()
 const isJSON = (text: string): boolean => {
   return /^[\],:{}\s]*$/.test(text.replace(/\\["\\\/bfnrtu]/g, '@').replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']').replace(/(?:^|:|,)(?:\s*\[)+/g, ''))
 }
-const deniedError = {
+const DENIED_ERROR = {
   code: 'access-denied',
   message: 'No tienes permiso para hacer esto!'
 }
 
-export const verifyPageSession = (req: Request<LocalCloud.SessionData>, res: Response, next: Next) => {
+export const verifySession = (req: Request<LocalCloud.SessionData>, res: Response, next: Next) => {
   if (!req.session.key) {
     req.session.key = v4()
   }
@@ -33,20 +33,20 @@ export const decryptRequest = async (req: Request<LocalCloud.SessionData>, res: 
         req.body = result
       }
     } catch (error) {
-      nextError = deniedError
+      nextError = DENIED_ERROR
     }
   } else {
-    nextError = deniedError
+    nextError = DENIED_ERROR
   }
   next(nextError)
 }
 export const verifyAPIPermission = async (req: Request<LocalCloud.SessionData>, res: Response, next: Next) => {
   let nextError: any = undefined
   if (!req.session.user) {
-    nextError = deniedError
+    nextError = DENIED_ERROR
   }
   if (!req.headers['token']) {
-    nextError = deniedError
+    nextError = DENIED_ERROR
   }
   next(nextError)
 }

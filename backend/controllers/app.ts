@@ -4,7 +4,7 @@ import type { Next, Request, Response } from 'phoenix-js/http'
 import type { AppsModel } from 'models'
 import { Model } from 'phoenix-js/core'
 import { Prefix, On, Methods, beforeMiddelware } from 'phoenix-js/http'
-import { verifyPageSession } from './middlewares/session'
+import { verifySession } from 'controllers/middlewares/session'
 import { v4 } from 'uuid'
 
 const { GET } = Methods
@@ -28,18 +28,18 @@ export class AppController {
   }
   public setAppHeaders(req: Request<LocalCloud.SessionData>, res: Response, next: Next): void {
     const app = req.session.apps[req.params.packagename]
-    const { font, img, connect, script } = app.secureSources
+    const { font = "'self'", img = "'self'", connect = "'self'", script = "'self'" } = app.secureSources
     res.setHeader('Content-Security-Policy', `frame-ancestors 'self';font-src ${font};img-src ${img};connect-src ${connect};script-src-elem ${script};`)
     next()
   }
   @On(GET, '/:packagename')
-  @beforeMiddelware([verifyPageSession, 'loadApp', 'setAppHeaders'])
+  @beforeMiddelware([verifySession, 'loadApp', 'setAppHeaders'])
   public async index(req: Request<LocalCloud.SessionData>, res: Response): Promise<void> {
     const app = req.session.apps[req.params.packagename]
     res.render('app', { app, key: req.session.key, token: app.token })
   }
   @On(GET, '/:packagename/*')
-  @beforeMiddelware([verifyPageSession, 'loadApp', 'setAppHeaders'])
+  @beforeMiddelware([verifySession, 'loadApp', 'setAppHeaders'])
   public async asset(req: Request<LocalCloud.SessionData>, res: Response): Promise<void> {
     try {
       const assetPath = this.model.resolveAsset(req.params.packagename, ...req.params[0].split('/'))

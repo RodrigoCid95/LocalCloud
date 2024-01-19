@@ -4,15 +4,15 @@ import type { Next, Request, Response } from 'phoenix-js/http'
 import type { UsersModel } from 'models'
 import { Model } from 'phoenix-js/core'
 import { Prefix, On, Methods, beforeMiddelware } from 'phoenix-js/http'
-import { verifyPageSession, verifyAPIPermission, decryptRequest } from '../middlewares/session'
+import { verifySession, verifyAPIPermission, decryptRequest } from 'controllers/middlewares/session'
 
 const { GET, POST, PUT } = Methods
 
-@Prefix('api/users')
+@Prefix('api/admin/users')
 export class UsersController {
   @Model('UsersModel') private model: UsersModel
   @On(GET, '/')
-  @beforeMiddelware([verifyPageSession, verifyAPIPermission])
+  @beforeMiddelware([verifySession, verifyAPIPermission])
   public async getUsers(req: Request<LocalCloud.SessionData>, res: Response): Promise<void> {
     let users: User[] = []
     if (Object.keys(req.query).length > 0) {
@@ -27,7 +27,7 @@ export class UsersController {
     res.json(users)
   }
   @On(POST, '/')
-  @beforeMiddelware([verifyPageSession, verifyAPIPermission, decryptRequest])
+  @beforeMiddelware([verifySession, verifyAPIPermission, decryptRequest])
   public async create(req: Request<LocalCloud.SessionData>, res: Response, next: Next): Promise<void> {
     const { userName, fullName, email, phone, password } = req.body
     this.model.create({ userName, photo: '', fullName, email, phone, password })
@@ -38,7 +38,7 @@ export class UsersController {
       }))
   }
   @On(PUT, '/:uuid')
-  @beforeMiddelware([verifyPageSession, verifyAPIPermission, decryptRequest])
+  @beforeMiddelware([verifySession, verifyAPIPermission, decryptRequest])
   public async update(req: Request<LocalCloud.SessionData>, res: Response): Promise<void> {
     const { fullName = '', email = '', phone = '' } = req.body
     await this.model.update(req.params.uuid, { fullName, email, phone })

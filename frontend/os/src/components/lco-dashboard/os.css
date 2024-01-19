@@ -8,3 +8,8 @@ app-menu-profile,
 app-menu-settings {
   display: contents;
 }
+
+ion-split-pane {
+  --side-width: 350px;
+  --side-max-width: 350px;
+}
