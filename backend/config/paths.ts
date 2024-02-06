@@ -25,7 +25,7 @@ export const paths: PathsConfigProfile = {
         }
       }
     },
-    database: path.join(system, 'data.db')
+    database: path.join(system, 'system.db')
   },
   users: {
     path: users,

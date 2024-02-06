@@ -4,7 +4,7 @@ import type { AppsModel } from 'models/apps'
 import { Model } from 'phoenix-js/core'
 import { Prefix, On, Methods, beforeMiddelware } from 'phoenix-js/http'
 import { verifySession } from 'controllers/middlewares/session'
-import { userAccess } from 'controllers/middlewares/access'
+import { homeOrigin } from 'controllers/middlewares/access'
 
 const { GET } = Methods
 
@@ -12,7 +12,7 @@ const { GET } = Methods
 export class AppsController {
   @Model('AppsModel') private model: AppsModel
   @On(GET, '/')
-  @beforeMiddelware([verifySession, userAccess])
+  @beforeMiddelware([verifySession, homeOrigin])
   public async index(req: Request<LocalCloud.SessionData>, res: Response): Promise<void> {
     const apps = await this.model.find()
     res.json(apps)

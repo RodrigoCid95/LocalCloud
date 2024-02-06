@@ -1,5 +1,5 @@
 import type { LocalCloud } from 'declarations'
-import type { AppsModel, RolesModel, UsersModel, IndexModel } from 'models'
+import type { AppsModel, GroupsModel, UsersModel, IndexModel } from 'models'
 import { Request, Response, beforeMiddelware } from 'phoenix-js/http'
 import { Model } from 'phoenix-js/core'
 import { On, Methods } from 'phoenix-js/http'
@@ -9,7 +9,7 @@ const { GET, POST } = Methods
 
 export class IndexController {
   @Model('AppsModel') private appsModel: AppsModel
-  @Model('RolesModel') private rolesModel: RolesModel
+  @Model('RolesModel') private rolesModel: GroupsModel
   @Model('UsersModel') private usersModel: UsersModel
   @Model('IndexModel') private welcomeModel: IndexModel
   @On(GET, '/')

@@ -1,9 +1,9 @@
 import type { DataBasesLib, RunResult } from 'interfaces/DataBases'
-import type { NewRol, Rol, RolDBResult } from 'interfaces/Roles'
+import type { NewGroup, Group, GroupDBResult } from 'interfaces/Groups'
 import type { Database } from "sqlite3"
 import { Lib, Emitter } from 'phoenix-js/core'
 
-export class RolesModel {
+export class GroupsModel {
   public onChange: Emitter
   @Lib('databases') private databases: DataBasesLib
   private get systemDBRef(): Database {
@@ -12,10 +12,10 @@ export class RolesModel {
   constructor() {
     this.onChange = new Emitter()
   }
-  public async create({ name, description, permissions }: NewRol): Promise<void> {
-    const [rol] = await this.find({ name })
-    if (rol) {
-      throw new Error(`El rol ${name} ya existe!`)
+  public async create({ name, description, permissions }: NewGroup): Promise<void> {
+    const [group] = await this.find({ name })
+    if (group) {
+      throw new Error(`El group ${name} ya existe!`)
     }
     const fields: string[] = ["'name'"]
     const values: string[] = [name || '']
@@ -28,7 +28,7 @@ export class RolesModel {
       values.push(permissions.join(','))
     }
     const { error } = await new Promise<RunResult>(resolve => this.systemDBRef.run(
-      `INSERT INTO 'roles' (${fields.join(', ')}) VALUES (${fields.map(() => '?').join(', ')})`,
+      `INSERT INTO 'groups' (${fields.join(', ')}) VALUES (${fields.map(() => '?').join(', ')})`,
       values,
       error => resolve({ error })
     ))
@@ -37,28 +37,28 @@ export class RolesModel {
     }
     this.onChange.emmit()
   }
-  public async find(query?: Partial<Rol>): Promise<Rol[]> {
+  public async find(query?: Partial<Group>): Promise<Group[]> {
     const { error, rows } = await new Promise(
-      this.databases.getSelectQuery<RolDBResult, Rol>({
+      this.databases.getSelectQuery<GroupDBResult, Group>({
         db: this.systemDBRef,
-        table: 'roles',
+        table: 'groups',
         query,
-        keys: { id: 'id_rol' }
+        keys: { id: 'id_group' }
       })
     )
     if (error) {
       throw error
     }
-    const result: Rol[] = []
-    for (const { id_rol, name, description, permissions } of rows) {
-      result.push({ id: id_rol, name, description, permissions: permissions.split(',') })
+    const result: Group[] = []
+    for (const { id_group, name, description, permissions } of rows) {
+      result.push({ id: id_group, name, description, permissions: permissions.split(',') })
     }
     return result
   }
-  public async update(id: number, query: Partial<Omit<Rol, 'id'>>): Promise<void> {
-    const [rol] = await this.find({ id })
-    if (!rol) {
-      throw new Error(`El rol ${name} no existe!`)
+  public async update(id: number, query: Partial<Omit<Group, 'id'>>): Promise<void> {
+    const [group] = await this.find({ id })
+    if (!group) {
+      throw new Error(`El group ${name} no existe!`)
     }
     const fields: string[] = []
     const values: string[] = []
@@ -71,44 +71,44 @@ export class RolesModel {
       values.push(query.permissions.join(','))
     }
     await new Promise(resolve => this.systemDBRef.run(
-      `UPDATE 'roles' SET ${fields.join(', ')} WHERE id_rol = ?`,
+      `UPDATE 'groups' SET ${fields.join(', ')} WHERE id_group = ?`,
       [...values, id],
       resolve
     ))
     this.onChange.emmit()
   }
   public async delete(id: number): Promise<void> {
-    const [rol] = await this.find({ id })
-    if (!rol) {
-      throw new Error(`El rol ${name} no existe!`)
+    const [group] = await this.find({ id })
+    if (!group) {
+      throw new Error(`El group ${name} no existe!`)
     }
     await new Promise(resolve => this.systemDBRef.run(
-      "DELETE FROM 'users' WHERE id_rol = ?",
+      "DELETE FROM 'users' WHERE id_group = ?",
       [id],
       resolve
     ))
     this.onChange.emmit()
   }
-  public async assignRolToUser({ id_rol, uuid }: AssignRolToUserArgs): Promise<void> {
+  public async assignGroupToUser({ id_group, uuid }: AssignGroupToUserArgs): Promise<void> {
     await new Promise<void>(resolve => this.systemDBRef.run(
-      "INSERT INTO 'roles_users' (id_rol, uuid) VALUES (?, ?)",
-      [id_rol, uuid],
+      "INSERT INTO 'groups_users' (id_group, uuid) VALUES (?, ?)",
+      [id_group, uuid],
       resolve
     ))
   }
-  public async assignAppToRol({ id_rol, id_app }: AssignAppToRolArgs): Promise<void> {
+  public async assignAppToGroup({ id_group, id_app }: AssignAppToGroupArgs): Promise<void> {
     await new Promise<void>(resolve => this.systemDBRef.run(
-      "INSERT INTO 'roles_apps' (id_rol, id_app) VALUES (?, ?)",
-      [id_rol, id_app],
+      "INSERT INTO 'groups_apps' (id_group, id_app) VALUES (?, ?)",
+      [id_group, id_app],
       resolve
     ))
   }
 }
-export interface AssignRolToUserArgs {
-  id_rol: number
+export interface AssignGroupToUserArgs {
+  id_group: number
   uuid: string
 }
-export interface AssignAppToRolArgs {
-  id_rol: number
+export interface AssignAppToGroupArgs {
+  id_group: number
   id_app: number
 }

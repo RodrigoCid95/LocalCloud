@@ -55,6 +55,9 @@ export class AppDashboard {
       const { default: mod } = await import('./desktop/controller')
       await mod(this.el)
       await loading.dismiss()
+      document.getElementById('create-app').addEventListener('click', () => {
+        console.log('Create app!')
+      })
     }
   }
 

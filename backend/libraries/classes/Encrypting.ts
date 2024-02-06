@@ -1,4 +1,4 @@
-import type { EncryptorLib } from 'interfaces/Encryptor'
+import type { EncryptingLib } from 'interfaces/Encrypting'
 import crypto from 'node:crypto'
 
 export class Encryptor implements EncryptorLib {

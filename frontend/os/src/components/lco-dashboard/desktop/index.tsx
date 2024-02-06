@@ -31,7 +31,7 @@ export default () => (
         <div class="ion-page" id="main-content">
           <ion-header>
             <ion-toolbar>
-              <ion-title>Inicio</ion-title>
+              <ion-title>Apps</ion-title>
               <ion-buttons slot="end">
                 <ion-menu-button></ion-menu-button>
               </ion-buttons>
@@ -43,6 +43,19 @@ export default () => (
               <ion-row id="app-list">
               </ion-row>
             </ion-grid>
+            <ion-fab slot="fixed" vertical="bottom" horizontal="end">
+              <ion-fab-button>
+                <ion-icon name="add"></ion-icon>
+              </ion-fab-button>
+              <ion-fab-list side="top">
+                <ion-fab-button id="create-app">
+                  <ion-icon name="code-slash"></ion-icon>
+                </ion-fab-button>
+                <ion-fab-button>
+                  <ion-icon name="cloud-upload"></ion-icon>
+                </ion-fab-button>
+              </ion-fab-list>
+            </ion-fab>
           </ion-content>
         </div>
       </ion-split-pane>

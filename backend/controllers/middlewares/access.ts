@@ -6,7 +6,7 @@ const DENIED_ERROR = {
   message: 'No tienes permiso para hacer esto!'
 }
 
-export const userAccess = (req: Request<LocalCloud.SessionData>, res: Response, next: Next) => {
+export const homeOrigin = (req: Request<LocalCloud.SessionData>, _: Response, next: Next) => {
   if (!req.headers.referer || !req.headers.host) {
     next(DENIED_ERROR)
   }

@@ -8,7 +8,7 @@ const isJSON = (text: string): boolean => {
 
 export class ServerController implements ServerConnector {
   #headers: Headers
-  #encryptor: EncryptorLib
+  encryptor: EncryptorLib
   constructor() {
     const keyRef = document.querySelector('[name="key"]') as HTMLInputElement
     const tokenRef = document.querySelector('[name="token"]') as HTMLInputElement
@@ -21,7 +21,7 @@ export class ServerController implements ServerConnector {
       this.#headers.append('token', tokenRef.value)
       tokenRef.remove()
     }
-    this.#encryptor = new Encryptor()
+    this.encryptor = new Encryptor()
   }
   #getURL(endpoint: string, params = {}): string {
     const url = new URL(endpoint, window.location.origin)
@@ -41,7 +41,7 @@ export class ServerController implements ServerConnector {
         )
       } else {
         const key = this.#headers.get('key')
-        const body = await this.#encryptor.encrypt(key || '12341234', JSON.stringify(data))
+        const body = await this.encryptor.encrypt(key || '12341234', JSON.stringify(data))
         response = await fetch(
           this.#getURL(endpoint),
           {

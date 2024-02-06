@@ -19,7 +19,10 @@
 			"public",
 			"../.system/apps",
 			".system"
-		]
+		],
+		"loader": {
+			".sql": "text"
+		}
 	},
 	"dependencies": {
 		"archiver": "^6.0.1",

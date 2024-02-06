@@ -18,7 +18,7 @@ export default async (el: HTMLElement) => {
       progressBarRef.style.display = 'block'
       await window.server.send({
         method: 'post',
-        endpoint: 'api/profile',
+        endpoint: 'api/user/profile',
         data
       })
       progressBarRef.style.display = 'none'
