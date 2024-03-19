@@ -1,3 +1,2 @@
-export * from './paths'
-export * from './databases'
+export * from './database'
 export * from './encryptor'

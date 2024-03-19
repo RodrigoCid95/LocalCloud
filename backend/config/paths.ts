@@ -1,17 +1,14 @@
-import type { PathsConfigProfile } from 'interfaces/Paths'
 import path from 'node:path'
 
-declare const isRelease: boolean
+const system: string = path.resolve(__dirname, '..', '.system')
+const systemApps: string = path.join(system, 'apps')
+const systemApp: string = path.join(system, 'apps', ':packagename')
+const systemDatabases: string = path.join(systemApp, 'data')
 
-const system = isRelease ? path.resolve(__dirname, '..', '.system') : path.resolve(__dirname, '..', '..', '.system')
-const systemApps = path.join(system, 'apps')
-const systemApp = path.join(system, 'apps', ':packagename')
-const systemDatabases = path.join(systemApp, 'data')
+const users: string = path.resolve(__dirname, '..', '.users')
+const user: string = path.join(users, ':uuid')
 
-const users = isRelease ? path.resolve(__dirname, '..', '.users') : path.resolve(__dirname, '..', '..', '.users')
-const user = path.join(users, ':uuid')
-
-export const paths: PathsConfigProfile = {
+export const paths: Paths.Config = {
   system: {
     path: system,
     apps: {

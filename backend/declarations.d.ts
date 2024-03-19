@@ -1,18 +1,5 @@
-import type { App } from "interfaces/Apps"
-import type { User } from "interfaces/Users"
-
-interface SessionApp extends App {
-  token: string
-}
-
-declare namespace LocalCloud {
-  interface SessionData {
-    user?: User
-    permissions?: string[]
-    apps: {
-      [x: string]: SessionApp
-    }
-    key?: string
-    systemToken: string
-  }
-}
+import 'px.io'
+import 'px.io/server'
+import 'px.io/http'
+import 'px.io/sockets'
+import 'types'

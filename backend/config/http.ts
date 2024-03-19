@@ -1,4 +1,3 @@
-import type { PhoenixHTTPConfigProfile } from "phoenix-js/http"
 import path from 'node:path'
 import session from 'express-session'
 import compression from 'compression'
@@ -7,7 +6,7 @@ import { v4 } from 'uuid'
 
 declare const isRelease: boolean
 
-export const phoenixHttpConfig: PhoenixHTTPConfigProfile = {
+export const HTTP: PXIOHTTP.Config = {
   optionsUrlencoded: { extended: true },
   engineTemplates: {
     name: 'liquid',

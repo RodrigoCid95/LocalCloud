@@ -1,7 +1,7 @@
 import type { LocalCloud } from "declarations"
 import type { Next, Request, Response } from "phoenix-js/http"
 import { v4 } from 'uuid'
-import { Encryptor } from '../../libraries/classes/Encrypting'
+import { Encryptor } from '../../libraries/Encrypting'
 
 const encryptor = new Encryptor()
 const isJSON = (text: string): boolean => {

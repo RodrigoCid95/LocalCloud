@@ -1,7 +1,5 @@
-import { type DataBasesConfigProfile } from 'interfaces/DataBases'
-import { paths } from './paths'
+import path from 'node:path'
 
-export const databases: DataBasesConfigProfile = {
-  systemDB: paths.system.database,
-  systemAppDB: paths.system.apps.app.databases.database
+export const database: Database.Config = {
+  path: path.resolve(__dirname, '..', 'system.db')
 }
