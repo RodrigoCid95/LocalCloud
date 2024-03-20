@@ -10,17 +10,13 @@ export class ServerController implements ServerConnector {
   #headers: Headers
   encryptor: EncryptorLib
   constructor() {
-    const keyRef = document.querySelector('[name="key"]') as HTMLInputElement
-    const tokenRef = document.querySelector('[name="token"]') as HTMLInputElement
+    const key = document.documentElement.getAttribute('key') || ''
+    document.documentElement.removeAttribute('key')
+    const token = document.documentElement.getAttribute('token') || ''
+    document.documentElement.removeAttribute('token')
     this.#headers = new Headers()
-    if (keyRef) {
-      this.#headers.append('key', keyRef.value)
-      keyRef.remove()
-    }
-    if (tokenRef) {
-      this.#headers.append('token', tokenRef.value)
-      tokenRef.remove()
-    }
+    this.#headers.append('key', key)
+    this.#headers.append('token', token)
     this.encryptor = new Encryptor()
   }
   #getURL(endpoint: string, params = {}): string {

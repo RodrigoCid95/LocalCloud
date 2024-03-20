@@ -1,16 +1,12 @@
-.system
-.users
-
-backend-old
-
 backend/.release
 backend/.debugger
+backend/.system
+backend/.user
 backend/node_modules
 backend/package-lock.json
-backend/views/index.liquid
+backend/public
+backend/views/layout.liquid
 
 frontend/os/package-lock.json
 frontend/os/dist
 frontend/os/node_modules
-
-public

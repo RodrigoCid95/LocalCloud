@@ -1,0 +1,18 @@
+{% layout "layout.liquid" %}
+{% block content %}
+  <lco-auth></lco-auth>
+  <script>
+    document.addEventListener('onReady', () => document.querySelector('lco-auth').addEventListener('logged-in', ({ detail }) => {
+      if (detail.ok) {
+        window.location.reload()
+      } else {
+        alertController.create({
+          header:'Lo siento!',
+          message: detail.message,
+          buttons:['Aceptar']
+        })
+          .then(alert => alert.present())
+      }
+    }))
+  </script>
+{% endblock %}

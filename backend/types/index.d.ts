@@ -4,12 +4,11 @@ import './Encrypting'
 import './Paths'
 import './Users'
 
-interface SessionApp extends Apps.App {
-  token: string
-}
-
 declare global {
   namespace LocalCloud {
+    interface SessionApp extends Omit<Apps.App, 'package_name'> {
+      token: string
+    }
     interface SessionData {
       user?: Users.User
       apps: {

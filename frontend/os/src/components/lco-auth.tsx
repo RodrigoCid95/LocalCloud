@@ -10,7 +10,7 @@ export interface Detail {
 })
 export class LCOAuth {
   @Event({ eventName: 'logged-in' }) logged: EventEmitter<Detail>
-  @State() private userName: string = 'rcid'
+  @State() private userName: string = 'admin'
   @State() private password: string = 'A.1b2c3d4'
 
   async _handlerOnEnter() {

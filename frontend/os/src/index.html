@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" token="{{ token }}" key="{{ key }}">
 
 <head>
   <meta charset="utf-8">
-  <title>LocalCloudOS</title>
-  <meta name="Description" content="LocalCloudOS">
+  <title>{{ title }}</title>
+  <meta name="Description" content="{{ description }}">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=5.0">
   <meta name="theme-color" content="#16161d">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -20,9 +20,7 @@
 </head>
 
 <body>
-  <input type="hidden" name="token" value="{{ token }}">
-  <input type="hidden" name="key" value="{{ key }}">
-  <lco-dashboard></lco-dashboard>
+  {% block content %}{% endblock %}
 </body>
 
 </html>

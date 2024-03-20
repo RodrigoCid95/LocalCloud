@@ -30,12 +30,12 @@ export default async (el: HTMLElement) => {
     localStorage.clear()
     window.location.reload()
   })
-  const { userName, fullName, email, phone } = await window.server.send<any>({
+  const { user_name, full_name, email, phone } = await window.server.send<any>({
     method: 'get',
     endpoint: 'api/auth'
   })
-  userNameRef.value = userName
-  fullNameRef.value = fullName
+  userNameRef.value = user_name
+  fullNameRef.value = full_name
   emailRef.value = email
   phoneRef.value = phone
   progressBarRef.style.display = 'none'

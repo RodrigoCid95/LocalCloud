@@ -1,5 +1,5 @@
-import path from 'node:path'
+import { paths } from './paths'
 
 export const database: Database.Config = {
-  path: path.resolve(__dirname, '..', 'system.db')
+  path: paths.system.database
 }

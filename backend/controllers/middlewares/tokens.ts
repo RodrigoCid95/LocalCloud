@@ -1,8 +1,6 @@
-import { LocalCloud } from "declarations"
-import type { Next, Request, Response } from "phoenix-js/http"
 import { v4 } from 'uuid'
 
-export const tokens = (req: Request<LocalCloud.SessionData>, res: Response, next: Next) => {
+export const tokens = (req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response, next: PXIOHTTP.Next) => {
   if (!req.session.key) {
     req.session.key = v4()
   }

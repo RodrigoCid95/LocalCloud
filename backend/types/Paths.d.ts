@@ -69,7 +69,15 @@ declare global {
       }
     }
     interface Class {
-      
+      readonly system: string
+      readonly database: string
+      readonly apps: string
+      readonly users: string
+      getApp(packagename: string): string
+      getAppPublic(packagename: string): string
+      getAppDatabases(packagename: string): string
+      getAppDatabase(packagename: string, name: string): string
+      getUser(uuid: string): string
     }
   }
 }

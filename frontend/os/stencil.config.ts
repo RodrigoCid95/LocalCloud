@@ -10,9 +10,9 @@ export const config: Config = {
     {
       type: 'www',
       serviceWorker: false,
-      dir: '../../public',
+      dir: '../../backend/public',
       buildDir: 'js',
-      indexHtml: '../backend/views/index.liquid'
+      indexHtml: '../views/layout.liquid'
     },
   ],
 };

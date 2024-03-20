@@ -4,8 +4,6 @@ import compression from 'compression'
 import { Liquid } from 'liquidjs'
 import { v4 } from 'uuid'
 
-declare const isRelease: boolean
-
 export const HTTP: PXIOHTTP.Config = {
   optionsUrlencoded: { extended: true },
   engineTemplates: {
@@ -37,11 +35,11 @@ export const HTTP: PXIOHTTP.Config = {
   pathsPublic: [
     {
       route: '/',
-      dir: isRelease ? path.resolve(__dirname, '..', 'public') : path.resolve(__dirname, '..', '..', 'public')
+      dir: path.resolve(__dirname, '..', 'public')
     },
     {
       route: '/app',
-      dir: isRelease ? path.resolve(__dirname, '..', 'public') : path.resolve(__dirname, '..', '..', 'public')
+      dir: path.resolve(__dirname, '..', 'public')
     }
   ]
 }

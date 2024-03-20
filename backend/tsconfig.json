@@ -16,10 +16,10 @@
 			"config/*": [
 				"config/*"
 			],
-			"controllers": [
+			"controllers/*": [
 				"controllers/*"
 			],
-			"interfaces": [
+			"interfaces/*": [
 				"interfaces/*"
 			],
 			"libraries/*": [

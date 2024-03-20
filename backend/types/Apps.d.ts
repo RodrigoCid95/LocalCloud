@@ -1,13 +1,12 @@
 declare global {
   namespace Apps {
     interface App {
-      id_app: number
       package_name: string
       title: string
       description: string
       author: string
       icon: string
-      dependences: string[]
+      dependencies: string[]
       secureSources: {
         font: string
         img: string
@@ -16,8 +15,8 @@ declare global {
       }
     }
     type New = Partial<App>
-    interface Result extends Omit<Omit<App, 'dependences'>, 'secureSources'> {
-      dependences: string
+    interface Result extends Omit<Omit<App, 'dependencies'>, 'secureSources'> {
+      dependencies: string
       font: string
       img: string
       connect: string
