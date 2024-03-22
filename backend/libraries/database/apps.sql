@@ -4,7 +4,7 @@ CREATE TABLE if NOT EXISTS apps (
     description  TEXT,
     author       TEXT    NOT NULL,
     icon         TEXT    NOT NULL,
-    dependencies  TEXT,
+    permissions  TEXT,
     font         TEXT,
     img          TEXT,
     connect      TEXT,

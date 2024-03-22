@@ -4,6 +4,7 @@ declare const Library: PXIO.LibraryDecorator
 
 export class AppsModel {
   @Library('database') private database: Database
+  @Library('paths') public paths: Paths.Class
   public assignAppToUser(uuid: Users.User['uuid'], package_name: Apps.App['package_name']): Promise<void> {
     return new Promise(
       resolve =>
@@ -18,8 +19,8 @@ export class AppsModel {
     return new Promise(
       resolve =>
         this.database.run(
-          'INSERT INTO apps (package_name, title, description, author, icon, dependencies, font, img, connect, script) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);',
-          [app.package_name, app.title, app.description, app.author, app.icon, app.dependencies?.join(';'), app.secureSources?.font, app.secureSources?.img, app.secureSources?.connect, app.secureSources?.script],
+          'INSERT INTO apps (package_name, title, description, author, icon, permissions, font, img, connect, script) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);',
+          [app.package_name, app.title, app.description, app.author, app.icon, app.permissions?.join(';'), app.secureSources?.font, app.secureSources?.img, app.secureSources?.connect, app.secureSources?.script],
           resolve
         )
     )
@@ -33,7 +34,7 @@ export class AppsModel {
         description: result.description,
         author: result.author,
         icon: result.icon,
-        dependencies: result.dependencies.split(';'),
+        permissions: result.permissions.split(';'),
         secureSources: {
           font: result.font,
           img: result.img,
@@ -48,7 +49,7 @@ export class AppsModel {
     return new Promise(
       resolve =>
         this.database.all<Apps.Result>(
-          'SELECT apps.package_name, apps.title, apps.description, apps.author, apps.icon, apps.dependencies, apps.font, apps.img, apps.connect, apps.script FROM users_to_apps INNER JOIN apps ON users_to_apps.package_name = apps.package_name WHERE users_to_apps.uuid = ?;',
+          'SELECT apps.package_name, apps.title, apps.description, apps.author, apps.icon, apps.permissions, apps.font, apps.img, apps.connect, apps.script FROM users_to_apps INNER JOIN apps ON users_to_apps.package_name = apps.package_name WHERE users_to_apps.uuid = ?;',
           [uuid],
           (error, rows) => error ? resolve([]) : resolve(this.parse(rows))
         )

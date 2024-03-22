@@ -1,7 +1,7 @@
 import { decryptRequest } from './middlewares/encrypt'
 import { v4, v5 } from 'uuid'
 
-declare const Namespace: PXIO.NamespaceDecorator
+declare const Namespace: PXIOHTTP.NamespaceDecorator
 declare const Model: PXIO.ModelDecorator
 declare const On: PXIOHTTP.OnDecorator
 declare const BeforeMiddleware: PXIOHTTP.BeforeMiddlewareDecorator
@@ -39,7 +39,7 @@ export class AuthAPIController {
             description: app.description,
             author: app.author,
             icon: app.icon,
-            dependencies: app.dependencies,
+            permissions: app.permissions,
             secureSources: {
               font: app.secureSources.font,
               img: app.secureSources.img,

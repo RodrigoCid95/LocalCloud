@@ -4,8 +4,8 @@ export const tokens = (req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOH
   if (!req.session.key) {
     req.session.key = v4()
   }
-  if (!req.session.systemToken) {
-    req.session.systemToken = v4()
+  if (!req.session.token) {
+    req.session.token = v4()
   }
   next()
 }

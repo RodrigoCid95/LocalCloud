@@ -15,7 +15,7 @@ declare global {
         [x: string]: SessionApp
       }
       key?: string
-      systemToken: string
+      token: string
     }
   }
 }

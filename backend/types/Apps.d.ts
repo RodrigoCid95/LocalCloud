@@ -6,7 +6,7 @@ declare global {
       description: string
       author: string
       icon: string
-      dependencies: string[]
+      permissions: string[]
       secureSources: {
         font: string
         img: string
@@ -15,8 +15,8 @@ declare global {
       }
     }
     type New = Partial<App>
-    interface Result extends Omit<Omit<App, 'dependencies'>, 'secureSources'> {
-      dependencies: string
+    interface Result extends Omit<Omit<App, 'permissions'>, 'secureSources'> {
+      permissions: string
       font: string
       img: string
       connect: string
