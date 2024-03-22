@@ -7,6 +7,6 @@ export const verifySession: PXIOHTTP.Middleware = (req: PXIOHTTP.Request<LocalCl
   if (req.session.user) {
     next()
   } else {
-    res.status(403).json(REQUIRED_LOGIN)
+    res.status(401).json(REQUIRED_LOGIN)
   }
 }

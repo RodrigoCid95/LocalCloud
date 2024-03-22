@@ -21,8 +21,6 @@ export const decryptRequest = async (req: PXIOHTTP.Request<LocalCloud.SessionDat
     } catch (error) {
       nextError = DENIED_ERROR
     }
-  } else {
-    nextError = DENIED_ERROR
   }
   next(nextError)
 }

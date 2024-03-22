@@ -10,11 +10,11 @@ declare global {
       token: string
     }
     interface SessionData {
-      user?: Users.User
+      user: Users.User
       apps: {
         [x: string]: SessionApp
       }
-      key?: string
+      key: string
       token: string
     }
   }

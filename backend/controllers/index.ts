@@ -15,7 +15,7 @@ export class IndexController {
   @On(GET, '/get-key')
   @BeforeMiddleware([tokens])
   public tokens(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): void {
-    res.status(200).json({ key: req.session.key })
+    res.json({ key: req.session.key })
   }
   @On(GET, '/login')
   @BeforeMiddleware([tokens, verifyNotSession])
@@ -24,7 +24,7 @@ export class IndexController {
   }
   @On(GET, '/test')
   public test(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): void {
-    res.status(200).json(req.session.apps)
+    res.json(req.session.apps)
   }
 }
 

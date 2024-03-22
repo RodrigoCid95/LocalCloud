@@ -1,5 +1,5 @@
-import { verifySession } from './middlewares/session'
 import path from 'node:path'
+import { verifySession } from './middlewares/session'
 
 declare const Namespace: PXIOHTTP.NamespaceDecorator
 declare const Model: PXIO.ModelDecorator

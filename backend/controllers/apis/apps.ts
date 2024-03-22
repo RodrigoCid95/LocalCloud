@@ -20,7 +20,7 @@ export class AppsAPIController {
       author: app.author,
       icon: app.icon
     }))
-    res.status(200).json(apps)
+    res.json(apps)
   }
   @On(POST, '/register')
   public async register(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {

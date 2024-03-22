@@ -1,5 +1,5 @@
-import { decryptRequest } from './middlewares/encrypt'
 import { v4, v5 } from 'uuid'
+import { decryptRequest } from './middlewares/encrypt'
 
 declare const Namespace: PXIOHTTP.NamespaceDecorator
 declare const Model: PXIO.ModelDecorator
@@ -15,9 +15,9 @@ export class AuthAPIController {
   @On(GET, '/')
   public index(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): void {
     if (req.session.user) {
-      res.status(200).json(req.session.user)
+      res.json(true)
     } else {
-      res.status(200).json(null)
+      res.json(null)
     }
   }
   @On(POST, '/')
@@ -49,7 +49,7 @@ export class AuthAPIController {
           }
           req.session.apps[app.package_name] = sessionApp
         }
-        res.status(200).json({ ok: true })
+        res.json({ ok: true })
       } else {
         res.status(400).json({ ok: false, message: 'La contraseña es incorrecta!' })
       }
@@ -60,7 +60,7 @@ export class AuthAPIController {
   @On(DELETE, '/')
   public logout(req: PXIOHTTP.Request, res: PXIOHTTP.Response): void {
     req.session.destroy((): void => {
-      res.status(200).json(true)
+      res.json(true)
     })
   }
 }

@@ -26,11 +26,12 @@ export const verifyPermissions = (freeForDashboard: boolean = false): PXIOHTTP.M
       res.status(403).json(DENIED_ERROR)
       return
     }
-  }
-  const API_NAME = req.baseUrl.slice(1, -1)
-  if (!(req.session as LocalCloud.SessionData).apps[segment].permissions.includes(API_NAME)) {
-    res.status(403).json(DENIED_ERROR)
-    return
+  } else {
+    const API_NAME = req.baseUrl.slice(1, -1)
+    if (!(req.session as LocalCloud.SessionData).apps[segment].permissions.includes(API_NAME)) {
+      res.status(403).json(DENIED_ERROR)
+      return
+    }
   }
   next()
 }

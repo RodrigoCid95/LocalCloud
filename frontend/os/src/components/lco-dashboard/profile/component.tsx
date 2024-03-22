@@ -38,6 +38,20 @@ export default () => (
           <ion-button slot="end" name="save">Guardar</ion-button>
         </ion-item>
       </ion-list>
+      <ion-list inset>
+        <ion-item>
+          <ion-input label="Contraseña actual:" label-placement="floating" type="password"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-input label="Nueva contraseña:" label-placement="floating" type="password"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-input label="Repite la contraseña:" label-placement="floating" type="password"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-button slot="end" name="save">Cambiar contraseña</ion-button>
+        </ion-item>
+      </ion-list>
     </ion-content>
     <ion-footer>
       <ion-toolbar>
