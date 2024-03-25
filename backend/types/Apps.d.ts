@@ -6,7 +6,9 @@ declare global {
       description: string
       author: string
       icon: string
-      permissions: string[]
+      permissions: {
+        [api: string]: number[]
+      }
       secureSources: {
         font: string
         img: string

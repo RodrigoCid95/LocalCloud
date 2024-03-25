@@ -16,11 +16,19 @@ export class AppsModel {
     )
   }
   public register(app: Apps.New): Promise<void> {
+    const permissions: string[] = []
+    if (app.permissions) {
+      const apis = Object.keys(app.permissions)
+      for (const api of apis) {
+        const permissionList = app.permissions[api]
+        permissions.push(`${api}:${permissionList.join(',')}`)
+      }
+    }
     return new Promise(
       resolve =>
         this.database.run(
           'INSERT INTO apps (package_name, title, description, author, icon, permissions, font, img, connect, script) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);',
-          [app.package_name, app.title, app.description, app.author, app.icon, app.permissions?.join(';'), app.secureSources?.font, app.secureSources?.img, app.secureSources?.connect, app.secureSources?.script],
+          [app.package_name, app.title, app.description, app.author, app.icon, permissions.join(';'), app.secureSources?.font, app.secureSources?.img, app.secureSources?.connect, app.secureSources?.script],
           resolve
         )
     )
@@ -28,13 +36,18 @@ export class AppsModel {
   private parse(results: Apps.Result[]): Apps.App[] {
     const apps: Apps.App[] = []
     for (const result of results) {
+      const permissions: Apps.App['permissions'] = {}
+      const segments = result.permissions.split(';').map(segments => segments.split(':'))
+      for (const [api, parts] of segments) {
+        permissions[api] = parts.split(',').map(part => parseInt(part))
+      }
       apps.push({
         package_name: result.package_name,
         title: result.title,
         description: result.description,
         author: result.author,
         icon: result.icon,
-        permissions: result.permissions.split(';'),
+        permissions,
         secureSources: {
           font: result.font,
           img: result.img,

@@ -2,6 +2,7 @@ import './Apps'
 import './Database'
 import './Encrypting'
 import './Paths'
+import './Permissions'
 import './Users'
 
 declare global {

@@ -1,0 +1,6 @@
+CREATE TABLE apps_to_permissions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    package_name INTEGER REFERENCES apps (package_name) ON DELETE CASCADE ON UPDATE CASCADE NOT NULL,
+    id_permission INTEGER REFERENCES permissions (id_permission) ON DELETE CASCADE ON UPDATE CASCADE NOT NULL,
+    active INTEGER NOT NULL
+);
