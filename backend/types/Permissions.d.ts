@@ -2,13 +2,13 @@ declare global {
   namespace Permissions {
     interface Permission {
       id: number
-      api: `${string}:${number}`
-      description: string
-    }
-    interface Result {
-      id_permission: number
       api: string
-      level: number
+      justification: string
+      active: boolean
+    }
+    interface New extends Omit<Permission, 'id'> { }
+    interface Result extends Omit<Permission, 'id'> {
+      id_permission: number
     }
   }
 }

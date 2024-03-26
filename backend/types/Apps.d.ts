@@ -5,25 +5,11 @@ declare global {
       title: string
       description: string
       author: string
-      icon: string
-      permissions: {
-        [api: string]: number[]
-      }
-      secureSources: {
-        font: string
-        img: string
-        connect: string
-        script: string
-      }
+      permissions: Omit<Permissions.Permission, 'id'>[]
+      secureSources: Omit<SecureSources.Source, 'id'>[]
     }
     type New = Partial<App>
-    interface Result extends Omit<Omit<App, 'permissions'>, 'secureSources'> {
-      permissions: string
-      font: string
-      img: string
-      connect: string
-      script: string
-    }
+    interface Result extends Omit<Omit<App, 'permissions'>, 'secureSources'> { }
   }
 }
 
