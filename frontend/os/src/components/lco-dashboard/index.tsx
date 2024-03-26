@@ -15,7 +15,7 @@ export class AppDashboard {
   componentDidLoad() {
     document.addEventListener('onReady', async () => {
       this.apps = await window.server.send({
-        endpoint: 'api/apps',
+        endpoint: 'api/profile/apps',
         method: 'get'
       })
       const tabs = this.el.querySelectorAll('ion-tab')
