@@ -11,8 +11,11 @@ export const verifyApp = (req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PX
   if (req.session?.apps && req.session?.apps[packagename]) {
     const app = req.session.apps[packagename]
     if (app) {
-      const { font, img, connect, script } = app.secureSources
-      res.setHeader('Content-Security-Policy', `frame-ancestors 'self';font-src ${font};img-src ${img};connect-src ${connect};script-src-elem ${script};`)
+      const font = app.secureSources.filter(item => item.type === 'font').join(' ')
+      const img = app.secureSources.filter(item => item.type === 'img').join(' ')
+      const connect = app.secureSources.filter(item => item.type === 'connect').join(' ')
+      const script = app.secureSources.filter(item => item.type === 'script').join(' ')
+      res.setHeader('Content-Security-Policy', `frame-ancestors 'self';font-src 'self'${font ? ` ${font}` : ''};img-src 'self'${img ? ` ${img}` : ''};connect-src 'self'${connect ? ` ${connect}` : ''};script-src-elem 'self'${script ? ` ${script}` : ''};`)
       next()
     } else {
       res.redirect('/')

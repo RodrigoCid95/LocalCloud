@@ -1,3 +1,5 @@
 export * from './apps'
+export * from './permissions'
 export * from './profile'
+export * from './sources'
 export * from './users'

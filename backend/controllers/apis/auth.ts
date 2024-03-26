@@ -35,17 +35,7 @@ export class AuthAPIController {
         for (const app of apps) {
           const sessionApp: LocalCloud.SessionApp = {
             token: v4(),
-            title: app.title,
-            description: app.description,
-            author: app.author,
-            icon: app.icon,
-            permissions: app.permissions,
-            secureSources: {
-              font: app.secureSources.font,
-              img: app.secureSources.img,
-              connect: app.secureSources.connect,
-              script: app.secureSources.script
-            }
+            ...app
           }
           req.session.apps[app.package_name] = sessionApp
         }

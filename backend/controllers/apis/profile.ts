@@ -11,31 +11,30 @@ declare const METHODS: PXIOHTTP.METHODS
 
 const { GET, POST, PUT } = METHODS
 
-@Namespace('api/profile', { before: [verifySession], after: [decryptRequest] })
+@Namespace('api/profile', { before: [verifySession, decryptRequest] })
 export class ProfileController {
   @Model('AppsModel') private appsModel: Models<'AppsModel'>
   @Model('UsersModel') private usersModel: Models<'UsersModel'>
   @Model('ProfileModel') private profileModel: Models<'ProfileModel'>
   @On(GET, '/')
-  @BeforeMiddleware([verifyPermissions(['profile', 0], true)])
+  @BeforeMiddleware([verifyPermissions('PROFILE_INFO', true)])
   public index(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): void {
     res.json(req.session.user)
   }
   @On(GET, '/apps')
-  @BeforeMiddleware([verifyPermissions(['profile', 1], true)])
+  @BeforeMiddleware([verifyPermissions('PROFILE_APP_LIST', true)])
   public async apps(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
     const results = await this.appsModel.getAppsByUUID(req.session.user?.uuid || '')
     const apps: Partial<Apps.App>[] = results.map(app => ({
       package_name: app.package_name,
       title: app.title,
       description: app.description,
-      author: app.author,
-      icon: app.icon
+      author: app.author
     }))
     res.json(apps)
   }
   @On(POST, '/')
-  @BeforeMiddleware([verifyPermissions(['profile', 2], true)])
+  @BeforeMiddleware([verifyPermissions('UPDATE_PROFILE_INFO', true)])
   public async update(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
     if (req.session.user) {
       const { full_name, email, phone } = req.body
@@ -56,7 +55,7 @@ export class ProfileController {
     res.json(true)
   }
   @On(PUT, '/')
-  @BeforeMiddleware([verifyPermissions(['profile', 3], true)])
+  @BeforeMiddleware([verifyPermissions('UPDATE_PASSWORD', true)])
   public async updatePassword(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
     const { current_password, new_password } = req.body
     const [user] = await this.usersModel.find({ uuid: req.session.user?.uuid })
