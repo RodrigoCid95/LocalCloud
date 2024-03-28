@@ -19,14 +19,14 @@ export class LCOAuth {
       password: this.password
     }
     if (!Object.values(data).includes('')) {
-      const laoding = await window.loadingController.create({ message: 'Inicaindo sesión ...' })
-      await laoding.present()
+      const loading = await window.loadingController.create({ message: 'Iniciando sesión ...' })
+      await loading.present()
       const response = await window.server.send<any, Detail>({
         method: 'post',
         endpoint: 'api/auth',
         data
       })
-      await laoding.dismiss()
+      await loading.dismiss()
       this.logged.emit(response)
     }
   }

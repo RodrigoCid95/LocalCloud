@@ -1,6 +1,5 @@
-import type { EncryptorLib } from './../interfaces/Encryptor'
 import type { ServerConnector } from './../interfaces/Server'
-import { Encryptor } from './encryptor'
+import { Encrypting } from './encrypting'
 
 const isJSON = (text: string): boolean => {
   return /^[\],:{}\s]*$/.test(text.replace(/\\["\\\/bfnrtu]/g, '@').replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']').replace(/(?:^|:|,)(?:\s*\[)+/g, ''))
@@ -8,7 +7,7 @@ const isJSON = (text: string): boolean => {
 
 export class ServerController implements ServerConnector {
   #headers: Headers
-  encryptor: EncryptorLib
+  encrypting: Encrypting.Class
   constructor() {
     const key = document.documentElement.getAttribute('key') || ''
     document.documentElement.removeAttribute('key')
@@ -17,7 +16,7 @@ export class ServerController implements ServerConnector {
     this.#headers = new Headers()
     this.#headers.append('key', key)
     this.#headers.append('token', token)
-    this.encryptor = new Encryptor()
+    this.encrypting = new Encrypting()
   }
   #getURL(endpoint: string, params = {}): string {
     const url = new URL(endpoint, window.location.origin)
@@ -37,7 +36,7 @@ export class ServerController implements ServerConnector {
         )
       } else {
         const key = this.#headers.get('key')
-        const body = await this.encryptor.encrypt(key || '12341234', JSON.stringify(data))
+        const body = await this.encrypting.encrypt(key || '12341234', JSON.stringify(data))
         response = await fetch(
           this.#getURL(endpoint),
           {

@@ -75,7 +75,7 @@ export default async (el: HTMLElement) => {
     localStorage.clear()
     window.location.reload()
   })
-  const { user_name, full_name, email, phone } = await window.server.send<any>({
+  const { user_name, full_name, email, phone } = await window.server.send<Users.User>({
     method: 'get',
     endpoint: 'api/profile'
   })

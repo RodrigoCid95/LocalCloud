@@ -1,6 +1,4 @@
-import type { EncryptorLib } from '../interfaces/Encryptor'
-
-export class Encryptor implements EncryptorLib {
+export class Encrypting implements Encrypting.Class {
   private encoder = new TextEncoder()
   private decoder = new TextDecoder()
   private generateKey(key: string): Promise<CryptoKey> {

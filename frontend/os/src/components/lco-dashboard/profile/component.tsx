@@ -4,7 +4,7 @@ export default () => (
   <Fragment>
     <ion-header>
       <ion-toolbar>
-        <ion-title>Perfíl</ion-title>
+        <ion-title>Perfil</ion-title>
         <ion-buttons slot="end">
           <ion-menu-toggle>
             <ion-button>

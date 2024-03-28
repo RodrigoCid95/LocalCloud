@@ -19,9 +19,6 @@
 			"controllers/*": [
 				"controllers/*"
 			],
-			"interfaces/*": [
-				"interfaces/*"
-			],
 			"libraries/*": [
 				"libraries/*"
 			],
