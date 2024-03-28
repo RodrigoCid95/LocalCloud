@@ -3,6 +3,7 @@ import session from 'express-session'
 import compression from 'compression'
 import { Liquid } from 'liquidjs'
 import { v4 } from 'uuid'
+import fileupload from 'express-fileupload'
 
 export const HTTP: PXIOHTTP.Config = {
   optionsUrlencoded: { extended: true },
@@ -21,7 +22,8 @@ export const HTTP: PXIOHTTP.Config = {
       saveUninitialized: false,
       resave: false,
       secret: v4()
-    })
+    }),
+    fileupload()
   ],
   events: {
     onError(err, req, res, next) {

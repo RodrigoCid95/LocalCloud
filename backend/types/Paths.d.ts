@@ -53,6 +53,7 @@ declare global {
        * Rutas de almacén de usuarios.
        */
       users: {
+        shared: string
         /**
          * Ruta raíz del almacén de usuarios.
          */
@@ -68,16 +69,26 @@ declare global {
         }
       }
     }
+    interface ResolveSharedPathArgs {
+      verify?: boolean
+      segments: string[]
+    }
+    interface ResolveUsersPathArgs extends ResolveSharedPathArgs {
+      uuid: string
+    }
     interface Class {
       readonly system: string
       readonly database: string
       readonly apps: string
       readonly users: string
+      readonly shared: string
       getApp(packagename: string): string
       getAppPublic(packagename: string): string
       getAppDatabases(packagename: string): string
       getAppDatabase(packagename: string, name: string): string
       getUser(uuid: string): string
+      resolveSharedPath(args: ResolveSharedPathArgs): string | boolean
+      resolveUserPath(args: ResolveUsersPathArgs): string | boolean
     }
   }
 }

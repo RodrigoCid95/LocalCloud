@@ -8,7 +8,7 @@ export class UsersModel {
   @Library('paths') private paths: Paths.Class
   public assignAppToUser(uuid: Users.User['uuid'], package_name: Apps.App['package_name']): Promise<void> {
     return new Promise(resolve => this.database.run(
-      'INSERT INTO users_to_apps (uuid, package_name) VALUES (?, ?)',
+      'INSERT INTO users_to_apps (uuid, package_name) VALUES (?, ?);',
       [uuid, package_name],
       resolve
     ))
@@ -23,7 +23,7 @@ export class UsersModel {
         where.push(`${key} = ?`)
         opts.push(query[key])
       }
-      strQuery += ` WHERE ${where.join(' AND ')}`
+      strQuery += ` WHERE ${where.join(' AND ')};`
     }
     const results = await new Promise<Users.Result[]>(resolve => this.database.all<Users.Result>(
       strQuery,
@@ -34,11 +34,25 @@ export class UsersModel {
   }
   public async create(user: Users.New, uuid: string): Promise<void> {
     await new Promise(resolve => this.database.run(
-      'INSERT INTO users (uuid, user_name, full_name, email, phone, password_hash) VALUES (?, ?, ?, ?, ?, ?)',
+      'INSERT INTO users (uuid, user_name, full_name, email, phone, password_hash) VALUES (?, ?, ?, ?, ?, ?);',
       [uuid, user.user_name, user.full_name, user.email, user.phone, user.password],
       resolve
     ))
     const userPath = this.paths.getUser(uuid)
     fs.mkdirSync(userPath, { recursive: true })
+  }
+  public async assignApp(uuid: string, package_name: string): Promise<void> {
+    await new Promise(resolve => this.database.run(
+      'INSERT INTO users_to_apps (uuid, package_name) VALUES (?, ?);',
+      [uuid, package_name],
+      resolve
+    ))
+  }
+  public async unassignApp(uuid: string, package_name: string): Promise<void> {
+    await new Promise(resolve => this.database.run(
+      'DELETE FROM users_to_apps WHERE uuid = ? AND package_name = ?;',
+      [uuid, package_name],
+      resolve
+    ))
   }
 }

@@ -1,4 +1,6 @@
 import fs from 'node:fs'
+import path from 'node:path'
+
 declare const configs: PXIO.Configs
 declare const moduleEmitters: PXIO.Emitters
 
@@ -14,6 +16,9 @@ class Paths implements Paths.Class {
   }
   get users() {
     return this.config.users.path
+  }
+  get shared() {
+    return this.config.users.shared
   }
   constructor(private config: Paths.Config) { }
   getApp(packagename: string): string {
@@ -31,6 +36,23 @@ class Paths implements Paths.Class {
   getUser(uuid: string): string {
     return this.config.users.user.path.replace(/:uuid/, uuid)
   }
+  private resolve(segments: string[], verify = true): string | boolean {
+    const pathSegments = segments.filter(segment => segment !== '..')
+    const pathShared = path.join(...pathSegments)
+    if (verify) {
+      if (fs.existsSync(pathShared)) {
+        return pathShared
+      }
+      return false
+    }
+    return pathShared
+  }
+  resolveSharedPath({ segments, verify = true }: Paths.ResolveSharedPathArgs): string | boolean {
+    return this.resolve([this.shared, ...segments], verify)
+  }
+  resolveUserPath({ uuid, segments, verify = true }: Paths.ResolveUsersPathArgs): string | boolean {
+    return this.resolve([this.getUser(uuid), ...segments], verify)
+  }
 }
 
 export const paths = () => {
@@ -43,6 +65,9 @@ export const paths = () => {
   }
   if (!fs.existsSync(paths.users)) {
     fs.mkdirSync(paths.users)
+  }
+  if (!fs.existsSync(paths.shared)) {
+    fs.mkdirSync(paths.shared)
   }
   moduleEmitters.emit('Paths:ready')
   return paths

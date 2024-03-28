@@ -11,7 +11,7 @@ declare const METHODS: PXIOHTTP.METHODS
 
 const { GET, POST, PUT } = METHODS
 
-@Namespace('api/profile', { before: [verifySession, decryptRequest] })
+@Namespace('api/profile', { before: [verifySession] })
 export class ProfileController {
   @Model('AppsModel') private appsModel: Models<'AppsModel'>
   @Model('UsersModel') private usersModel: Models<'UsersModel'>
@@ -34,7 +34,7 @@ export class ProfileController {
     res.json(apps)
   }
   @On(POST, '/')
-  @BeforeMiddleware([verifyPermissions('UPDATE_PROFILE_INFO', true)])
+  @BeforeMiddleware([verifyPermissions('UPDATE_PROFILE_INFO', true), decryptRequest])
   public async update(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
     if (req.session.user) {
       const { full_name, email, phone } = req.body
@@ -55,7 +55,7 @@ export class ProfileController {
     res.json(true)
   }
   @On(PUT, '/')
-  @BeforeMiddleware([verifyPermissions('UPDATE_PASSWORD', true)])
+  @BeforeMiddleware([verifyPermissions('UPDATE_PASSWORD', true), decryptRequest])
   public async updatePassword(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
     const { current_password, new_password } = req.body
     const [user] = await this.usersModel.find({ uuid: req.session.user?.uuid })

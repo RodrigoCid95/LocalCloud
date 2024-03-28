@@ -1,3 +1,4 @@
+import { verifySession } from './middlewares/session'
 import { verifyPermissions } from "./middlewares/permissions"
 
 declare const Namespace: PXIOHTTP.NamespaceDecorator
@@ -8,7 +9,7 @@ declare const METHODS: PXIOHTTP.METHODS
 
 const { POST, DELETE } = METHODS
 
-@Namespace('api/sources')
+@Namespace('api/sources', { before: [verifySession] })
 export class SecureSourcesController {
   @Model('SourcesModel') sourcesModel: Models<'SourcesModel'>
   @On(POST, '/:id')

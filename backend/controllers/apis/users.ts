@@ -15,7 +15,6 @@ const { GET, POST, PUT, DELETE } = METHODS
 export class UsersController {
   @Model('UsersModel') private usersModel: Models<'UsersModel'>
   @Model('ProfileModel') private profileModel: Models<'ProfileModel'>
-  @Model('AppsModel') private appsModel: Models<'AppsModel'>
   @On(GET, '/')
   @BeforeMiddleware([verifyPermissions('USER_LIST', true)])
   public async index(_: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
@@ -77,7 +76,7 @@ export class UsersController {
     res.json(true)
   }
   @On(PUT, '/:uuid')
-  @BeforeMiddleware([verifyPermissions('UPDATE_USER_INFO', true)])
+  @BeforeMiddleware([verifyPermissions('UPDATE_USER_INFO', true), decryptRequest])
   public async update(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
     const { full_name, email, phone } = req.body
     await this.profileModel.update(
@@ -92,14 +91,48 @@ export class UsersController {
     await this.profileModel.delete(req.params.uuid)
     res.json(true)
   }
-  @On(POST, '/:uuid/assign-app')
+  @On(POST, '/assign-app')
   @BeforeMiddleware([verifyPermissions('ASSIGN_APP_TO_USER')])
-  public assignApp(_: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): void {
-    res.json(true)
+  public async assignApp(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
+    const { uuid, package_name } = req.body
+    if (uuid && package_name) {
+      const [result] = await this.usersModel.find({ uuid })
+      if (result) {
+        await this.usersModel.assignApp(uuid, package_name)
+        res.json(true)
+      } else {
+        res.status(400).json({
+        code: 'user-not-exist',
+        message: 'El usuario no existe.'
+      })
+      }
+    } else {
+      res.status(400).json({
+        code: 'fields-required',
+        message: 'Faltan campos!'
+      })
+    }
   }
-  @On(POST, '/:uuid/unassign-app')
+  @On(POST, '/unassign-app')
   @BeforeMiddleware([verifyPermissions('UNASSIGN_APP_TO_USER')])
-  public unassignApp(_: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): void {
-    res.json(true)
+  public async unassignApp(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
+    const { uuid, package_name } = req.body
+    if (uuid && package_name) {
+      const [result] = await this.usersModel.find({ uuid })
+      if (result) {
+        await this.usersModel.unassignApp(uuid, package_name)
+        res.json(true)
+      } else {
+        res.status(400).json({
+        code: 'user-not-exist',
+        message: 'El usuario no existe.'
+      })
+      }
+    } else {
+      res.status(400).json({
+        code: 'fields-required',
+        message: 'Faltan campos!'
+      })
+    }
   }
 }
