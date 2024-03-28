@@ -1,10 +1,6 @@
 import type { ServerConnector } from './../interfaces/Server'
 import { Encrypting } from './encrypting'
 
-const isJSON = (text: string): boolean => {
-  return /^[\],:{}\s]*$/.test(text.replace(/\\["\\\/bfnrtu]/g, '@').replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']').replace(/(?:^|:|,)(?:\s*\[)+/g, ''))
-}
-
 export class ServerController implements ServerConnector {
   #headers: Headers
   encrypting: Encrypting.Class
@@ -14,9 +10,9 @@ export class ServerController implements ServerConnector {
     const token = document.documentElement.getAttribute('token') || ''
     document.documentElement.removeAttribute('token')
     this.#headers = new Headers()
-    this.#headers.append('key', key)
     this.#headers.append('token', token)
     this.encrypting = new Encrypting()
+    this.encrypting.setKey(key)
   }
   #getURL(endpoint: string, params = {}): string {
     const url = new URL(endpoint, window.location.origin)
@@ -26,17 +22,15 @@ export class ServerController implements ServerConnector {
     }
     return url.href
   }
-  async send({ endpoint, method, data, params }: any): Promise<any> {
+  async send({ endpoint, method, body, params }: any): Promise<Response> {
     if (['get', 'post', 'put', 'delete'].includes(method)) {
-      let response: Response | string
+      let response: Response
       if (method === 'get') {
         response = await fetch(
           this.#getURL(endpoint, params),
           { headers: this.#headers }
         )
       } else {
-        const key = this.#headers.get('key')
-        const body = await this.encrypting.encrypt(key || '12341234', JSON.stringify(data))
         response = await fetch(
           this.#getURL(endpoint),
           {
@@ -45,10 +39,6 @@ export class ServerController implements ServerConnector {
             body
           }
         )
-      }
-      response = await response.text()
-      if (isJSON(response)) {
-        return JSON.parse(response)
       }
       return response
     } else {
