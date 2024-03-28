@@ -6,16 +6,16 @@ export interface GetArgs {
   params?: { [x: string]: string }
 }
 
-export interface PostArgs<T = {}> {
+export interface PostArgs {
   endpoint: string
   method: 'post'
-  data?: T
+  data?: string
 }
 
-export interface PutArgs<T = {}> {
+export interface PutArgs {
   endpoint: string
   method: 'put'
-  data?: T
+  data?: string
 }
 
 export interface DeleteArgs {
@@ -24,8 +24,9 @@ export interface DeleteArgs {
 }
 
 export interface ServerConnector {
-  send<R = {}>(args: GetArgs): Promise<R>
-  send<T = {}, R = void>(args: PostArgs<T> | PutArgs<T> | DeleteArgs): Promise<R>
+  readonly encrypting: Encrypting.Class
+  send(args: GetArgs): Promise<Response>
+  send(args: PostArgs | PutArgs | DeleteArgs): Promise<Response>
 }
 
 declare global {

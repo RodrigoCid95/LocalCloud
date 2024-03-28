@@ -3,7 +3,10 @@ import { Encrypting } from './encrypting'
 
 export class ServerController implements ServerConnector {
   #headers: Headers
-  encrypting: Encrypting.Class
+  #encrypting: Encrypting.Class
+  get encrypting(): Encrypting.Class {
+    return this.#encrypting
+  }
   constructor() {
     const key = document.documentElement.getAttribute('key') || ''
     document.documentElement.removeAttribute('key')
@@ -11,8 +14,8 @@ export class ServerController implements ServerConnector {
     document.documentElement.removeAttribute('token')
     this.#headers = new Headers()
     this.#headers.append('token', token)
-    this.encrypting = new Encrypting()
-    this.encrypting.setKey(key)
+    this.#encrypting = new Encrypting()
+    this.#encrypting.setKey(key)
   }
   #getURL(endpoint: string, params = {}): string {
     const url = new URL(endpoint, window.location.origin)
@@ -22,7 +25,7 @@ export class ServerController implements ServerConnector {
     }
     return url.href
   }
-  async send({ endpoint, method, body, params }: any): Promise<Response> {
+  async send({ endpoint, method, data: body, params }: any): Promise<Response> {
     if (['get', 'post', 'put', 'delete'].includes(method)) {
       let response: Response
       if (method === 'get') {

@@ -17,7 +17,7 @@ export class AppDashboard {
       this.apps = await window.server.send({
         endpoint: 'api/profile/apps',
         method: 'get'
-      })
+      }).then(response => response.json())
       const tabs = this.el.querySelectorAll('ion-tab')
       ProfileController(tabs.item(0))
       SettingsController(tabs.item(1))

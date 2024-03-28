@@ -21,11 +21,11 @@ export class LCOAuth {
     if (!Object.values(data).includes('')) {
       const loading = await window.loadingController.create({ message: 'Iniciando sesión ...' })
       await loading.present()
-      const response = await window.server.send<any, Detail>({
+      const response = await window.server.send({
         method: 'post',
         endpoint: 'api/auth',
-        data
-      })
+        data: await window.server.encrypting.encrypt(JSON.stringify(data))
+      }).then(response => response.json())
       await loading.dismiss()
       this.logged.emit(response)
     }

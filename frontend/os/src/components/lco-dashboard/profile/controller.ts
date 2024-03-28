@@ -1,8 +1,3 @@
-interface ProfileResponse {
-  ok: boolean
-  message: string
-}
-
 export default async (el: HTMLElement) => {
   const progressBarRef = el.querySelector('ion-progress-bar')
   const inputs = el.querySelectorAll('ion-input')
@@ -28,7 +23,7 @@ export default async (el: HTMLElement) => {
       await window.server.send({
         method: 'post',
         endpoint: 'api/profile',
-        data
+        data: await window.server.encrypting.encrypt(JSON.stringify(data))
       })
       progressBarRef.style.display = 'none'
     }
@@ -50,11 +45,11 @@ export default async (el: HTMLElement) => {
     }
     progressBarRef.style.display = 'block'
     try {
-      const { ok, message } = await window.server.send<any, ProfileResponse>({
+      const { ok, message } = await window.server.send({
         method: 'put',
         endpoint: 'api/profile',
-        data
-      })
+        data: await window.server.encrypting.encrypt(JSON.stringify(data))
+      }).then(response => response.json())
       if (ok) {
         currentPasswordRef.value = ''
         newPasswordRef.value = ''
@@ -75,10 +70,10 @@ export default async (el: HTMLElement) => {
     localStorage.clear()
     window.location.reload()
   })
-  const { user_name, full_name, email, phone } = await window.server.send<Users.User>({
+  const { user_name, full_name, email, phone } = await window.server.send({
     method: 'get',
     endpoint: 'api/profile'
-  })
+  }).then(response => response.json())
   userNameRef.value = user_name
   fullNameRef.value = full_name
   emailRef.value = email

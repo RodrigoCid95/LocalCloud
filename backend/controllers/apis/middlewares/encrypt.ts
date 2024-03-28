@@ -10,9 +10,9 @@ const DENIED_ERROR = {
 
 export const decryptRequest = async (req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response, next: PXIOHTTP.Next) => {
   let nextError: any = undefined
-  if (req.headers['key'] && req.headers['key'] === req.session.key && typeof req.body === 'string') {
+  if (req.session.key && typeof req.body === 'string') {
     try {
-      const result = await encrypt.decrypt(req.headers['key'], req.body)
+      const result = await encrypt.decrypt(req.session.key, req.body)
       if (isJSON(result)) {
         req.body = JSON.parse(result)
       } else {
