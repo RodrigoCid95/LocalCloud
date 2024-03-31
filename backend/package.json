@@ -12,6 +12,7 @@
 	"author": "",
 	"license": "ISC",
 	"dependencies": {
+		"esbuild": "^0.19.5",
 		"archiver": "^6.0.1",
 		"autoprefixer": "^10.4.16",
 		"compression": "^1.7.4",
@@ -24,7 +25,7 @@
 		"liquidjs": "^10.9.3",
 		"postcss": "^8.4.31",
 		"postcss-nested": "^6.0.1",
-		"px.io": "^0.9.7-beta",
+		"px.io": "^0.9.8-beta",
 		"sass": "^1.69.5",
 		"sqlite3": "^5.1.6",
 		"uglifycss": "^0.0.29",
@@ -38,7 +39,6 @@
 		"@types/express-session": "^1.17.9",
 		"@types/node": "^20.11.29",
 		"@types/uuid": "^9.0.6",
-		"esbuild": "^0.19.5",
 		"reflect-metadata": "^0.1.13"
 	},
 	"pxio": {
@@ -47,7 +47,8 @@
 		"resources": [
 			"views",
 			"public",
-			".system"
+			".system",
+			"connector.ts"
 		],
 		"loader": {
 			".sql": "text"

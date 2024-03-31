@@ -11,6 +11,7 @@ const { PUT, DELETE } = METHODS
 
 @Namespace('api/permissions', { before: [verifySession] })
 export class PermissionsController {
+  @Model('DevModeModel') public devModeModel: Models<'DevModeModel'>
   @Model('PermissionsModel') permissionModel: Models<'PermissionsModel'>
   @On(PUT, '/:id')
   @BeforeMiddleware([verifyPermissions('ENABLE_PERMISSION')])

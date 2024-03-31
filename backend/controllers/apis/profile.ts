@@ -13,6 +13,7 @@ const { GET, POST, PUT } = METHODS
 
 @Namespace('api/profile', { before: [verifySession] })
 export class ProfileController {
+  @Model('DevModeModel') public devModeModel: Models<'DevModeModel'>
   @Model('AppsModel') private appsModel: Models<'AppsModel'>
   @Model('UsersModel') private usersModel: Models<'UsersModel'>
   @Model('ProfileModel') private profileModel: Models<'ProfileModel'>

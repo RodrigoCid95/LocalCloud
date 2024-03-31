@@ -27,6 +27,7 @@ const formatPath = (req: PXIOHTTP.Request, res: PXIOHTTP.Response, next: PXIOHTT
 
 @Namespace('/api/fs', { before: [verifySession, decryptRequest, formatPath] })
 export class FileSystemController {
+  @Model('DevModeModel') public devModeModel: Models<'DevModeModel'>
   @Model('FileSystemModel') private fsModel: Models<'FileSystemModel'>
   @On(POST, '/shared/list')
   @BeforeMiddleware([verifyPermissions('ACCESS_SHARED_FILE_LIST')])

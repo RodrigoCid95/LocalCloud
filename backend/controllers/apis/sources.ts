@@ -11,6 +11,7 @@ const { POST, DELETE } = METHODS
 
 @Namespace('api/sources', { before: [verifySession] })
 export class SecureSourcesController {
+  @Model('DevModeModel') public devModeModel: Models<'DevModeModel'>
   @Model('SourcesModel') sourcesModel: Models<'SourcesModel'>
   @On(POST, '/:id')
   @BeforeMiddleware([verifyPermissions('ENABLE_SOURCE')])

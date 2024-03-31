@@ -11,6 +11,7 @@ const { GET, POST, DELETE } = METHODS
 
 @Namespace('api/apps', { before: [verifySession, decryptRequest] })
 export class AppsAPIController {
+  @Model('DevModeModel') public devModeModel: Models<'DevModeModel'>
   @Model('AppsModel') private appsModel: Models<'AppsModel'>
   @On(GET, '/')
   @BeforeMiddleware([verifyPermissions('APP_LIST')])
@@ -20,12 +21,12 @@ export class AppsAPIController {
   }
   @On(POST, '/')
   @BeforeMiddleware([verifyPermissions('INSTALL_APP')])
-  public async install(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
+  public async install(_: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
     res.json(true)
   }
   @On(DELETE, '/')
   @BeforeMiddleware([verifyPermissions('UNINSTALL_APP')])
-  public async unInstall(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
+  public async unInstall(_: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
     res.json(true)
   }
 }

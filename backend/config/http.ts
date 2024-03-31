@@ -4,6 +4,24 @@ import compression from 'compression'
 import { Liquid } from 'liquidjs'
 import { v4 } from 'uuid'
 import fileupload from 'express-fileupload'
+import { devMode } from './dev-mode'
+import cors from 'cors'
+
+const middlewares = [
+  compression(),
+  session({
+    saveUninitialized: false,
+    resave: false,
+    secret: v4()
+  }),
+  fileupload()
+]
+
+if (devMode.isDevMode) {
+  middlewares.push(cors({
+    origin: devMode.cors
+  }))
+}
 
 export const HTTP: PXIOHTTP.Config = {
   optionsUrlencoded: { extended: true },
@@ -16,15 +34,7 @@ export const HTTP: PXIOHTTP.Config = {
     })).express(),
     dirViews: path.resolve(__dirname, '..', 'views')
   },
-  middlewares: [
-    compression(),
-    session({
-      saveUninitialized: false,
-      resave: false,
-      secret: v4()
-    }),
-    fileupload()
-  ],
+  middlewares,
   events: {
     onError(err, req, res, next) {
       if (err) {

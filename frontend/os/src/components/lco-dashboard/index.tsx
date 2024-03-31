@@ -81,7 +81,7 @@ export class AppDashboard {
                         sizeSm="6"
                         sizeMd="12"
                         sizeLg="6"
-                        sizeXl="4"
+                        sizeXl="3"
                       >
                         <ion-card>
                           <ion-card-header>

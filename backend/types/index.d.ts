@@ -1,5 +1,6 @@
 import './Apps'
 import './Database'
+import './DevMode'
 import './Encrypting'
 import './Paths'
 import './Permissions'

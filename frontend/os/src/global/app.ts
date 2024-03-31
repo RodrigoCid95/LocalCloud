@@ -11,8 +11,8 @@ export default async () => {
   Object.defineProperty(window, 'alertController', { value: alertController, writable: false })
   const loading = await loadingController.create({ message: 'Cargando...' })
   await loading.present()
-  const { ServerController } = await import('./server')
-  Object.defineProperty(window, 'server', { value: new ServerController(), writable: false })
+  const connectorPath = `${location.pathname === '/' ? '' : location.pathname}/connector.js`
+  await import(connectorPath)
   await loading.dismiss()
   document.dispatchEvent(new CustomEvent('onReady'))
 }

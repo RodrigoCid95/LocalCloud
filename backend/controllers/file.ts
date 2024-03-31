@@ -10,6 +10,7 @@ const { GET } = METHODS
 
 @Namespace('/file', { before: [verifySession] })
 export class FileController {
+  @Model('DevModeModel') public devModeModel: Models<'DevModeModel'>
   @Model('FileSystemModel') private fsModel: Models<'FileSystemModel'>
   public responseFile(req: PXIOHTTP.Request, res: PXIOHTTP.Response): void {
     const path = req.body

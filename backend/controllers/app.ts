@@ -1,4 +1,5 @@
 import path from 'node:path'
+import { devMode } from './middlewares/dev-mode'
 import { verifySession } from './middlewares/session'
 
 declare const Namespace: PXIOHTTP.NamespaceDecorator
@@ -25,13 +26,20 @@ export const verifyApp = (req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PX
   }
 }
 
-@Namespace('app', { before: [verifySession, verifyApp] })
+@Namespace('app', { before: [devMode, verifySession, verifyApp] })
 export class AppController {
+  @Model('DevModeModel') public devModeModel: Models<'DevModeModel'>
   @Model('AppsModel') private appsModel: Models<'AppsModel'>
   @On(METHODS.GET, '/:packagename')
   public app(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response) {
     const app = (req.session as LocalCloud.SessionData).apps[req.params.packagename]
     res.render('app', { title: app.title, description: app.description, key: req.session.key, token: app.token })
+  }
+  @On(METHODS.GET, '/:packagename/connector.js')
+  public connector(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response) {
+    const app = (req.session as LocalCloud.SessionData).apps[req.params.packagename]
+    res.set('Content-Type', 'text/javascript');
+    res.send(this.devModeModel.transformJS(app.token, req.session.key || ''))
   }
   @On(METHODS.GET, '/:packagename/*')
   public source(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response) {

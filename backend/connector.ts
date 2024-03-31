@@ -1,4 +1,7 @@
-export class Encrypting implements Encrypting.Class {
+declare const TOKEN: string
+declare const KEY: string
+
+class Encrypting {
   #key!: string
   #encoder = new TextEncoder()
   #decoder = new TextDecoder()
@@ -31,3 +34,47 @@ export class Encrypting implements Encrypting.Class {
     return this.#decoder.decode(decrypted)
   }
 }
+
+const headers: Headers = new Headers()
+headers.append('token', TOKEN)
+const encrypting: Encrypting = new Encrypting()
+encrypting.setKey(KEY)
+const getURL = (endpoint: string, params = {}): string => {
+  const url = new URL(endpoint, window.location.origin)
+  const keys = Object.keys(params)
+  for (const key of keys) {
+    url.searchParams.append(key, params[key])
+  }
+  return url.href
+}
+
+class ServerConector {
+  get encrypting(): Encrypting {
+    return encrypting
+  }
+  async send({ endpoint, method, data: body, params }: any): Promise<Response> {
+    if (['get', 'post', 'put', 'delete'].includes(method)) {
+      let response: Response
+      if (method === 'get') {
+        response = await fetch(
+          getURL(endpoint, params),
+          { headers }
+        )
+      } else {
+        response = await fetch(
+          getURL(endpoint),
+          {
+            method,
+            headers,
+            body
+          }
+        )
+      }
+      return response
+    } else {
+      throw new Error(`El método ${method} no es válido, utiliza 'get', 'post', 'put' o 'delete'.`)
+    }
+  }
+}
+
+Object.defineProperty(window, 'server', { value: new ServerConector(), writable: false })

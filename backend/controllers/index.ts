@@ -1,26 +1,36 @@
+import { devMode } from './middlewares/dev-mode'
 import { verifySession, verifyNotSession } from './middlewares/session'
 import { tokens } from './middlewares/tokens'
 
+declare const Model: PXIO.ModelDecorator
 declare const On: PXIOHTTP.OnDecorator
 declare const BeforeMiddleware: PXIOHTTP.BeforeMiddlewareDecorator
 declare const METHODS: PXIOHTTP.METHODS
 const { GET } = METHODS
 
 export class IndexController {
+  @Model('DevModeModel') public devModeModel: Models<'DevModeModel'>
   @On(GET, '/')
-  @BeforeMiddleware([tokens, verifySession])
+  @BeforeMiddleware([devMode, tokens, verifySession])
   public dashboard(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): void {
-    res.render('dashboard', { title: 'LocalCloud - Dashboard', description: 'LocalCloud - Dashboard', key: req.session.key, token: req.session.token })
+    res.render('dashboard', { title: 'LocalCloud - Dashboard', description: 'LocalCloud - Dashboard' })
   }
-  @On(GET, '/get-key')
+  @On(GET, '/connector.js')
   @BeforeMiddleware([tokens])
-  public tokens(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): void {
-    res.json({ key: req.session.key })
+  public generateConnector(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): void {
+    res.set('Content-Type', 'text/javascript');
+    res.send(this.devModeModel.transformJS(req.session.token || '', req.session.key || ''))
   }
   @On(GET, '/login')
-  @BeforeMiddleware([tokens, verifyNotSession])
+  @BeforeMiddleware([devMode, tokens, verifyNotSession])
   public login(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): void {
     res.render('login', { title: 'LocalCloud - Iniciar sesión', description: 'LocalCloud - Iniciar sesión', key: req.session.key, token: req.session.token })
+  }
+  @On(GET, '/login/connector.js')
+  @BeforeMiddleware([tokens])
+  public generateLoginConnector(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): void {
+    res.set('Content-Type', 'text/javascript');
+    res.send(this.devModeModel.transformJS(req.session.token || '', req.session.key || ''))
   }
 }
 
