@@ -1,12 +1,11 @@
-import { IndexController } from "./views/index/controller"
+import { IndexController } from "./view/controller"
 
-document.addEventListener("DOMContentLoaded", async () => {
-  await window.loadCore()
+document.addEventListener("onReady", async () => {
   window.customElements.define('app-page-index', class extends HTMLElement {
     connectedCallback() {
       this.innerHTML = IndexController.template
       new IndexController(this)
     }
   })
-  document.body.innerHTML = '<ion-app><ion-nav root="app-page-index"></ion-nav></ion-app>'
+  document.body.innerHTML = '<app-page-index></app-page-index>'
 })

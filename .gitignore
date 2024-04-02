@@ -10,3 +10,7 @@ backend/views/layout.liquid
 frontend/os/package-lock.json
 frontend/os/dist
 frontend/os/node_modules
+
+frontend/apps/node_modules
+frontend/apps/package-lock.json
+frontend/apps/dist

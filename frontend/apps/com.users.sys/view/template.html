@@ -1,25 +1,27 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-title>Usuarios</ion-title>
-    <ion-buttons slot="end">
-      <ion-button id="refresh">
-        <ion-icon slot="icon-only" name="refresh"></ion-icon>
-      </ion-button>
-    </ion-buttons>
-    <ion-progress-bar type="indeterminate" id="progress"></ion-progress-bar>
-  </ion-toolbar>
-</ion-header>
-<ion-content class="ion-padding">
-  <ion-grid>
-    <ion-row>
-    </ion-row>
-  </ion-grid>
-  <ion-fab slot="fixed" vertical="bottom" horizontal="end">
-    <ion-fab-button id="btn-new-user">
-      <ion-icon name="person-add"></ion-icon>
-    </ion-fab-button>
-  </ion-fab>  
-</ion-content>
+<ion-app>
+  <ion-header>
+    <ion-toolbar>
+      <ion-title>Usuarios</ion-title>
+      <ion-buttons slot="end">
+        <ion-button id="refresh">
+          <ion-icon slot="icon-only" name="refresh"></ion-icon>
+        </ion-button>
+      </ion-buttons>
+      <ion-progress-bar type="indeterminate" id="progress"></ion-progress-bar>
+    </ion-toolbar>
+  </ion-header>
+  <ion-content class="ion-padding">
+    <ion-grid>
+      <ion-row>
+      </ion-row>
+    </ion-grid>
+    <ion-fab slot="fixed" vertical="bottom" horizontal="end">
+      <ion-fab-button id="btn-new-user">
+        <ion-icon name="person-add"></ion-icon>
+      </ion-fab-button>
+    </ion-fab>  
+  </ion-content>
+</ion-app>
 <ion-modal id="create-user-modal">
   <ion-header>
     <ion-toolbar>

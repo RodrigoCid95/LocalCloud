@@ -1,0 +1,12 @@
+{
+  "title": "Usuarios",
+  "description": "Gestor de usuarios",
+  "author": "Rodrigo Cid",
+  "permissions": {
+    "PROFILE_INFO": "Ayuda para identificar el usuario actual.",
+    "USER_LIST": "Se usa para listar los usuarios.",
+    "CREATE_USER": "Se usa para crear usuarios.",
+    "UPDATE_USER_INFO": "Se usa para actualizar usuarios."
+  },
+  "sources": []
+}

@@ -1,4 +1,3 @@
-import type { User } from "interfaces/Users"
 import template from "./template.html"
 import thumbnail from './thumbnail.svg'
 
@@ -24,7 +23,11 @@ export class IndexController {
     this.refreshButtonRef = this.element.querySelector('#refresh') as HTMLIonButtonElement
     this.refreshButtonRef.addEventListener('click', this.#getUsers.bind(this))
     this.createModal = this.element.querySelector('#create-user-modal') as HTMLIonModalElement
-    this.createModal.addEventListener('ionModalDidDismiss', this.#getUsers.bind(this))
+    this.createModal.addEventListener('ionModalDidDismiss', ({ detail }) => {
+      if (detail.data) {
+        this.#getUsers()
+      }
+    })
     const [userNameRef, fullNameRef, emailRef, phoneRef, passwordRef] = this.createModal.querySelectorAll('ion-input').values()
     const fields = [userNameRef, fullNameRef, emailRef, phoneRef, passwordRef]
     this.element.querySelector('#btn-new-user')?.addEventListener('click', async () => {
@@ -41,7 +44,7 @@ export class IndexController {
       passwordRef.value = ''
       await this.createModal.present()
     })
-    this.createModal.querySelector('#create-user-cancel')?.addEventListener('click', () => this.createModal.dismiss())
+    this.createModal.querySelector('#create-user-cancel')?.addEventListener('click', () => this.createModal.dismiss(false))
     this.createModal.querySelector('#create-user-confirm')?.addEventListener('click', async () => {
       let pass = true
       for (const field of fields) {
@@ -52,39 +55,54 @@ export class IndexController {
         }
       }
       if (pass) {
-        const data = {
-          userName: userNameRef.value,
-          fullName: fullNameRef.value,
+        const data = JSON.stringify({
+          user_name: userNameRef.value,
+          full_name: fullNameRef.value,
           email: emailRef.value,
           phone: phoneRef.value,
           password: passwordRef.value
+        })
+        const response = await window.server
+          .send({
+            endpoint: 'api/users',
+            method: 'post',
+            data: data
+          })
+          .then(response => response.json())
+        if (response.code) {
+          (await window.alertController.create({
+            header: 'No se puede crear el usuario.',
+            message: response.message,
+            buttons: ['Aceptar']
+          })).present()
+          return
         }
-        /* try {
-          await window.server.send('/users', { data, method: 'post' })
-          await this.createModal.dismiss()
-        } catch (error) {
-          console.log(error)
-        } */
-        window.server.send('/users', { data, method: 'post' })
-          .then(() => this.createModal.dismiss())
-          .catch(error => console.log(error))
+        await this.createModal.dismiss(true)
       }
     })
     this.updateModal = this.element.querySelector('#update-user-modal') as HTMLIonModalElement
-    this.updateModal.querySelector('#update-user-cancel')?.addEventListener('click', () => this.updateModal.dismiss())
+    this.updateModal.querySelector('#update-user-cancel')?.addEventListener('click', () => this.updateModal.dismiss(false))
     this.updateModal.querySelector('#update-user-confirm')?.addEventListener('click', async () => {
       const loader = await window.loadingController.create({ message: 'Guardando...' })
       await loader.present()
       const uuid = this.updateFormRefs.uuid.value
-      const fullName = this.updateFormRefs.fullName.value
+      const full_name = this.updateFormRefs.fullName.value
       const email = this.updateFormRefs.email.value
       const phone = this.updateFormRefs.phone.value
-      const data = { fullName, email, phone }
-      await window.server.send(`/users/${uuid}`, { data, method: 'put' })
+      const data = JSON.stringify({ full_name, email, phone })
+      await window.server.send({
+        endpoint: `api/users/${uuid}`,
+        method: 'put',
+        data
+      })
       await loader.dismiss()
-      await this.updateModal.dismiss()
+      await this.updateModal.dismiss(true)
     })
-    this.updateModal.addEventListener('ionModalDidDismiss', this.#getUsers.bind(this))
+    this.updateModal.addEventListener('ionModalDidDismiss', ({ detail }) => {
+      if (detail.data) {
+        this.#getUsers()
+      }
+    })
     const uuid = this.updateModal.querySelector('[name="uuid"]') as HTMLInputElement
     const [fullName, email, phone] = this.updateModal.querySelectorAll('ion-input').values() as unknown as HTMLIonInputElement[]
     const photo = this.updateModal.querySelector('ion-thumbnail img') as HTMLImageElement
@@ -95,11 +113,20 @@ export class IndexController {
   async #getUsers(): Promise<void> {
     this.contentRef.innerHTML = ''
     this.progressBarRef.style.display = 'block'
-    this.#currentUser = (await window.server.send<User[]>('users?current', { method: 'get' }))[0]
-    const results = await window.server.send<User[]>('users', { method: 'get' })
+    this.#currentUser = await window.server
+      .send({
+        endpoint: 'api/profile',
+        method: 'get'
+      })
+      .then(response => response.json())
+    const results: User[] = await window.server
+      .send({
+        endpoint: 'api/users',
+        method: 'get'
+      })
+      .then(response => response.json())
     const cards: HTMLIonColElement[] = []
     for (const user of results) {
-      window[user.userName] = new URL(thumbnail)
       const col = document.createElement('ion-col')
       col.size = "12"
       col.sizeSm = "6"
@@ -110,20 +137,20 @@ export class IndexController {
       item.addEventListener('click', async () => {
         this.updateFormRefs.uuid.value = user.uuid
         this.updateFormRefs.photo.src = user.photo || thumbnail
-        this.updateFormRefs.userName.innerText = `Usuario - ${user.userName}`
-        this.updateFormRefs.fullName.value = user.fullName
+        this.updateFormRefs.userName.innerText = `Usuario - ${user.user_name}`
+        this.updateFormRefs.fullName.value = user.full_name
         this.updateFormRefs.email.value = user.email
         this.updateFormRefs.phone.value = user.phone
         await this.updateModal.present()
       })
       item.innerHTML = `
         <ion-thumbnail slot="start">
-          <img alt="${user.userName}" src="" />
+          <img alt="${user.user_name}" src="" />
         </ion-thumbnail>
         <ion-label>
-          ${user.fullName || ''}
+          ${user.full_name || ''}
           <br>
-          <p>${user.userName || ''}</p>
+          <p>${user.user_name || ''}</p>
           ${this.#currentUser.uuid === user.uuid ? `<p>Usuario actual</p>` : ''}
         </ion-label>
       `
