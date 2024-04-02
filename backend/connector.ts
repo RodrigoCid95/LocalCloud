@@ -1,6 +1,7 @@
 declare const TOKEN: string
 declare const KEY: string
 declare const IS_DEV: boolean
+declare const _HOST: string
 
 const encoder = new TextEncoder()
 const decoder = new TextDecoder()
@@ -35,7 +36,7 @@ class Encrypting {
   }
 }
 const encrypting: Encrypting = new Encrypting()
-let _host = import.meta.resolve('./..')
+let _host = _HOST
 const getURL = ({ endpoint, params = {} }: GetURLArgs): string => {
   const url = new URL(endpoint, _host)
   const keys = Object.keys(params)

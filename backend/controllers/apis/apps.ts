@@ -1,3 +1,4 @@
+import type fileUpload from 'express-fileupload'
 import { verifySession } from './middlewares/session'
 import { verifyPermissions } from './middlewares/permissions'
 import { decryptRequest } from './middlewares/encrypt'
@@ -21,8 +22,28 @@ export class AppsAPIController {
   }
   @On(POST, '/')
   @BeforeMiddleware([verifyPermissions('INSTALL_APP')])
-  public async install(_: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
-    res.json(true)
+  public async install(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
+    const package_zip = req.files?.package_zip as fileUpload.UploadedFile | undefined
+    if (package_zip) {
+      let package_name: string[] | string = package_zip.name.split('.')
+      package_name.pop()
+      package_name = package_name.join('.')
+      const result = await this.appsModel.getAppByPackageName(package_name)
+      if (!result) {
+        await this.appsModel.install(package_name, package_zip.data)
+        res.json(true)
+      } else {
+        res.status(400).json({
+          code: 'app-already-exist',
+          message: `La aplicación ${package_name} ya está instalada.`
+        })
+      }
+    } else {
+      res.status(400).json({
+        code: 'fields-required',
+        message: 'No hay ningún archivo adjunto.'
+      })
+    }
   }
   @On(DELETE, '/')
   @BeforeMiddleware([verifyPermissions('UNINSTALL_APP')])

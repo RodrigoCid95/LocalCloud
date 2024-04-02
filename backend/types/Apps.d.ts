@@ -8,7 +8,10 @@ declare global {
       permissions: Omit<Permissions.Permission, 'id'>[]
       secureSources: Omit<SecureSources.Source, 'id'>[]
     }
-    type New = Partial<App>
+    interface New extends Omit<Omit<App, 'permissions'>, 'secureSources'> {
+      permissions: Omit<Omit<Permissions.Permission, 'id'>, 'active'>[]
+      secureSources: Omit<Omit<SecureSources.Source, 'id'>, 'active'>[]
+    }
     interface Result extends Omit<Omit<App, 'permissions'>, 'secureSources'> { }
   }
 }

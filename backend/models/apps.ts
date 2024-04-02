@@ -1,49 +1,16 @@
 import type { Database } from 'sqlite3'
+import os from 'node:os'
 import fs from 'node:fs'
+import path from 'node:path'
+import { v4 } from 'uuid'
+import unzipper from 'unzipper'
 
 declare const Library: PXIO.LibraryDecorator
 
 export class AppsModel {
   @Library('database') private database: Database
   @Library('paths') public paths: Paths.Class
-  public async register(app: Apps.New): Promise<void> {
-    const [result] = await new Promise<Apps.Result[]>(resolve => this.database.all<Apps.Result>(
-      'SELECT * FROM apps WHERE package_name = ?',
-      [app.package_name],
-      (error, rows) => error ? resolve([]) : resolve(rows)
-    ))
-    if (!result) {
-      await new Promise(resolve => this.database.run(
-        'INSERT INTO apps (package_name, title, description, author) VALUES (?, ?, ?, ?);',
-        [app.package_name, app.title, app.description, app.author],
-        resolve
-      ))
-      if (app.permissions) {
-        for (const permission of app.permissions) {
-          await new Promise(resolve => this.database.run(
-            'INSERT INTO permissions (package_name, api, justification, active) VALUES (?, ?, ?, ?)',
-            [app.package_name, permission.api, permission.justification || 'Sin justificación.', true],
-            resolve
-          ))
-        }
-      }
-      if (app.secureSources) {
-        for (const source of app.secureSources) {
-          await new Promise(resolve => this.database.run(
-            'INSERT INTO secure_sources (package_name, type, source, justification, active) VALUES (?, ?, ?, ?, ?)',
-            [app.package_name, source.type, source.source, source.justification || 'Sin justificación.', true],
-            resolve
-          ))
-        }
-      }
-      const appPath = this.paths.getApp(app.package_name || '')
-      fs.mkdirSync(appPath, { recursive: true })
-      const appPublicPath = this.paths.getAppPublic(app.package_name || '')
-      fs.mkdirSync(appPublicPath, { recursive: true })
-      const appDatabasesPath = this.paths.getAppDatabases(app.package_name || '')
-      fs.mkdirSync(appDatabasesPath, { recursive: true })
-    }
-  }
+  private isJSON = (text: string): boolean => /^[\],:{}\s]*$/.test(text.replace(/\\["\\\/bfnrtu]/g, '@').replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']').replace(/(?:^|:|,)(?:\s*\[)+/g, ''))
   private async parse(results: Apps.Result[]): Promise<Apps.App[]> {
     const apps: Apps.App[] = []
     for (const result of results) {
@@ -94,4 +61,85 @@ export class AppsModel {
       (error, rows) => error ? resolve([]) : resolve(this.parse(rows))
     ))
   }
+  public getAppByPackageName(package_name: string): Promise<Apps.Result | null> {
+    return new Promise(resolve => this.database.all<Apps.Result>(
+      'SELECT * FROM apps WHERE package_name = ?',
+      [package_name],
+      (error, rows) => error ? resolve(null) : resolve(rows[0])
+    ))
+  }
+  public async install(package_name: string, data: Buffer): Promise<InstallError | true> {
+    const tempDir = path.join(this.paths.apps, 'temp', v4())
+    fs.mkdirSync(tempDir, { recursive: true })
+    await unzipper.Open
+      .buffer(data)
+      .then(d => d.extract({ path: tempDir }))
+    const appPath = this.paths.getApp(package_name)
+    const manifestPath = path.join(tempDir, 'manifest.json')
+    if (!fs.existsSync(manifestPath)) {
+      fs.rmSync(tempDir, { recursive: true, force: true })
+      return {
+        code: 'manifest-not-exist',
+        message: 'El paquete de instalación no cuenta con un archivo manifest.json'
+      }
+    }
+    let manifestContent = fs.readFileSync(manifestPath, 'utf-8')
+    if (this.isJSON(manifestContent)) {
+      manifestContent = JSON.parse(manifestContent)
+    } else {
+      fs.rmSync(tempDir, { recursive: true, force: true })
+      return {
+        code: 'manifest-invalid',
+        message: 'El archivo manifest.json no es válido.'
+      }
+    }
+    const manifestKeys = Object.keys(manifestContent)
+    if (!manifestKeys.includes('title')) {
+      fs.rmSync(tempDir, { recursive: true, force: true })
+      return {
+        code: 'manifest-title-required',
+        message: 'El archivo manifest.json no contiene un título.'
+      }
+    }
+    if (!manifestKeys.includes('author')) {
+      fs.rmSync(tempDir, { recursive: true, force: true })
+      return {
+        code: 'manifest-author-required',
+        message: 'El archivo manifest.json no contiene un autor.'
+      }
+    }
+    const { title, description = 'Sin descripción', author, permissions: permissionList = {}, sources = [] } = manifestContent as any
+    const permissions: Apps.New['permissions'] = Object.keys(permissionList).map(api => ({
+      api,
+      justification: permissionList[api]
+    }))
+    await new Promise(resolve => this.database.run(
+      'INSERT INTO apps (package_name, title, description, author) VALUES (?, ?, ?, ?);',
+      [package_name, title, description, author],
+      resolve
+    ))
+    for (const permission of permissions) {
+      await new Promise(resolve => this.database.run(
+        'INSERT INTO permissions (package_name, api, justification, active) VALUES (?, ?, ?, ?)',
+        [package_name, permission.api, permission.justification || 'Sin justificación.', true],
+        resolve
+      ))
+    }
+    for (const source of sources) {
+      await new Promise(resolve => this.database.run(
+        'INSERT INTO secure_sources (package_name, type, source, justification, active) VALUES (?, ?, ?, ?, ?)',
+        [package_name, source.type, source.source, source.justification || 'Sin justificación.', true],
+        resolve
+      ))
+    }
+    fs.cpSync(path.join(tempDir, 'code'), this.paths.getAppPublic(package_name), { recursive: true })
+    fs.mkdirSync(this.paths.getAppDatabases(package_name), { recursive: true })
+    fs.rmSync(tempDir, { recursive: true, force: true })
+    return true
+  }
+}
+
+interface InstallError {
+  code: string
+  message: string
 }
