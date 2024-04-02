@@ -69,9 +69,9 @@ export class DevModeModel {
       define: {
         TOKEN: `"${token}"`,
         KEY: `"${key}"`,
-        IS_DEV: this.isDevMode.isDevMode ? 'true' : 'false',
-        _HOST: this.isDevMode.isDevMode ? "import.meta.resolve('./..')" : 'location.origin'
-      }
+        IS_DEV: this.isDevMode.isDevMode ? 'true' : 'false'
+      },
+      minify: !this.isDevMode.isDevMode
     })
     return content.code
   }
