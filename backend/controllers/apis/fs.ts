@@ -30,7 +30,7 @@ export class FileSystemController {
   @Model('DevModeModel') public devModeModel: Models<'DevModeModel'>
   @Model('FileSystemModel') private fsModel: Models<'FileSystemModel'>
   @On(POST, '/shared/list')
-  @BeforeMiddleware([verifyPermissions('ACCESS_SHARED_FILE_LIST')])
+  @BeforeMiddleware([verifyPermissions('ACCESS_SHARED_FILE_LIST'), decryptRequest])
   public sharedDrive(req: PXIOHTTP.Request, res: PXIOHTTP.Response) {
     const result = this.fsModel.lsSharedDirectory(req.body)
     if (typeof result === 'boolean') {
@@ -43,7 +43,7 @@ export class FileSystemController {
     res.json(result)
   }
   @On(POST, '/user/list')
-  @BeforeMiddleware([verifyPermissions('ACCESS_USER_FILE_LIST')])
+  @BeforeMiddleware([verifyPermissions('ACCESS_USER_FILE_LIST'), decryptRequest])
   public userDrive(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response) {
     const result = this.fsModel.lsUserDirectory(req.session.user?.uuid || '', req.body)
     if (typeof result === 'boolean') {
@@ -56,19 +56,19 @@ export class FileSystemController {
     res.json(result)
   }
   @On(POST, '/shared')
-  @BeforeMiddleware([verifyPermissions('CREATE_SHARED_DIR')])
+  @BeforeMiddleware([verifyPermissions('CREATE_SHARED_DIR'), decryptRequest])
   public mkdirSharedDrive(req: PXIOHTTP.Request, res: PXIOHTTP.Response) {
     this.fsModel.mkdirToShared(req.body)
     res.json(true)
   }
   @On(POST, '/user')
-  @BeforeMiddleware([verifyPermissions('CREATE_USER_DIR')])
+  @BeforeMiddleware([verifyPermissions('CREATE_USER_DIR'), decryptRequest])
   public mkdirUserDrive(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response) {
     this.fsModel.mkdirToUser(req.session.user?.uuid || '', req.body)
     res.json(true)
   }
   @On(PUT, '/shared')
-  @BeforeMiddleware([verifyPermissions('UPLOAD_SHARED_FILE')])
+  @BeforeMiddleware([verifyPermissions('UPLOAD_SHARED_FILE'), decryptRequest])
   public uploadSharedDrive(req: PXIOHTTP.Request, res: PXIOHTTP.Response) {
     const { file } = req.files as fileUpload.FileArray
     if (!file) {
@@ -83,7 +83,7 @@ export class FileSystemController {
     res.json(true)
   }
   @On(PUT, '/user')
-  @BeforeMiddleware([verifyPermissions('UPLOAD_USER_FILE')])
+  @BeforeMiddleware([verifyPermissions('UPLOAD_USER_FILE'), decryptRequest])
   public uploadUserDrive(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response) {
     const { file } = req.files as fileUpload.FileArray
     if (!file) {
@@ -98,13 +98,13 @@ export class FileSystemController {
     res.json(true)
   }
   @On(DELETE, '/shared')
-  @BeforeMiddleware([verifyPermissions('REMOVE_SHARED_FILES_AND_DIRECTORIES')])
+  @BeforeMiddleware([verifyPermissions('REMOVE_SHARED_FILES_AND_DIRECTORIES'), decryptRequest])
   public rmSharedDrive(req: PXIOHTTP.Request, res: PXIOHTTP.Response) {
     this.fsModel.rmToShared(req.body)
     res.json(true)
   }
   @On(DELETE, '/user')
-  @BeforeMiddleware([verifyPermissions('REMOVE_USER_FILES_AND_DIRECTORIES')])
+  @BeforeMiddleware([verifyPermissions('REMOVE_USER_FILES_AND_DIRECTORIES'), decryptRequest])
   public rmUserDrive(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response) {
     this.fsModel.rmToUser(req.session.user?.uuid || '', req.body)
     res.json(true)

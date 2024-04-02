@@ -93,7 +93,7 @@ export class UsersController {
     res.json(true)
   }
   @On(POST, '/assign-app')
-  @BeforeMiddleware([verifyPermissions('ASSIGN_APP_TO_USER')])
+  @BeforeMiddleware([verifyPermissions('ASSIGN_APP_TO_USER'), decryptRequest])
   public async assignApp(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
     const { uuid, package_name } = req.body
     if (uuid && package_name) {
@@ -115,7 +115,7 @@ export class UsersController {
     }
   }
   @On(POST, '/unassign-app')
-  @BeforeMiddleware([verifyPermissions('UNASSIGN_APP_TO_USER')])
+  @BeforeMiddleware([verifyPermissions('UNASSIGN_APP_TO_USER'), decryptRequest])
   public async unassignApp(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
     const { uuid, package_name } = req.body
     if (uuid && package_name) {

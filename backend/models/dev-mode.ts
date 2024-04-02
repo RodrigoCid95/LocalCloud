@@ -68,9 +68,9 @@ export class DevModeModel {
       loader: 'ts',
       define: {
         TOKEN: `"${token}"`,
-        KEY: `"${key}"`
-      },
-      minify: true
+        KEY: `"${key}"`,
+        IS_DEV: this.isDevMode.isDevMode ? 'true' : 'false'
+      }
     })
     return content.code
   }

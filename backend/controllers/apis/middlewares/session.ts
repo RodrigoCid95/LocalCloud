@@ -11,7 +11,7 @@ export async function verifySession(req: PXIOHTTP.Request<LocalCloud.SessionData
   } else {
     const _this: any = this
     const model = (_this?.devModeModel as Models<'DevModeModel'> | undefined)
-    if (model?.isDevMode) {
+    if (model?.isDevMode?.isDevMode) {
       req.session.user = await model.getUser()
       req.session.apps = {}
       const apps = await model.getApps()

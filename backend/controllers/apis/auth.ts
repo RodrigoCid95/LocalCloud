@@ -12,9 +12,10 @@ const { GET, POST, DELETE } = METHODS
 export class AuthAPIController {
   @Model('UsersModel') private userModel: Models<'UsersModel'>
   @Model('AppsModel') private appsModel: Models<'AppsModel'>
+  @Model('DevModeModel') private devModeModel: Models<'DevModeModel'>
   @On(GET, '/')
-  public index(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): void {
-    if (req.session.user) {
+  public async index(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
+    if (req.session.user || this.devModeModel.isDevMode.isDevMode) {
       res.json(true)
     } else {
       res.json(null)
