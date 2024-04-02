@@ -12,7 +12,8 @@ export default async () => {
   const loading = await loadingController.create({ message: 'Cargando...' })
   await loading.present()
   const connectorPath = `${location.pathname === '/' ? '' : location.pathname}/connector.js`
-  await import(connectorPath)
+  const { ServerConector } = await import(connectorPath)
+  Object.defineProperty(window, 'server', { value: new ServerConector(), writable: false })
   await loading.dismiss()
   document.dispatchEvent(new CustomEvent('onReady'))
 }

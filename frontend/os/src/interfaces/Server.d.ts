@@ -1,42 +1,24 @@
-import type { loadingController, modalController, pickerController, toastController, menuController, alertController } from '@ionic/core'
+import type { alertController, loadingController, modalController, pickerController, toastController, menuController } from '@ionic/core'
 
-export interface GetArgs {
-  endpoint: string
-  method: 'get'
-  params?: { [x: string]: string }
+interface ServerConector {
+  send(args: SendArgs): Promise<Response>
 }
 
-export interface PostArgs {
+interface SendArgs {
   endpoint: string
-  method: 'post'
+  method: 'get' | 'post' | 'put' | 'delete'
   data?: string
-}
-
-export interface PutArgs {
-  endpoint: string
-  method: 'put'
-  data?: string
-}
-
-export interface DeleteArgs {
-  endpoint: string
-  method: 'delete'
-}
-
-export interface ServerConnector {
-  readonly encrypting: Encrypting.Class
-  send(args: GetArgs): Promise<Response>
-  send(args: PostArgs | PutArgs | DeleteArgs): Promise<Response>
+  params?: object
 }
 
 declare global {
   interface Window {
+    alertController: typeof alertController
     loadingController: typeof loadingController
     modalController: typeof modalController
     pickerController: typeof pickerController
     toastController: typeof toastController
     menuController: typeof menuController
-    alertController: typeof alertController
-    server: ServerConnector
+    server: ServerConector
   }
 }

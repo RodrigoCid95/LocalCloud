@@ -23,7 +23,7 @@ export default async (el: HTMLElement) => {
       await window.server.send({
         method: 'post',
         endpoint: 'api/profile',
-        data: await window.server.encrypting.encrypt(JSON.stringify(data))
+        data: JSON.stringify(data)
       })
       progressBarRef.style.display = 'none'
     }
@@ -48,7 +48,7 @@ export default async (el: HTMLElement) => {
       const { ok, message } = await window.server.send({
         method: 'put',
         endpoint: 'api/profile',
-        data: await window.server.encrypting.encrypt(JSON.stringify(data))
+        data: JSON.stringify(data)
       }).then(response => response.json())
       if (ok) {
         currentPasswordRef.value = ''

@@ -24,7 +24,7 @@ export class LCOAuth {
       const response = await window.server.send({
         method: 'post',
         endpoint: 'api/auth',
-        data: await window.server.encrypting.encrypt(JSON.stringify(data))
+        data: JSON.stringify(data)
       }).then(response => response.json())
       await loading.dismiss()
       this.logged.emit(response)
