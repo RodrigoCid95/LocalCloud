@@ -29,4 +29,25 @@ declare global {
     email: string
     phone: string
   }
+  interface Permission {
+    id: number
+    api: string
+    justification: string
+    active: boolean
+  }
+  interface Source {
+    id: number
+    type: string
+    source: string
+    justification: string
+    active: boolean
+  }
+  interface App {
+    package_name: string
+    title: string
+    description: string
+    author: string
+    permissions: Permission[]
+    secureSources: Source[]
+  }
 }

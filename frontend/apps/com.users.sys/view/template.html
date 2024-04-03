@@ -19,7 +19,7 @@
       <ion-fab-button id="btn-new-user">
         <ion-icon name="person-add"></ion-icon>
       </ion-fab-button>
-    </ion-fab>  
+    </ion-fab>
   </ion-content>
 </ion-app>
 <ion-modal id="create-user-modal">
@@ -44,13 +44,15 @@
         <ion-input label="Nombre completo" label-placement="floating" error-text="Campo requerido"></ion-input>
       </ion-item>
       <ion-item>
-        <ion-input label="Correo electrónico" label-placement="floating" type="email" error-text="Campo requerido"></ion-input>
+        <ion-input label="Correo electrónico" label-placement="floating" type="email"
+          error-text="Campo requerido"></ion-input>
       </ion-item>
       <ion-item>
         <ion-input label="Teléfono" label-placement="floating" type="tel" error-text="Campo requerido"></ion-input>
       </ion-item>
       <ion-item>
-        <ion-input label="Contraseña" label-placement="floating" type="password" error-text="Campo requerido"></ion-input>
+        <ion-input label="Contraseña" label-placement="floating" type="password"
+          error-text="Campo requerido"></ion-input>
       </ion-item>
     </ion-list>
   </ion-content>
@@ -71,12 +73,24 @@
     <input type="hidden" name="uuid">
     <ion-list inset>
       <ion-item>
+        <ion-label class="ion-text-center">Info</ion-label>
+      </ion-item>
+      <ion-item>
         <style>
           .thumbnail {
             --size: 140px;
             --border-radius: 14px;
             margin: 0 auto;
             cursor: pointer;
+          }
+
+          .app-list {
+            display: contents;
+          }
+
+          .delete-button {
+            outline: 1px solid var(--ion-color-danger) !important;
+            color: var(--ion-color-danger) !important;
           }
         </style>
         <ion-thumbnail class="thumbnail">
@@ -92,6 +106,16 @@
       <ion-item>
         <ion-input label="Teléfono" label-placement="floating" type="tel"></ion-input>
       </ion-item>
+    </ion-list>
+    <ion-list inset>
+      <ion-item>
+        <ion-label class="ion-text-center">Apps</ion-label>
+      </ion-item>
+      <div class="app-list"></div>
+      <ion-button expand="block" fill="clear" id="add-app">Asignar</ion-button>
+    </ion-list>
+    <ion-list inset>
+      <ion-button expand="block" fill="outline" id="delete-user" color="danger">Eliminar usuario</ion-button>
     </ion-list>
   </ion-content>
 </ion-modal>

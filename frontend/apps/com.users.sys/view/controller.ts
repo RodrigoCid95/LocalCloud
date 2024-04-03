@@ -1,3 +1,4 @@
+import type { AlertInput } from "@ionic/core"
 import template from "./template.html"
 import thumbnail from './thumbnail.svg'
 
@@ -28,7 +29,7 @@ export class IndexController {
         this.#getUsers()
       }
     })
-    const [userNameRef, fullNameRef, emailRef, phoneRef, passwordRef] = this.createModal.querySelectorAll('ion-input').values()
+    const [userNameRef, fullNameRef, emailRef, phoneRef, passwordRef] = (this.createModal.querySelectorAll('ion-input') as any).values()
     const fields = [userNameRef, fullNameRef, emailRef, phoneRef, passwordRef]
     this.element.querySelector('#btn-new-user')?.addEventListener('click', async () => {
       for (const field of fields) {
@@ -104,10 +105,98 @@ export class IndexController {
       }
     })
     const uuid = this.updateModal.querySelector('[name="uuid"]') as HTMLInputElement
-    const [fullName, email, phone] = this.updateModal.querySelectorAll('ion-input').values() as unknown as HTMLIonInputElement[]
+    const [fullName, email, phone] = (this.updateModal.querySelectorAll('ion-input') as any).values() as unknown as HTMLIonInputElement[]
     const photo = this.updateModal.querySelector('ion-thumbnail img') as HTMLImageElement
     const userName = this.updateModal.querySelector('#update-user-title') as HTMLIonTitleElement
     this.updateFormRefs = { uuid, photo, userName, fullName, email, phone }
+    this.element.querySelector('#add-app').addEventListener('click', async () => {
+      const loading = await window.loadingController.create({ message: 'Cargando...' })
+      await loading.present()
+      const userAppList: App[] = await window.server.send({
+        endpoint: `api/apps/${this.updateFormRefs.uuid.value}`,
+        method: 'get'
+      }).then(response => response.json())
+      const appList = await window.server
+        .send({
+          endpoint: 'api/apps',
+          method: 'get'
+        })
+        .then(response => response.json())
+        .then((appList: App[]) => appList.filter(app => userAppList.find(userApp => app.package_name === userApp.package_name) === undefined))
+      if (appList.length > 0) {
+        const inputs: AlertInput[] = []
+        for (const app of appList) {
+          inputs.push({
+            type: 'checkbox',
+            label: app.title,
+            value: app.package_name
+          })
+        }
+        const _this = this
+        await window.alertController
+          .create({
+            header: 'Asignar apps',
+            subHeader: 'Selecciona las apps que quieres asignar a este usuario.',
+            inputs,
+            buttons: [
+              'Cancelar',
+              {
+                text: 'Asignar',
+                async handler(package_names: string[]) {
+                  const loading = await window.loadingController.create({ message: 'Asignando...' })
+                  await loading.present()
+                  for (const package_name of package_names) {
+                    await window.server.send({
+                      endpoint: 'api/users/assign-app',
+                      method: 'post',
+                      data: JSON.stringify({
+                        uuid: _this.updateFormRefs.uuid.value,
+                        package_name
+                      })
+                    })
+                  }
+                  await loading.dismiss()
+                  _this.loadApps.bind(_this)()
+                }
+              }
+            ]
+          })
+          .then(alert => alert.present())
+      }
+      await loading.dismiss()
+      if (appList.length === 0) {
+        await window.alertController
+          .create({ header: 'Sin apps', message: 'Aún no hay apps instaladas.', buttons: ['Aceptar'] })
+          .then(alert => alert.present())
+      }
+    })
+    this.element.querySelector('#delete-user').addEventListener('click', () => {
+      const _this = this
+      window.alertController
+        .create({
+          header: 'Eliminar usuario',
+          subHeader: '¿Estas seguro(a) que quieres eliminar este usuario?',
+          message: 'Todos los datos de van a eliminar, incluyendo archivos, acceso al sistema y asignación de aplicaciones.',
+          buttons: [
+            'Cancelar',
+            {
+              text: 'Eliminar de todos modos',
+              cssClass: 'delete-button',
+              async handler() {
+                const loading = await window.loadingController.create({ message: 'Eliminando...' })
+                await loading.present()
+                await window.server.send({
+                  endpoint: `api/users/${_this.updateFormRefs.uuid.value}`,
+                  method: 'delete'
+                })
+                await loading.dismiss()
+                await _this.updateModal.dismiss(true)
+              }
+            }
+          ]
+        })
+        .then(alert => alert.present())
+    })
     this.#getUsers()
   }
   async #getUsers(): Promise<void> {
@@ -142,18 +231,9 @@ export class IndexController {
         this.updateFormRefs.email.value = user.email
         this.updateFormRefs.phone.value = user.phone
         await this.updateModal.present()
+        this.loadApps()
       })
-      item.innerHTML = `
-        <ion-thumbnail slot="start">
-          <img alt="${user.user_name}" src="" />
-        </ion-thumbnail>
-        <ion-label>
-          ${user.full_name || ''}
-          <br>
-          <p>${user.user_name || ''}</p>
-          ${this.#currentUser.uuid === user.uuid ? `<p>Usuario actual</p>` : ''}
-        </ion-label>
-      `
+      item.innerHTML = `<ion-thumbnail slot="start"><img alt="${user.user_name}" src="" /></ion-thumbnail><ion-label>${user.full_name || ''}<br><p>${user.user_name || ''}</p>${this.#currentUser.uuid === user.uuid ? `<p>Usuario actual</p>` : ''}</ion-label>`
       col.append(item);
       (col.querySelector('img') as HTMLImageElement).src = user.photo || thumbnail
       cards.push(col)
@@ -162,5 +242,39 @@ export class IndexController {
       this.contentRef.append(card)
     }
     this.progressBarRef.style.display = 'none'
+  }
+  async loadApps() {
+    const appListElement = this.element.querySelector('.app-list') as HTMLDivElement
+    appListElement.innerHTML = '<ion-progress-bar type="indeterminate"></ion-progress-bar>'
+    const results: App[] = await window.server.send({
+      endpoint: `api/apps/${this.updateFormRefs.uuid.value}`,
+      method: 'get'
+    }).then(response => response.json())
+    if (results.length > 0) {
+      const appElements = []
+      for (const app of results) {
+        const appElement = document.createElement('ion-item')
+        appElement.innerHTML = `<ion-label>${app.title}&nbsp;<ion-note slot="end">(${app.package_name})</ion-note></ion-label><ion-button slot="end" fill="clear"><ion-icon color="danger" name="remove-circle-outline"></ion-icon></ion-button>`
+        appElement.querySelector('ion-button').addEventListener('click', async () => {
+          appListElement.innerHTML = '<ion-progress-bar type="indeterminate"></ion-progress-bar>'
+          await window.server.send({
+            endpoint: 'api/users/unassign-app',
+            method: 'post',
+            data: JSON.stringify({
+              uuid: this.updateFormRefs.uuid.value,
+              package_name: app.package_name
+            })
+          })
+          this.loadApps()
+        })
+        appElements.push(appElement)
+      }
+      appListElement.innerHTML = ''
+      for (const app of appElements) {
+        appListElement.append(app)
+      }
+    } else {
+      appListElement.innerHTML = '<ion-item><ion-label class="ion-text-center">Sin apps!</ion-label></ion-item>'
+    }
   }
 }
