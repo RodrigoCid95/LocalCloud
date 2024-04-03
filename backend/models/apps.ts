@@ -1,5 +1,4 @@
 import type { Database } from 'sqlite3'
-import os from 'node:os'
 import fs from 'node:fs'
 import path from 'node:path'
 import { v4 } from 'uuid'
@@ -136,6 +135,30 @@ export class AppsModel {
     fs.mkdirSync(this.paths.getAppDatabases(package_name), { recursive: true })
     fs.rmSync(tempDir, { recursive: true, force: true })
     return true
+  }
+  public async uninstall(package_name: string): Promise<void> {
+    await new Promise(resolve => this.database.run(
+      'DELETE FROM secure_sources WHERE package_name = ?',
+      [package_name],
+      resolve
+    ))
+    await new Promise(resolve => this.database.run(
+      'DELETE FROM permissions WHERE package_name = ?',
+      [package_name],
+      resolve
+    ))
+    await new Promise(resolve => this.database.run(
+      'DELETE FROM users_to_apps WHERE package_name = ?',
+      [package_name],
+      resolve
+    ))
+    await new Promise(resolve => this.database.run(
+      'DELETE FROM apps WHERE package_name = ?',
+      [package_name],
+      resolve
+    ))
+    const appPath = this.paths.getApp(package_name)
+    fs.rmSync(appPath, { recursive: true, force: true })
   }
 }
 

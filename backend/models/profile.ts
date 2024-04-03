@@ -31,7 +31,7 @@ export class ProfileModel {
       resolve
     ))
     await new Promise(resolve => this.database.run(
-      'DELETE FROM apps WHERE uuid = ?',
+      'DELETE FROM users_to_apps WHERE uuid = ?',
       [uuid],
       resolve
     ))

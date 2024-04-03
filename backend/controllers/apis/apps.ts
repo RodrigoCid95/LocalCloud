@@ -20,6 +20,12 @@ export class AppsAPIController {
     const results = await this.appsModel.getApps()
     res.json(results)
   }
+  @On(GET, '/:uuid')
+  @BeforeMiddleware([verifyPermissions('APP_LIST_BY_UUID')])
+  public async appsByUUID(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
+    const results = await this.appsModel.getAppsByUUID(req.params.uuid)
+    res.json(results)
+  }
   @On(POST, '/')
   @BeforeMiddleware([verifyPermissions('INSTALL_APP')])
   public async install(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
@@ -45,9 +51,14 @@ export class AppsAPIController {
       })
     }
   }
-  @On(DELETE, '/')
+  @On(DELETE, '/:package_name')
   @BeforeMiddleware([verifyPermissions('UNINSTALL_APP')])
-  public async unInstall(_: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
-    res.json(true)
+  public async unInstall(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
+    const { package_name } = req.params
+    const app = await this.appsModel.getAppByPackageName(package_name)
+    if (app) {
+      await this.appsModel.uninstall(package_name)
+      res.json(true)
+    }
   }
 }
