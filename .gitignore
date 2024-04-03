@@ -14,3 +14,4 @@ frontend/os/node_modules
 frontend/apps/node_modules
 frontend/apps/package-lock.json
 frontend/apps/dist
+frontend/apps/www/js
