@@ -45,6 +45,54 @@ const getURL = ({ endpoint, params = {} }: GetURLArgs): string => {
   return url.href
 }
 
+interface FileOptions {
+  name: string
+  file: File
+}
+
+interface MetaData {
+  [x: string]: string
+}
+
+class FileUploader {
+  #xhr: XMLHttpRequest
+  #form: FormData
+  constructor(endpoint: string, { name, file }: FileOptions, metadata?: MetaData) {
+    this.#xhr = new XMLHttpRequest()
+    this.#form = new FormData()
+    this.#form.append(name, file)
+    if (metadata) {
+      const keys = Object.keys(metadata)
+      for (const key of keys) {
+        this.#form.append(key, metadata[key])
+      }
+    }
+    this.#xhr.open("POST", getURL({ endpoint }), true)
+    this.#xhr.setRequestHeader('token', TOKEN)
+  }
+  on(event: 'progress' | 'end' | 'error' | 'abort', callback: any) {
+    if (event === 'end') {
+      this.#xhr.addEventListener('load', callback)
+      return
+    }
+    if (event === 'abort') {
+      this.#xhr.addEventListener('abort', callback)
+      return
+    }
+    if (event === 'error') {
+      this.#xhr.addEventListener('error', callback)
+      return
+    }
+    this.#xhr.addEventListener('progress', event => {
+      if (event.lengthComputable) {
+        const percentComplete = (event.loaded / event.total) * 100
+        callback(percentComplete)
+      }
+    })
+  }
+  start = () => this.#xhr.send(this.#form)
+  cancel = () => this.#xhr.abort()
+}
 export class ServerConector {
   async send({ endpoint, method, data: body, params }: any): Promise<Response> {
     const headers: Headers = new Headers()
@@ -82,6 +130,7 @@ export class ServerConector {
       throw new Error(`El método ${method} no es válido, utiliza 'get', 'post', 'put' o 'delete'.`)
     }
   }
+  createUploader = (endpoint: string, file: FileOptions, metadata?: MetaData) => new FileUploader(endpoint, file, metadata)
 }
 
 interface GetURLArgs {
