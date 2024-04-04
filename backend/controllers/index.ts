@@ -12,7 +12,7 @@ export class IndexController {
   @Model('DevModeModel') public devModeModel: Models<'DevModeModel'>
   @On(GET, '/')
   @BeforeMiddleware([devMode, tokens, verifySession])
-  public dashboard(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): void {
+  public dashboard(_: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): void {
     res.render('dashboard', { title: 'LocalCloud - Dashboard', description: 'LocalCloud - Dashboard' })
   }
   @On(GET, '/connector.js')
@@ -23,8 +23,8 @@ export class IndexController {
   }
   @On(GET, '/login')
   @BeforeMiddleware([devMode, tokens, verifyNotSession])
-  public login(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): void {
-    res.render('login', { title: 'LocalCloud - Iniciar sesión', description: 'LocalCloud - Iniciar sesión', key: req.session.key, token: req.session.token })
+  public login(_: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): void {
+    res.render('login', { title: 'LocalCloud - Iniciar sesión', description: 'LocalCloud - Iniciar sesión' })
   }
   @On(GET, '/login/connector.js')
   @BeforeMiddleware([tokens])
