@@ -104,7 +104,7 @@ export class IndexController {
     })
     this.updateModal.addEventListener('ionModalDidDismiss', this.#getUsers.bind(this))
     const uuid = this.updateModal.querySelector('[name="uuid"]') as HTMLInputElement
-    const [ userName, fullName, email, phone] = (this.updateModal.querySelectorAll('ion-input') as any).values() as unknown as HTMLIonInputElement[]
+    const [userName, fullName, email, phone] = (this.updateModal.querySelectorAll('ion-input') as any).values() as unknown as HTMLIonInputElement[]
     const photo = this.updateModal.querySelector('ion-thumbnail img') as HTMLImageElement
     this.updateFormRefs = { uuid, photo, userName, fullName, email, phone }
     this.element.querySelector('#add-app').addEventListener('click', async () => {
@@ -178,6 +178,7 @@ export class IndexController {
           buttons: [
             'Cancelar',
             {
+              role: 'cancel',
               text: 'Eliminar de todos modos',
               cssClass: 'delete-button',
               async handler() {
@@ -212,6 +213,7 @@ export class IndexController {
         method: 'get'
       })
       .then(response => response.json())
+      .then((results: User[]) => results.filter(user => user.uuid !== this.#currentUser.uuid))
     const cards: HTMLIonColElement[] = []
     for (const user of results) {
       const col = document.createElement('ion-col')

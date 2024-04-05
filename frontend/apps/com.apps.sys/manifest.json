@@ -2,6 +2,14 @@
   "title": "Apps",
   "description": "Gestor de aplicaciones",
   "author": "Rodrigo Cid",
-  "permissions": {},
+  "permissions": {
+    "APP_LIST": "Permite listar las aplicaciones instaladas para gestionarlas.",
+    "ENABLE_SOURCE": "Permitie getionar las fuentes seguras.",
+    "DISABLE_SOURCE": "Permitie getionar las fuentes seguras.",
+    "ENABLE_PERMISSION": "Permite gesitonar los permisos de las aplicaciones.",
+    "DISABLE_PERMISSION": "Permite gesitonar los permisos de las aplicaciones.",
+    "INSTALL_APP": "Permite instalar nuevas aplicaciones.",
+    "UNINSTALL_APP": "Permite desinstalar aplicaciones"
+  },
   "sources": []
 }
