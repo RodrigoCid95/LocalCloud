@@ -1,7 +1,25 @@
 import type { alertController, loadingController, modalController, pickerController, toastController, menuController } from '@ionic/core'
 
+interface FileOptions {
+  name: string
+  file: File
+}
+
+interface MetaData {
+  [x: string]: string
+}
+
+interface FileUploader {
+  on(event: 'progress', callback: (progress: number) => void): void
+  on(event: 'end', callback: (response: any) => void): void
+  on(event: 'end' | 'error' | 'abort', callback: () => void): void
+  start(): void
+  cancel(): void
+}
+
 interface ServerConector {
   send(args: SendArgs): Promise<Response>
+  createUploader(endpoint: string, file: FileOptions, metadata?: MetaData): FileUploader
 }
 
 interface SendArgs {

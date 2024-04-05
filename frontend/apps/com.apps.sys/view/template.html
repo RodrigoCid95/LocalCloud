@@ -1,0 +1,61 @@
+<style>
+  .delete-button {
+    outline: 1px solid var(--ion-color-danger) !important;
+    color: var(--ion-color-danger) !important;
+  }
+
+  #app-list ion-card {
+    position: relative;
+  }
+
+  #app-list ion-card .btn-remove {
+    position: absolute;
+    top: 0;
+    right: 0;
+  }
+</style>
+<ion-app>
+  <ion-header>
+    <ion-toolbar>
+      <ion-title>Apps</ion-title>
+      <ion-buttons slot="end">
+        <ion-button id="refresh">
+          <ion-icon slot="icon-only" name="refresh"></ion-icon>
+        </ion-button>
+      </ion-buttons>
+      <ion-progress-bar type="indeterminate" id="progress"></ion-progress-bar>
+    </ion-toolbar>
+  </ion-header>
+  <ion-content class="ion-padding">
+    <ion-grid>
+      <ion-row id="app-list"></ion-row>
+    </ion-grid>
+    <ion-fab slot="fixed" vertical="bottom" horizontal="end">
+      <ion-fab-button id="btn-install">
+        <ion-icon name="bag-add-outline"></ion-icon>
+      </ion-fab-button>
+    </ion-fab>
+  </ion-content>
+</ion-app>
+<ion-modal id="permissions-modal">
+  <ion-header>
+    <ion-toolbar>
+      <ion-title>Permisos</ion-title>
+      <ion-buttons slot="end">
+        <ion-button>
+          <ion-icon slot="icon-only" name="close"></ion-icon>
+        </ion-button>
+      </ion-buttons>
+    </ion-toolbar>
+  </ion-header>
+  <ion-content class="ion-padding">
+    <ion-list inset id="permissions-list">
+      <ion-item>
+        <ion-toggle>
+          <ion-label class="ion-text-wrap">Lista de aplicaciones instaladas filtradas por usuario.</ion-label>
+          <ion-note color="medium" class="ion-text-wrap">Se usa para comparar las apps asignadas a un usuario con la lista de apps instaladas.</ion-note>
+        </ion-toggle>
+      </ion-item>
+    </ion-list>
+  </ion-content>
+</ion-modal>
