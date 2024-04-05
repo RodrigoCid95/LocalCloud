@@ -79,9 +79,19 @@ export class UsersController {
   @On(PUT, '/:uuid')
   @BeforeMiddleware([verifyPermissions('UPDATE_USER_INFO', true), decryptRequest])
   public async update(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
-    const { full_name, email, phone } = req.body
+    const { user_name, full_name, email, phone } = req.body
+    if (user_name) {
+      const [result] = await this.usersModel.find({ user_name })
+      if (result) {
+        res.json({
+          code: 'user-already-exists',
+          message: `El usuario ${user_name} ya existe!`
+        })
+        return
+      }
+    }
     await this.profileModel.update(
-      { full_name, email, phone },
+      { user_name, full_name, email, phone },
       req.params.uuid
     )
     res.json(true)
@@ -103,9 +113,9 @@ export class UsersController {
         res.json(true)
       } else {
         res.status(400).json({
-        code: 'user-not-exist',
-        message: 'El usuario no existe.'
-      })
+          code: 'user-not-exist',
+          message: 'El usuario no existe.'
+        })
       }
     } else {
       res.status(400).json({
@@ -125,9 +135,9 @@ export class UsersController {
         res.json(true)
       } else {
         res.status(400).json({
-        code: 'user-not-exist',
-        message: 'El usuario no existe.'
-      })
+          code: 'user-not-exist',
+          message: 'El usuario no existe.'
+        })
       }
     } else {
       res.status(400).json({

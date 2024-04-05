@@ -38,11 +38,24 @@ export class ProfileController {
   @BeforeMiddleware([verifyPermissions('UPDATE_PROFILE_INFO', true), decryptRequest])
   public async update(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
     if (req.session.user) {
-      const { full_name, email, phone } = req.body
+      const { user_name, full_name, email, phone } = req.body
+      if (user_name) {
+        const [result] = await this.usersModel.find({ user_name })
+        if (result) {
+          res.json({
+            code: 'user-already-exists',
+            message: `El usuario ${user_name} ya existe!`
+          })
+          return
+        }
+      }
       await this.profileModel.update(
-        { full_name, email, phone },
+        { user_name, full_name, email, phone },
         req.session.user.uuid
       )
+      if (user_name) {
+        req.session.user.user_name = user_name
+      }
       if (full_name) {
         req.session.user.full_name = full_name
       }
