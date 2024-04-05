@@ -12,22 +12,6 @@ export default async (el: HTMLElement) => {
   const buttonSendRef = buttons.item(1)
   const buttonChangePasswordRef = buttons.item(2)
   const buttonLogoutRef = buttons.item(3)
-  buttonSendRef.addEventListener('click', async () => {
-    const data = {
-      full_name: fullNameRef.value,
-      email: emailRef.value,
-      phone: phoneRef.value,
-    }
-    if (!Object.values(data).includes('')) {
-      progressBarRef.style.display = 'block'
-      await window.server.send({
-        method: 'post',
-        endpoint: 'api/profile',
-        data: JSON.stringify(data)
-      })
-      progressBarRef.style.display = 'none'
-    }
-  })
   buttonChangePasswordRef.addEventListener('click', async () => {
     const data = {
       current_password: currentPasswordRef.value,
@@ -57,7 +41,7 @@ export default async (el: HTMLElement) => {
       } else {
         const alert = await window.alertController.create({ message, buttons: ['Aceptar'] })
         await alert.present()
-      } 
+      }
     } catch (error) {
       debugger
       console.log(error)
@@ -79,4 +63,32 @@ export default async (el: HTMLElement) => {
   emailRef.value = email
   phoneRef.value = phone
   progressBarRef.style.display = 'none'
+  buttonSendRef.addEventListener('click', async () => {
+    const data = {
+      full_name: fullNameRef.value,
+      email: emailRef.value,
+      phone: phoneRef.value,
+    }
+    if (user_name !== userNameRef.value) {
+      data['user_name'] = userNameRef.value
+    }
+    if (!Object.values(data).includes('')) {
+      progressBarRef.style.display = 'block'
+      const { code, message }: any = await window.server.send({
+        method: 'post',
+        endpoint: 'api/profile',
+        data: JSON.stringify(data)
+      }).then(response => response.json())
+      if (code) {
+        window.alertController
+          .create({
+            header: 'Ocurrió algo',
+            message,
+            buttons: ['Aceptar']
+          })
+          .then(alert => alert.present())
+      }
+      progressBarRef.style.display = 'none'
+    }
+  })
 }

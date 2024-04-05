@@ -23,7 +23,7 @@ export default () => (
           </ion-thumbnail>
         </ion-item>
         <ion-item>
-          <ion-input label="Nombre de usuario:" label-placement="floating" disabled></ion-input>
+          <ion-input label="Nombre de usuario:" label-placement="floating"></ion-input>
         </ion-item>
         <ion-item>
           <ion-input label="Nombre completo:" label-placement="floating"></ion-input>
