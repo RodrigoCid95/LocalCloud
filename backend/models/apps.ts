@@ -19,7 +19,7 @@ export class AppsModel {
         (error, rows) => error ? resolve([]) : resolve(rows)
       ))
       const secureSourceResults = await new Promise<SecureSources.Result[]>(resolve => this.database.all<SecureSources.Result>(
-        'SELECT * FROM secure_source WHERE package_name = ?',
+        'SELECT * FROM secure_sources WHERE package_name = ?',
         [result.package_name],
         (error, rows) => error ? resolve([]) : resolve(rows)
       ))
