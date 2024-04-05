@@ -13,7 +13,7 @@ export class IndexController {
   updateFormRefs: {
     uuid: HTMLInputElement
     photo: HTMLImageElement
-    userName: HTMLIonTitleElement
+    userName: HTMLIonInputElement
     fullName: HTMLIonInputElement
     email: HTMLIonInputElement
     phone: HTMLIonInputElement
@@ -82,32 +82,30 @@ export class IndexController {
       }
     })
     this.updateModal = this.element.querySelector('#update-user-modal') as HTMLIonModalElement
-    this.updateModal.querySelector('#update-user-cancel')?.addEventListener('click', () => this.updateModal.dismiss(false))
+    this.updateModal.querySelector('#update-user-cancel')?.addEventListener('click', () => this.updateModal.dismiss())
     this.updateModal.querySelector('#update-user-confirm')?.addEventListener('click', async () => {
       const loader = await window.loadingController.create({ message: 'Guardando...' })
       await loader.present()
       const uuid = this.updateFormRefs.uuid.value
+      let user_name: string | undefined = undefined
+      if (this.updateFormRefs.userName.value !== this.updateFormRefs.userName.getAttribute('data-default')) {
+        user_name = this.updateFormRefs.userName.value as string
+      }
       const full_name = this.updateFormRefs.fullName.value
       const email = this.updateFormRefs.email.value
       const phone = this.updateFormRefs.phone.value
-      const data = JSON.stringify({ full_name, email, phone })
+      const data = JSON.stringify({ user_name, full_name, email, phone })
       await window.server.send({
         endpoint: `api/users/${uuid}`,
         method: 'put',
         data
       })
-      await loader.dismiss()
-      await this.updateModal.dismiss(true)
+      loader.dismiss()
     })
-    this.updateModal.addEventListener('ionModalDidDismiss', ({ detail }) => {
-      if (detail.data) {
-        this.#getUsers()
-      }
-    })
+    this.updateModal.addEventListener('ionModalDidDismiss', this.#getUsers.bind(this))
     const uuid = this.updateModal.querySelector('[name="uuid"]') as HTMLInputElement
-    const [fullName, email, phone] = (this.updateModal.querySelectorAll('ion-input') as any).values() as unknown as HTMLIonInputElement[]
+    const [ userName, fullName, email, phone] = (this.updateModal.querySelectorAll('ion-input') as any).values() as unknown as HTMLIonInputElement[]
     const photo = this.updateModal.querySelector('ion-thumbnail img') as HTMLImageElement
-    const userName = this.updateModal.querySelector('#update-user-title') as HTMLIonTitleElement
     this.updateFormRefs = { uuid, photo, userName, fullName, email, phone }
     this.element.querySelector('#add-app').addEventListener('click', async () => {
       const loading = await window.loadingController.create({ message: 'Cargando...' })
@@ -190,7 +188,7 @@ export class IndexController {
                   method: 'delete'
                 })
                 await loading.dismiss()
-                await _this.updateModal.dismiss(true)
+                await _this.updateModal.dismiss()
               }
             }
           ]
@@ -226,7 +224,8 @@ export class IndexController {
       item.addEventListener('click', async () => {
         this.updateFormRefs.uuid.value = user.uuid
         this.updateFormRefs.photo.src = user.photo || thumbnail
-        this.updateFormRefs.userName.innerText = `Usuario - ${user.user_name}`
+        this.updateFormRefs.userName.setAttribute('data-default', user.user_name)
+        this.updateFormRefs.userName.value = user.user_name
         this.updateFormRefs.fullName.value = user.full_name
         this.updateFormRefs.email.value = user.email
         this.updateFormRefs.phone.value = user.phone

@@ -60,12 +60,11 @@
 <ion-modal id="update-user-modal">
   <ion-header>
     <ion-toolbar>
-      <ion-buttons slot="start">
-        <ion-button id="update-user-cancel">Cancelar</ion-button>
-      </ion-buttons>
       <ion-title id="update-user-title"></ion-title>
       <ion-buttons slot="end">
-        <ion-button id="update-user-confirm" strong="true">Guardar</ion-button>
+        <ion-button id="update-user-cancel">
+          <ion-icon slot="icon-only" name="close"></ion-icon>
+        </ion-button>
       </ion-buttons>
     </ion-toolbar>
   </ion-header>
@@ -98,6 +97,9 @@
         </ion-thumbnail>
       </ion-item>
       <ion-item>
+        <ion-input label="Nombre de usuario" label-placement="floating"></ion-input>
+      </ion-item>
+      <ion-item>
         <ion-input label="Nombre completo" label-placement="floating"></ion-input>
       </ion-item>
       <ion-item>
@@ -106,6 +108,7 @@
       <ion-item>
         <ion-input label="Teléfono" label-placement="floating" type="tel"></ion-input>
       </ion-item>
+      <ion-button expand="block" fill="outline" id="update-user-confirm" strong="true">Guardar</ion-button>
     </ion-list>
     <ion-list inset>
       <ion-item>
