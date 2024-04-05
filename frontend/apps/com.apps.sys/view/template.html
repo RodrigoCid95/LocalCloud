@@ -49,13 +49,21 @@
     </ion-toolbar>
   </ion-header>
   <ion-content class="ion-padding">
-    <ion-list inset id="permissions-list">
-      <ion-item>
-        <ion-toggle>
-          <ion-label class="ion-text-wrap">Lista de aplicaciones instaladas filtradas por usuario.</ion-label>
-          <ion-note color="medium" class="ion-text-wrap">Se usa para comparar las apps asignadas a un usuario con la lista de apps instaladas.</ion-note>
-        </ion-toggle>
-      </ion-item>
-    </ion-list>
+    <ion-list inset id="permissions-list"></ion-list>
+  </ion-content>
+</ion-modal>
+<ion-modal id="sources-modal">
+  <ion-header>
+    <ion-toolbar>
+      <ion-title>Fuentes seguras</ion-title>
+      <ion-buttons slot="end">
+        <ion-button>
+          <ion-icon slot="icon-only" name="close"></ion-icon>
+        </ion-button>
+      </ion-buttons>
+    </ion-toolbar>
+  </ion-header>
+  <ion-content class="ion-padding">
+    <ion-list inset id="sources-list"></ion-list>
   </ion-content>
 </ion-modal>

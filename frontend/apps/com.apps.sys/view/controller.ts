@@ -7,6 +7,8 @@ export class IndexController {
   #appListRef: HTMLIonRowElement
   #permissionsListRef: HTMLIonListElement
   #permissionsModal: HTMLIonModalElement
+  #sourcesModal: HTMLIonModalElement
+  #sourcesListRef: HTMLIonListElement
   constructor(element: HTMLElement) {
     this.#progressBarRef = element.querySelector('#progress')
     this.#appListRef = element.querySelector('#app-list')
@@ -14,6 +16,12 @@ export class IndexController {
     this.#permissionsModal = element.querySelector('#permissions-modal')
     this.#permissionsModal.querySelector('[name="close"]').parentElement.addEventListener('click', async () => {
       await this.#permissionsModal.dismiss()
+      this.#loadApps()
+    })
+    this.#sourcesListRef = element.querySelector('#sources-list')
+    this.#sourcesModal = element.querySelector('#sources-modal')
+    this.#sourcesModal.querySelector('[name="close"]').parentElement.addEventListener('click', async () => {
+      await this.#sourcesModal.dismiss()
       this.#loadApps()
     })
     element.querySelector('#refresh').addEventListener('click', this.#loadApps.bind(this))
@@ -56,10 +64,13 @@ export class IndexController {
   }
   async #loadApps(): Promise<void> {
     this.#progressBarRef.style.display = 'block'
-    const apps: App[] = await window.server.send({
-      endpoint: 'api/apps',
-      method: 'get'
-    }).then(response => response.json())
+    const apps: App[] = await window.server
+      .send({
+        endpoint: 'api/apps',
+        method: 'get'
+      })
+      .then(response => response.json())
+      .then((apps: App[]) => apps.filter(app => app.package_name !== 'com.apps.sys'))
     this.#appListRef.innerHTML = ''
     const _this = this
     for (const app of apps) {
@@ -72,13 +83,47 @@ export class IndexController {
       const appCard = document.createElement('ion-card')
       appCard.innerHTML = `<ion-card-header><ion-card-title>${app.title}&nbsp;<ion-note>(${app.package_name})</ion-note></ion-card-title><ion-card-subtitle>${app.author}</ion-card-subtitle></ion-card-header><ion-card-content><p>${app.description}</p></ion-card-content>`
       appElement.append(appCard)
-      const sources = document.createElement('ion-button')
-      sources.classList.add('ion-float-right')
-      sources.fill = 'outline'
-      sources.innerHTML = 'Fuentes'
-      sources.addEventListener('click', () => {
+      const sourcesButton = document.createElement('ion-button')
+      sourcesButton.classList.add('ion-float-right')
+      sourcesButton.fill = 'outline'
+      sourcesButton.innerHTML = 'Fuentes'
+      sourcesButton.addEventListener('click', () => {
+        const sourceElements: HTMLIonItemElement[] = []
+        for (const source of app.secureSources) {
+          const sourceItem = document.createElement('ion-item')
+          const sourceToggle = document.createElement('ion-toggle')
+          sourceToggle.checked = source.active
+          sourceToggle.addEventListener('ionChange', async ({ detail: { checked } }) => {
+            const loading = await window.loadingController.create({ message: checked ? 'Habilitando...' : 'Deshabilitando...' })
+            await loading.present()
+            await window.server.send({
+              endpoint: `api/sources/${source.id}`,
+              method: checked ? 'post' : 'delete'
+            })
+            await loading.dismiss()
+          })
+          const sourceLabel = document.createElement('ion-label')
+          sourceLabel.classList.add('ion-text-wrap')
+          sourceLabel.innerText = `(${source.type}) ${source.source}`
+          const sourceJustifyNote = document.createElement('ion-note')
+          sourceJustifyNote.classList.add('ion-text-wrap')
+          sourceJustifyNote.innerText = source.justification
+          sourceToggle.append(sourceLabel)
+          sourceToggle.append(sourceJustifyNote)
+          sourceItem.append(sourceToggle)
+          sourceElements.push(sourceItem)
+        }
+        this.#sourcesListRef.innerHTML = ''
+        if (sourceElements.length > 0) {
+          for (const sourceElement of sourceElements) {
+            this.#sourcesListRef.append(sourceElement)
+          }
+        } else {
+          this.#sourcesListRef.innerHTML = '<ion-item><ion-label class="ion-text-center">No hay fuentes</ion-label></ion-item>'
+        }
+        this.#sourcesModal.present()
       })
-      appCard.append(sources)
+      appCard.append(sourcesButton)
       const permissionsButton = document.createElement('ion-button')
       permissionsButton.classList.add('ion-float-right')
       permissionsButton.fill = 'outline'
@@ -94,7 +139,7 @@ export class IndexController {
             await loading.present()
             await window.server.send({
               endpoint: `api/permissions/${permission.id}`,
-              method: checked ? 'put' : 'delete'
+              method: checked ? 'post' : 'delete'
             })
             await loading.dismiss()
           })
@@ -110,8 +155,12 @@ export class IndexController {
           permissionElements.push(permissionItem)
         }
         this.#permissionsListRef.innerHTML = ''
-        for (const permissionElement of permissionElements) {
-          this.#permissionsListRef.append(permissionElement)
+        if (permissionElements.length > 0) {
+          for (const permissionElement of permissionElements) {
+            this.#permissionsListRef.append(permissionElement)
+          }
+        } else {
+          this.#permissionsListRef.innerHTML = '<ion-item><ion-label class="ion-text-center">No hay permisos</ion-label></ion-item>'
         }
         this.#permissionsModal.present()
       })
