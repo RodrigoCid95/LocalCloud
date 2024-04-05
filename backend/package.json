@@ -2,7 +2,6 @@
 	"name": "backend",
 	"version": "1.0.0",
 	"description": "",
-	"main": "builder/cli.js",
 	"scripts": {
 		"init": "pxio",
 		"start": "pxio start",
@@ -49,7 +48,8 @@
 		"resources": [
 			"views",
 			"public",
-			".system",
+			".lc",
+			".users",
 			"connector.ts"
 		],
 		"loader": {
