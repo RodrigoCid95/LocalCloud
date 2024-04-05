@@ -7,13 +7,13 @@ declare const On: PXIOHTTP.OnDecorator
 declare const BeforeMiddleware: PXIOHTTP.BeforeMiddlewareDecorator
 declare const METHODS: PXIOHTTP.METHODS
 
-const { PUT, DELETE } = METHODS
+const { POST, DELETE } = METHODS
 
 @Namespace('api/permissions', { before: [verifySession] })
 export class PermissionsController {
   @Model('DevModeModel') public devModeModel: Models<'DevModeModel'>
   @Model('PermissionsModel') permissionModel: Models<'PermissionsModel'>
-  @On(PUT, '/:id')
+  @On(POST, '/:id')
   @BeforeMiddleware([verifyPermissions('ENABLE_PERMISSION')])
   public async enable(req: PXIOHTTP.Request, res: PXIOHTTP.Response): Promise<void> {
     const { id } = req.params
