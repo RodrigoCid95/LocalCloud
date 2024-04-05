@@ -67,12 +67,19 @@ class FileUploader {
         this.#form.append(key, metadata[key])
       }
     }
-    this.#xhr.open("POST", getURL({ endpoint }), true)
+    this.#xhr.open('POST', getURL({ endpoint }), true)
     this.#xhr.setRequestHeader('token', TOKEN)
   }
   on(event: 'progress' | 'end' | 'error' | 'abort', callback: any) {
     if (event === 'end') {
-      this.#xhr.addEventListener('load', callback)
+      this.#xhr.addEventListener('load', () => {
+        const isJSON = this.#xhr.getResponseHeader('content-type')?.includes('application/json')
+        if (isJSON) {
+          callback(JSON.parse(this.#xhr.response))
+        } else {
+          callback()
+        }
+      })
       return
     }
     if (event === 'abort') {
