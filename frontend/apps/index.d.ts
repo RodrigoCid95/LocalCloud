@@ -68,4 +68,11 @@ declare global {
     permissions: Permission[]
     secureSources: Source[]
   }
+  interface FileInfo {
+    name: string
+    size: number
+    lastModification: Date
+    creationDate: Date
+    isFile: boolean
+  }
 }
