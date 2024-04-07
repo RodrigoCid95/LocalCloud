@@ -11,18 +11,11 @@ declare const METHODS: PXIOHTTP.METHODS
 
 const { POST, PUT, DELETE } = METHODS
 
-const formatPath = (req: PXIOHTTP.Request, res: PXIOHTTP.Response, next: PXIOHTTP.Next) => {
+const formatPath = (req: PXIOHTTP.Request, _: PXIOHTTP.Response, next: PXIOHTTP.Next) => {
   let { path = '' } = req.body
   path = path.split('|').filter(item => item !== '')
-  if (path.length > 1) {
-    req.body = path
-    next()
-  } else {
-    res.status(400).json({
-      code: 'fields-required',
-      message: 'Faltan campos!'
-    })
-  }
+  req.body = path
+  next()
 }
 
 @Namespace('/api/fs', { before: [verifySession, decryptRequest, formatPath] })
