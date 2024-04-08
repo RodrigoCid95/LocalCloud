@@ -138,6 +138,7 @@ export class ServerConector {
     }
   }
   createUploader = (endpoint: string, file: FileOptions, metadata?: MetaData) => new FileUploader(endpoint, file, metadata)
+  createURL = (...path: string[]): URL => new URL(path.join('/'), _host)
 }
 
 interface GetURLArgs {
