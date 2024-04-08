@@ -1,8 +1,9 @@
 import '@ionic/core'
-import { loadingController, menuController, modalController, pickerController, setupConfig, toastController, alertController } from '@ionic/core'
+import { actionSheetController, loadingController, menuController, modalController, pickerController, setupConfig, toastController, alertController } from '@ionic/core'
 
 export default async () => {
   setupConfig(JSON.parse(localStorage.getItem('ion-config') || '{}'))
+  Object.defineProperty(window, 'actionSheetController', { value: actionSheetController, writable: false })
   Object.defineProperty(window, 'loadingController', { value: loadingController, writable: false })
   Object.defineProperty(window, 'modalController', { value: modalController, writable: false })
   Object.defineProperty(window, 'pickerController', { value: pickerController, writable: false })
