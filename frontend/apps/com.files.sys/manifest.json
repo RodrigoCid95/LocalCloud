@@ -2,6 +2,15 @@
   "title": "Archivos",
   "description": "Explorador de archivos",
   "author": "Rodrigo Cid",
-  "permissions": {},
+  "permissions": {
+    "ACCESS_SHARED_FILE_LIST": "Permite listar los archivos y/o directorios de la carpeta compartida.",
+    "ACCESS_USER_FILE_LIST": "Permite listar los archivos y/o directorios de la carpeta del usuario.",
+    "CREATE_SHARED_DIR": "Permite crear directorios en la carpeta compartida.",
+    "CREATE_USER_DIR": "Permite crear directorios en la carpeta del usuario.",
+    "UPLOAD_SHARED_FILE": "Permite subir archivos dentro de la carpeta compartida.",
+    "UPLOAD_USER_FILE": "Permite subir archivos dentro de la carpeta del usuario.",
+    "REMOVE_SHARED_FILES_AND_DIRECTORIES": "Permite eliminar archivos y/o directorios en la carpeta compartida.",
+    "REMOVE_USER_FILES_AND_DIRECTORIES": "Permite eliminar archivos y/o directorios en la carpeta compartida del usuario."
+  },
   "sources": []
 }

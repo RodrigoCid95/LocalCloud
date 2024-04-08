@@ -1,4 +1,4 @@
-import type { alertController, loadingController, modalController, pickerController, toastController, menuController } from '@ionic/core'
+import type { alertController, loadingController, modalController, pickerController, toastController, menuController, actionSheetController } from '@ionic/core'
 
 interface FileOptions {
   name: string
@@ -20,6 +20,7 @@ interface FileUploader {
 interface ServerConector {
   send(args: SendArgs): Promise<Response>
   createUploader(endpoint: string, file: FileOptions, metadata?: MetaData): FileUploader
+  createURL(...path: string[]): URL
 }
 
 interface SendArgs {
@@ -31,6 +32,7 @@ interface SendArgs {
 
 declare global {
   interface Window {
+    actionSheetController: typeof actionSheetController
     alertController: typeof alertController
     loadingController: typeof loadingController
     modalController: typeof modalController

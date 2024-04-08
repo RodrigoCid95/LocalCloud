@@ -76,11 +76,48 @@ export class FilesController {
     })
   }
   listenLinks(base: HTMLElement = this.#listRef) {
-    base.querySelectorAll('[data-link]').forEach((linkElement: HTMLElement) => linkElement.addEventListener('click', () => {
-      const { link } = linkElement.dataset
-      const segments = link.split('|')
-      const base = segments.shift()
-      this.loadItems(base, segments)
+    base.querySelectorAll('[data-link]').forEach((linkElement: HTMLElement) => {
+      linkElement.addEventListener('click', () => {
+        if (linkElement.getAttribute('button') !== null || linkElement.tagName === 'ION-BREADCRUMB') {
+          const { link } = linkElement.dataset
+          const segments = link.split('|')
+          const base = segments.shift()
+          this.loadItems(base, segments)
+        }
+      })
+      linkElement.addEventListener('contextmenu', (e) => {
+        if (linkElement.tagName !== 'ION-BREADCRUMB') {
+          (linkElement.parentElement as HTMLIonItemSlidingElement).open('end')
+          e.preventDefault()
+        }
+      })
+    })
+    base.querySelectorAll('[data-delete]').forEach((deleteElement: HTMLElement) => deleteElement.addEventListener('click', async () => {
+      const { delete: dlt } = deleteElement.dataset
+      const path = dlt.split('|')
+      const base = path.shift()
+      const loading = await window.loadingController.create({ message: 'Eliminando...' })
+      await loading.present()
+      await window.server.send({
+        endpoint: `/api/fs/${base}`,
+        method: 'delete',
+        data: JSON.stringify({
+          path: path.join('|')
+        })
+      })
+      await loading.dismiss()
+      path.pop()
+      this.loadItems(base, path)
+    }))
+    base.querySelectorAll('[data-download]').forEach((downloadElement: HTMLElement) => downloadElement.addEventListener('click', () => {
+      const { download } = downloadElement.dataset
+      const path = download.split('|')
+      const base = path.shift()
+      const { href } = window.server.createURL('file', base, ...path)
+      const anchor = document.createElement('a')
+      anchor.download = path[path.length - 1]
+      anchor.href = href
+      anchor.click()
     }))
   }
   async loadItems(base: string, segments: string[]) {
@@ -104,7 +141,7 @@ export class FilesController {
         const fileItems = results.filter(item => item.isFile)
         const items = [...folderItems, ...fileItems]
         for (const item of items) {
-          const newPath = [base, ...segments, item.name]
+          const newPath = [base, ...segments, item.name].join('|')
           const formatSize = (bytes: number) => {
             if (bytes === 0) return '0 Bytes'
             const k = 1024
@@ -113,13 +150,25 @@ export class FilesController {
             return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + unidades[i]
           }
           let itemHTML = `
-            <ion-item${item.isFile ? '' : ` button data-link="${newPath.join('|')}"`}>
-              <ion-icon slot="start" name="${item.isFile ? 'document' : 'folder'}-outline"></ion-icon>
-              <ion-label>
-                ${item.name}
-                ${item.isFile ? `<p>Tamaño: ${formatSize(item.size)}</p>` : ''}
-              </ion-label>
-            </ion-item>
+            <ion-item-sliding>
+              <ion-item${item.isFile ? '' : ` button`} data-link="${newPath}">
+                <ion-icon slot="start" name="${item.isFile ? 'document' : 'folder'}-outline"></ion-icon>
+                <ion-label>
+                  ${item.name}
+                  <p>Tamaño: ${formatSize(item.size)}</p>
+                </ion-label>
+              </ion-item>
+              <ion-item-options slot="end">
+                ${!item.isFile ? '' : `
+                <ion-item-option data-download="${newPath}">
+                  <ion-icon slot="icon-only" name="cloud-download-outline"></ion-icon>
+                </ion-item-option>
+                `}
+                <ion-item-option color="danger" data-delete="${newPath}">
+                  <ion-icon slot="icon-only" name="trash"></ion-icon>
+                </ion-item-option>
+              </ion-item-options>
+            </ion-item-sliding>
           `
           itemsHTML += itemHTML
         }
@@ -137,7 +186,7 @@ export class FilesController {
       'shared': 'Carpeta compartida',
       'user': 'Home'
     }
-    let breadcrumbsHTML = '<ion-card><ion-card-content><ion-breadcrumbs max-items="4">'
+    let breadcrumbsHTML = '<ion-card><ion-card-content><ion-breadcrumbs>'
     const paths = []
     segments = ['Inicio', base, ...segments]
     for (const segment of segments) {
