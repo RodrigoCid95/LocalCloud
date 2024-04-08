@@ -1,13 +1,50 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-title>Explorador de archivos</ion-title>
-  </ion-toolbar>
-</ion-header>
-<ion-content class="ion-padding">
-  <style>
-    .breadcrumbs {
-      display: contents;
-    }
-  </style>
-  <app-files></app-files>
-</ion-content>
+<style>
+  .breadcrumbs {
+    display: contents;
+  }
+
+  ion-fab.commands {
+    display: none;
+  }
+
+  ion-fab.commands[data-path] {
+    display: block;
+  }
+
+  app-files {
+    display: contents;
+  }
+
+  ion-breadcrumbs {
+    overflow: auto;
+    flex-wrap: nowrap;
+    scroll-behavior: smooth;
+  }
+
+  ion-breadcrumb {
+    cursor: pointer;
+  }
+</style>
+<ion-app>
+  <ion-header>
+    <ion-toolbar>
+      <ion-title>Explorador de archivos</ion-title>
+    </ion-toolbar>
+  </ion-header>
+  <ion-content class="ion-padding">
+    <app-files></app-files>
+    <ion-fab class="commands" slot="fixed" horizontal="end" vertical="bottom">
+      <ion-fab-button>
+        <ion-icon name="add"></ion-icon>
+      </ion-fab-button>
+      <ion-fab-list side="top">
+        <ion-fab-button id="create-folder">
+          <ion-icon name="folder-outline"></ion-icon>
+        </ion-fab-button>
+        <ion-fab-button id="upload">
+          <ion-icon name="cloud-upload-outline"></ion-icon>
+        </ion-fab-button>
+      </ion-fab-list>
+    </ion-fab>
+  </ion-content>
+</ion-app>

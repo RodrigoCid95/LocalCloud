@@ -4,10 +4,76 @@ export class FilesController {
   static template = template
   #breadcrumbsRef: HTMLDivElement
   #listRef: HTMLIonListElement
+  #commandsRef: HTMLIonFabElement
+  #createFolderRef: HTMLIonFabButtonElement
+  #uploadRef: HTMLIonFabButtonElement
   constructor(element: HTMLElement) {
     this.#breadcrumbsRef = element.querySelector('.breadcrumbs')
     this.#listRef = element.querySelector('ion-list')
+    this.#commandsRef = document.querySelector('.commands')
+    this.#createFolderRef = document.getElementById('create-folder') as HTMLIonFabButtonElement
+    this.#uploadRef = document.getElementById('upload') as HTMLIonFabButtonElement
     this.loadItems('', [])
+    const alert = (header: string, message: string) => {
+      window.alertController
+        .create({
+          header,
+          message,
+          buttons: ['Aceptar']
+        })
+        .then(alert => alert.present())
+    }
+    const createLoading = async (message: string) => {
+      const loading = await window.loadingController.create({ message })
+      await loading.present()
+      return loading
+    }
+    this.#createFolderRef.addEventListener('click', async () => {
+      const { path } = this.#commandsRef.dataset
+      const segments = path.split('|')
+      const base = segments.shift()
+      const loadItems = this.loadItems.bind(this)
+      window.alertController
+        .create({
+          header: 'Crear carpeta',
+          message: 'Escribe el nombre de la nueva carpeta',
+          inputs: [{
+            name: 'name',
+            type: 'text'
+          }],
+          buttons: [
+            {
+              role: 'cancel',
+              text: 'Cancelar'
+            },
+            {
+              role: 'destructive',
+              text: 'Crear',
+              async handler({ name }) {
+                if (!/^[a-zA-Z0-9_-\s]+$/.test(name)) {
+                  alert('Nombre inválido', 'El nombre que indicaste no es válido.')
+                } else {
+                  const loading = await createLoading('Creando...')
+                  await window.server.send({
+                    endpoint: `/api/fs/${base}`,
+                    method: 'post',
+                    data: JSON.stringify({ path: [...segments, name].join('|') })
+                  }).then(response => response.json())
+                  await loading.dismiss()
+                  loadItems(base, segments)
+                }
+              }
+            }
+          ]
+        })
+        .then(alert => alert.present())
+    })
+    this.#uploadRef.addEventListener('click', () => {
+      const { path } = this.#commandsRef.dataset
+      const segments = path.split('|')
+      const base = segments.shift()
+      console.log(base, ...segments)
+    })
   }
   listenLinks(base: HTMLElement = this.#listRef) {
     base.querySelectorAll('[data-link]').forEach((linkElement: HTMLElement) => linkElement.addEventListener('click', () => {
@@ -21,6 +87,7 @@ export class FilesController {
     if (base === '') {
       this.#listRef.innerHTML = '<ion-item button data-link="shared"><ion-icon slot="start" name="share-outline"></ion-icon><ion-label>Carpeta compartida</ion-label></ion-item><ion-item button data-link="user"><ion-icon slot="start" name="home-outline"></ion-icon><ion-label>Home</ion-label></ion-item>'
       this.#breadcrumbsRef.innerHTML = ''
+      this.#commandsRef.removeAttribute('data-path')
       this.listenLinks()
     } else {
       this.initBreadcrumbs(base, segments)
@@ -61,6 +128,8 @@ export class FilesController {
       } else {
         this.#listRef.innerHTML = '<ion-item><ion-label>No hay archivos</ion-label></ion-item>'
       }
+      const path = [base, ...segments]
+      this.#commandsRef.setAttribute('data-path', path.join('|'))
     }
   }
   initBreadcrumbs(base: string, segments: string[]) {
