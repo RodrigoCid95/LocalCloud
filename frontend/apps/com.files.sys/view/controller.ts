@@ -78,12 +78,10 @@ export class FilesController {
   listenLinks(base: HTMLElement = this.#listRef) {
     base.querySelectorAll('[data-link]').forEach((linkElement: HTMLElement) => {
       linkElement.addEventListener('click', () => {
-        if (linkElement.getAttribute('button') !== null || linkElement.tagName === 'ION-BREADCRUMB') {
-          const { link } = linkElement.dataset
-          const segments = link.split('|')
-          const base = segments.shift()
-          this.loadItems(base, segments)
-        }
+        const { link } = linkElement.dataset
+        const segments = link.split('|')
+        const base = segments.shift()
+        this.loadItems(base, segments)
       })
       linkElement.addEventListener('contextmenu', (e) => {
         if (linkElement.tagName !== 'ION-BREADCRUMB') {
@@ -92,6 +90,12 @@ export class FilesController {
         }
       })
     })
+    base.querySelectorAll('[data-file]').forEach((linkElement: HTMLElement) => linkElement.addEventListener('click', () => {
+      const { file } = linkElement.dataset
+      const segments = file.split('|')
+      const base: 'shared' | 'user' = segments.shift() as any
+      window.server.launchFile(base, ...segments)
+    }))
     base.querySelectorAll('[data-delete]').forEach((deleteElement: HTMLElement) => deleteElement.addEventListener('click', async () => {
       const { delete: dlt } = deleteElement.dataset
       const path = dlt.split('|')
@@ -151,7 +155,7 @@ export class FilesController {
           }
           let itemHTML = `
             <ion-item-sliding>
-              <ion-item${item.isFile ? '' : ` button`} data-link="${newPath}">
+              <ion-item button data-${item.isFile ? 'file' : 'link'}="${newPath}">
                 <ion-icon slot="start" name="${item.isFile ? 'document' : 'folder'}-outline"></ion-icon>
                 <ion-label>
                   ${item.name}
