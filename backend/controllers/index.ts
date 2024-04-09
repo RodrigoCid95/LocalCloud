@@ -36,4 +36,5 @@ export class IndexController {
 
 export * from './app'
 export * from './file'
+export * from './launch'
 export * from './apis'

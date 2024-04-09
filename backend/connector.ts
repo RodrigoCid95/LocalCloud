@@ -139,8 +139,34 @@ export class ServerConector {
   }
   createUploader = (endpoint: string, file: FileOptions, metadata?: MetaData) => new FileUploader(endpoint, file, metadata)
   createURL = (...path: string[]): URL => new URL(path.join('/'), _host)
+  #launch(...path: string[]): void {
+    const url = this.createURL(path.join('/'))
+    console.log(url.href)
+    window.open(url.href, undefined, 'popup,noopener,noopener')
+  }
+  launchFile = (base: 'shared' | 'user', ...path: string[]) => this.#launch('launch', base, ...path)
+  launchApp(package_name: string, params: LaunchAppParams = {}) {
+    const strParams = Object.entries(params).map(([key, value]) => {
+      switch (typeof value) {
+        case 'number':
+          return `${key}=${value.toString()}`
+        case 'boolean':
+          return key
+        default:
+          return `${key}=${value}`
+      }
+    }).join('&')
+    if (strParams === '') {
+      this.#launch('app', package_name)
+    } else {
+      this.#launch('app', package_name, `?${strParams}`)
+    }
+  }
 }
 
+interface LaunchAppParams {
+  [key: string]: string | number | boolean
+}
 interface GetURLArgs {
   endpoint: string
   params?: object

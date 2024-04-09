@@ -42,7 +42,8 @@ export class AppsModel {
         description: result.description,
         author: result.author,
         permissions,
-        secureSources
+        secureSources,
+        extensions: (result.extensions || '').split('|')
       })
     }
     return apps
@@ -107,14 +108,14 @@ export class AppsModel {
         message: 'El archivo manifest.json no contiene un autor.'
       }
     }
-    const { title, description = 'Sin descripción', author, permissions: permissionList = {}, sources = [] } = manifestContent as any
+    const { title, description = 'Sin descripción', author, permissions: permissionList = {}, sources = [], extensions = [] } = manifestContent as any
     const permissions: Apps.New['permissions'] = Object.keys(permissionList).map(api => ({
       api,
       justification: permissionList[api]
     }))
     await new Promise(resolve => this.database.run(
-      'INSERT INTO apps (package_name, title, description, author) VALUES (?, ?, ?, ?);',
-      [package_name, title, description, author],
+      'INSERT INTO apps (package_name, title, description, author, extensions) VALUES (?, ?, ?, ?, ?);',
+      [package_name, title, description, author, extensions.join('|')],
       resolve
     ))
     for (const permission of permissions) {

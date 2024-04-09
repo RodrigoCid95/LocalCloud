@@ -17,10 +17,16 @@ interface FileUploader {
   cancel(): void
 }
 
+interface LaunchAppParams {
+  [key: string]: string | number | boolean
+}
+
 interface ServerConector {
   send(args: SendArgs): Promise<Response>
   createUploader(endpoint: string, file: FileOptions, metadata?: MetaData): FileUploader
   createURL(...path: string[]): URL
+  launchApp(package_name: string, params?: LaunchAppParams): void
+  launchFile(base: 'shared' | 'user', ...path: string[]): void
 }
 
 interface SendArgs {

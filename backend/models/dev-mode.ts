@@ -50,7 +50,8 @@ export class DevModeModel {
         description: result.description,
         author: result.author,
         permissions,
-        secureSources
+        secureSources,
+        extensions: (result.extensions || '').split('|')
       })
     }
     return apps

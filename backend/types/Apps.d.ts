@@ -5,6 +5,7 @@ declare global {
       title: string
       description: string
       author: string
+      extensions: string[]
       permissions: Omit<Permissions.Permission, 'id'>[]
       secureSources: Omit<SecureSources.Source, 'id'>[]
     }
@@ -12,7 +13,9 @@ declare global {
       permissions: Omit<Omit<Permissions.Permission, 'id'>, 'active'>[]
       secureSources: Omit<Omit<SecureSources.Source, 'id'>, 'active'>[]
     }
-    interface Result extends Omit<Omit<App, 'permissions'>, 'secureSources'> { }
+    interface Result extends Omit<Omit<Omit<App, 'permissions'>, 'secureSources'>, 'extensions'> {
+      extensions?: string
+    }
   }
 }
 
