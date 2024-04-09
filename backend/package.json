@@ -50,7 +50,8 @@
 			"public",
 			".lc",
 			".users",
-			"connector.ts"
+			"connector.ts",
+			"ecosystem.json"
 		],
 		"loader": {
 			".sql": "text"
