@@ -39,17 +39,19 @@ const encrypting: Encrypting = new Encrypting()
 class FileUploader {
   #xhr: XMLHttpRequest
   #form: FormData
-  constructor(endpoint: string, { name, file }: FileOptions, metadata?: MetaData) {
+  constructor(endpoint: string, files: FileOptions[] = [], metadata?: MetaData) {
     this.#xhr = new XMLHttpRequest()
     this.#form = new FormData()
-    this.#form.append(name, file)
+    for (const { name, file } of files) {
+      this.#form.append(name, file)
+    }
     if (metadata) {
       const keys = Object.keys(metadata)
       for (const key of keys) {
         this.#form.append(key, metadata[key])
       }
     }
-    this.#xhr.open('POST', endpoint, true)
+    this.#xhr.open('PUT', endpoint, true)
     this.#xhr.setRequestHeader('token', TOKEN)
   }
   on(event: 'progress' | 'end' | 'error' | 'abort', callback: any) {
@@ -83,7 +85,7 @@ class FileUploader {
   cancel = () => this.#xhr.abort()
 }
 export class ServerConector {
-  createUploader = ({ path, file, metadata }: CreateUploaderArgs) => new FileUploader(this.createURL({ path: ['api', ...path] }).href, file, metadata)
+  createUploader = ({ path, file, metadata }: CreateUploaderArgs) => new FileUploader(this.createURL({ path: ['api', ...path] }).href, Array.isArray(file) ? file : [file], metadata)
   #launch = (url: string) => window.open(url, undefined, 'popup,noopener,noopener')
   launchFile = (base: 'shared' | 'user', ...path: string[]) => this.#launch(this.createURL({ path: ['launch', base, ...path] }).href)
   launchApp = (package_name: string, params: URLParams) => this.#launch(this.createURL({ path: ['app', package_name], params }).href)
@@ -147,7 +149,7 @@ interface CreateURLArgs {
 
 interface CreateUploaderArgs {
   path: string[]
-  file: FileOptions
+  file: FileOptions | FileOptions[]
   metadata?: MetaData
 }
 

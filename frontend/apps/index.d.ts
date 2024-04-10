@@ -31,7 +31,8 @@ interface CreateURLArgs {
 
 interface CreateUploaderArgs {
   path: string[]
-  file: FileOptions
+  file: FileOptions | FileOptions[]
+  metadata?: MetaData
 }
 
 interface FileOptions {
