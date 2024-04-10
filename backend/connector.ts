@@ -35,24 +35,6 @@ class Encrypting {
   }
 }
 const encrypting: Encrypting = new Encrypting()
-let _host = IS_DEV ? import.meta.resolve('./..') : location.origin
-const getURL = ({ endpoint, params = {} }: GetURLArgs): string => {
-  const url = new URL(endpoint, _host)
-  const keys = Object.keys(params)
-  for (const key of keys) {
-    url.searchParams.append(key, params[key])
-  }
-  return url.href
-}
-
-interface FileOptions {
-  name: string
-  file: File
-}
-
-interface MetaData {
-  [x: string]: string
-}
 
 class FileUploader {
   #xhr: XMLHttpRequest
@@ -67,7 +49,8 @@ class FileUploader {
         this.#form.append(key, metadata[key])
       }
     }
-    this.#xhr.open('POST', getURL({ endpoint }), true)
+    const url = new URL(['api', endpoint].join('/'), IS_DEV ? import.meta.resolve('./..') : location.origin)
+    this.#xhr.open('POST', url, true)
     this.#xhr.setRequestHeader('token', TOKEN)
   }
   on(event: 'progress' | 'end' | 'error' | 'abort', callback: any) {
@@ -101,17 +84,19 @@ class FileUploader {
   cancel = () => this.#xhr.abort()
 }
 export class ServerConector {
-  async send({ endpoint, method, data: body, params }: any): Promise<Response> {
+  createUploader = ({ path, file, metadata }: CreateUploaderArgs) => new FileUploader(this.createURL({ path: ['api', ...path] }).href, file, metadata)
+  #launch = (...path: string[]) => window.open(this.createURL({ path }).href, undefined, 'popup,noopener,noopener')
+  launchFile = (base: 'shared' | 'user', ...path: string[]) => this.#launch(this.createURL({ path: ['launch', base, ...path] }).href)
+  launchApp = (package_name: string, params: URLParams) => this.#launch(this.createURL({ path: ['app', package_name], params }).href)
+  async send<R = Object>({ endpoint, method, params, data: body }: SendArgs): Promise<R> {
+    const url = this.createURL({ path: ['api', endpoint], params }).href
     const headers: Headers = new Headers()
     headers.append('token', TOKEN)
     if (['get', 'post', 'put', 'delete'].includes(method)) {
       let response: Response
       if (method === 'get') {
         response = await fetch(
-          getURL({
-            endpoint,
-            params
-          }),
+          url,
           { headers }
         )
       } else {
@@ -122,9 +107,7 @@ export class ServerConector {
           body = await encrypting.encrypt(body)
         }
         response = await fetch(
-          getURL({
-            endpoint
-          }),
+          url,
           {
             method,
             headers,
@@ -132,42 +115,48 @@ export class ServerConector {
           }
         )
       }
-      return response
+      return response.json()
     } else {
       throw new Error(`El método ${method} no es válido, utiliza 'get', 'post', 'put' o 'delete'.`)
     }
   }
-  createUploader = (endpoint: string, file: FileOptions, metadata?: MetaData) => new FileUploader(endpoint, file, metadata)
-  createURL = (...path: string[]): URL => new URL(path.join('/'), _host)
-  #launch(...path: string[]): void {
-    const url = this.createURL(path.join('/'))
-    console.log(url.href)
-    window.open(url.href, undefined, 'popup,noopener,noopener')
-  }
-  launchFile = (base: 'shared' | 'user', ...path: string[]) => this.#launch('launch', base, ...path)
-  launchApp(package_name: string, params: LaunchAppParams = {}) {
-    const strParams = Object.entries(params).map(([key, value]) => {
-      switch (typeof value) {
-        case 'number':
-          return `${key}=${value.toString()}`
-        case 'boolean':
-          return key
-        default:
-          return `${key}=${value}`
-      }
-    }).join('&')
-    if (strParams === '') {
-      this.#launch('app', package_name)
-    } else {
-      this.#launch('app', package_name, `?${strParams}`)
+  createURL({ path = [], params = {} }: CreateURLArgs): URL {
+    const url = new URL(path.join('/'), IS_DEV ? import.meta.resolve('./..') : location.origin)
+    const keys = Object.keys(params)
+    for (const key of keys) {
+      url.searchParams.append(key, params[key])
     }
+    return url
   }
 }
 
-interface LaunchAppParams {
-  [key: string]: string | number | boolean
+interface URLParams {
+  [key: string]: string
 }
-interface GetURLArgs {
+
+interface SendArgs {
   endpoint: string
-  params?: object
+  method: 'get' | 'post' | 'put' | 'delete'
+  params?: URLParams
+  data?: string
+}
+
+interface CreateURLArgs {
+  path: string[]
+  params?: URLParams
+}
+
+interface CreateUploaderArgs {
+  path: string[]
+  file: FileOptions
+  metadata?: MetaData
+}
+
+interface FileOptions {
+  name: string
+  file: File
+}
+
+interface MetaData {
+  [x: string]: string
 }

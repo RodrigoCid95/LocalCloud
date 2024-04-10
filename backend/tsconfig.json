@@ -11,7 +11,7 @@
 		"strictNullChecks": true,
 		"esModuleInterop": true,
 		"allowSyntheticDefaultImports": true,
-		"module": "CommonJS",
+		"module": "ES2022",
 		"paths": {
 			"config/*": [
 				"config/*"
