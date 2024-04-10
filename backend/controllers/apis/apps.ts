@@ -8,7 +8,7 @@ declare const Model: PXIO.ModelDecorator
 declare const On: PXIOHTTP.OnDecorator
 declare const BeforeMiddleware: PXIOHTTP.BeforeMiddlewareDecorator
 declare const METHODS: PXIOHTTP.METHODS
-const { GET, POST, DELETE } = METHODS
+const { GET, PUT, DELETE } = METHODS
 
 @Namespace('api/apps', { before: [verifySession, decryptRequest] })
 export class AppsAPIController {
@@ -26,7 +26,7 @@ export class AppsAPIController {
     const results = await this.appsModel.getAppsByUUID(req.params.uuid)
     res.json(results)
   }
-  @On(POST, '/')
+  @On(PUT, '/')
   @BeforeMiddleware([verifyPermissions('INSTALL_APP')])
   public async install(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
     const package_zip = req.files?.package_zip as fileUpload.UploadedFile | undefined

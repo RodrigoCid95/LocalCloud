@@ -3,7 +3,6 @@ import session from 'express-session'
 import compression from 'compression'
 import { Liquid } from 'liquidjs'
 import { v4 } from 'uuid'
-import fileupload from 'express-fileupload'
 import { devMode } from './dev-mode'
 import cors from 'cors'
 
@@ -13,8 +12,7 @@ const middlewares = [
     saveUninitialized: false,
     resave: false,
     secret: v4()
-  }),
-  fileupload()
+  })
 ]
 
 if (devMode.isDevMode) {

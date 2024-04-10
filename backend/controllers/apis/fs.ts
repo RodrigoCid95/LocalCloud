@@ -1,7 +1,7 @@
-import type fileUpload from "express-fileupload"
 import { verifySession } from './middlewares/session'
 import { decryptRequest } from './middlewares/encrypt'
 import { verifyPermissions } from './middlewares/permissions'
+import { uploader } from './middlewares/uploader'
 
 declare const Namespace: PXIOHTTP.NamespaceDecorator
 declare const Model: PXIO.ModelDecorator
@@ -61,33 +61,35 @@ export class FileSystemController {
     res.json(true)
   }
   @On(PUT, '/shared')
-  @BeforeMiddleware([verifyPermissions('UPLOAD_SHARED_FILE'), decryptRequest])
+  @BeforeMiddleware([verifyPermissions('UPLOAD_SHARED_FILE'), uploader])
   public uploadSharedDrive(req: PXIOHTTP.Request, res: PXIOHTTP.Response) {
-    const { file } = req.files as fileUpload.FileArray
-    if (!file) {
+    const { files } = req
+    if (!files) {
       res.status(400).json({
         code: 'fields-required',
         message: 'Faltan campos!'
       })
       return
     }
-    const { name, data } = file as fileUpload.UploadedFile
-    this.fsModel.writeToShared([...req.body, name], data)
+    for (const { name, content } of files) {
+      this.fsModel.writeToShared([...req.body, name], content)
+    }
     res.json(true)
   }
   @On(PUT, '/user')
-  @BeforeMiddleware([verifyPermissions('UPLOAD_USER_FILE'), decryptRequest])
+  @BeforeMiddleware([verifyPermissions('UPLOAD_USER_FILE'), uploader])
   public uploadUserDrive(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response) {
-    const { file } = req.files as fileUpload.FileArray
-    if (!file) {
+    const { files } = req
+    if (!files) {
       res.status(400).json({
         code: 'fields-required',
         message: 'Faltan campos!'
       })
       return
     }
-    const { name, data } = file as fileUpload.UploadedFile
-    this.fsModel.writeToUser(req.session.user?.uuid || '', [...req.body, name], data)
+    for (const { name, content } of files) {
+      this.fsModel.writeToUser(req.session.user?.uuid || '', [...req.body, name], content)
+    }
     res.json(true)
   }
   @On(DELETE, '/shared')
