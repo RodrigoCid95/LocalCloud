@@ -49,8 +49,7 @@ class FileUploader {
         this.#form.append(key, metadata[key])
       }
     }
-    const url = new URL(['api', endpoint].join('/'), IS_DEV ? import.meta.resolve('./..') : location.origin)
-    this.#xhr.open('POST', url, true)
+    this.#xhr.open('POST', endpoint, true)
     this.#xhr.setRequestHeader('token', TOKEN)
   }
   on(event: 'progress' | 'end' | 'error' | 'abort', callback: any) {
@@ -85,7 +84,7 @@ class FileUploader {
 }
 export class ServerConector {
   createUploader = ({ path, file, metadata }: CreateUploaderArgs) => new FileUploader(this.createURL({ path: ['api', ...path] }).href, file, metadata)
-  #launch = (...path: string[]) => window.open(this.createURL({ path }).href, undefined, 'popup,noopener,noopener')
+  #launch = (url: string) => window.open(url, undefined, 'popup,noopener,noopener')
   launchFile = (base: 'shared' | 'user', ...path: string[]) => this.#launch(this.createURL({ path: ['launch', base, ...path] }).href)
   launchApp = (package_name: string, params: URLParams) => this.#launch(this.createURL({ path: ['app', package_name], params }).href)
   async send<R = Object>({ endpoint, method, params, data: body }: SendArgs): Promise<R> {
