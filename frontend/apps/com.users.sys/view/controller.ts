@@ -63,13 +63,12 @@ export class IndexController {
           phone: phoneRef.value,
           password: passwordRef.value
         })
-        const response = await window.server
+        const response: any = await window.server
           .send({
-            endpoint: 'api/users',
+            endpoint: 'users',
             method: 'post',
             data: data
           })
-          .then(response => response.json())
         if (response.code) {
           (await window.alertController.create({
             header: 'No se puede crear el usuario.',
@@ -96,7 +95,7 @@ export class IndexController {
       const phone = this.updateFormRefs.phone.value
       const data = JSON.stringify({ user_name, full_name, email, phone })
       await window.server.send({
-        endpoint: `api/users/${uuid}`,
+        endpoint: `users/${uuid}`,
         method: 'put',
         data
       })
@@ -111,15 +110,14 @@ export class IndexController {
       const loading = await window.loadingController.create({ message: 'Cargando...' })
       await loading.present()
       const userAppList: App[] = await window.server.send({
-        endpoint: `api/apps/${this.updateFormRefs.uuid.value}`,
+        endpoint: `apps/${this.updateFormRefs.uuid.value}`,
         method: 'get'
-      }).then(response => response.json())
+      })
       const appList = await window.server
         .send({
-          endpoint: 'api/apps',
+          endpoint: 'apps',
           method: 'get'
         })
-        .then(response => response.json())
         .then((appList: App[]) => appList.filter(app => userAppList.find(userApp => app.package_name === userApp.package_name) === undefined))
       if (appList.length > 0) {
         const inputs: AlertInput[] = []
@@ -145,7 +143,7 @@ export class IndexController {
                   await loading.present()
                   for (const package_name of package_names) {
                     await window.server.send({
-                      endpoint: 'api/users/assign-app',
+                      endpoint: 'users/assign-app',
                       method: 'post',
                       data: JSON.stringify({
                         uuid: _this.updateFormRefs.uuid.value,
@@ -185,7 +183,7 @@ export class IndexController {
                 const loading = await window.loadingController.create({ message: 'Eliminando...' })
                 await loading.present()
                 await window.server.send({
-                  endpoint: `api/users/${_this.updateFormRefs.uuid.value}`,
+                  endpoint: `users/${_this.updateFormRefs.uuid.value}`,
                   method: 'delete'
                 })
                 await loading.dismiss()
@@ -203,16 +201,14 @@ export class IndexController {
     this.progressBarRef.style.display = 'block'
     this.#currentUser = await window.server
       .send({
-        endpoint: 'api/profile',
+        endpoint: 'profile',
         method: 'get'
       })
-      .then(response => response.json())
     const results: User[] = await window.server
       .send({
-        endpoint: 'api/users',
+        endpoint: 'users',
         method: 'get'
       })
-      .then(response => response.json())
       .then((results: User[]) => results.filter(user => user.uuid !== this.#currentUser.uuid))
     const cards: HTMLIonColElement[] = []
     for (const user of results) {
@@ -248,9 +244,9 @@ export class IndexController {
     const appListElement = this.element.querySelector('.app-list') as HTMLDivElement
     appListElement.innerHTML = '<ion-progress-bar type="indeterminate"></ion-progress-bar>'
     const results: App[] = await window.server.send({
-      endpoint: `api/apps/${this.updateFormRefs.uuid.value}`,
+      endpoint: `apps/${this.updateFormRefs.uuid.value}`,
       method: 'get'
-    }).then(response => response.json())
+    })
     if (results.length > 0) {
       const appElements = []
       for (const app of results) {
@@ -259,7 +255,7 @@ export class IndexController {
         appElement.querySelector('ion-button').addEventListener('click', async () => {
           appListElement.innerHTML = '<ion-progress-bar type="indeterminate"></ion-progress-bar>'
           await window.server.send({
-            endpoint: 'api/users/unassign-app',
+            endpoint: 'users/unassign-app',
             method: 'post',
             data: JSON.stringify({
               uuid: this.updateFormRefs.uuid.value,

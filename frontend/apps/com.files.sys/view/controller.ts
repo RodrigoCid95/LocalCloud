@@ -55,10 +55,10 @@ export class FilesController {
                 } else {
                   const loading = await createLoading('Creando...')
                   await window.server.send({
-                    endpoint: `/api/fs/${base}`,
+                    endpoint: `fs/${base}`,
                     method: 'post',
                     data: JSON.stringify({ path: [...segments, name].join('|') })
-                  }).then(response => response.json())
+                  })
                   await loading.dismiss()
                   loadItems(base, segments)
                 }
@@ -103,7 +103,7 @@ export class FilesController {
       const loading = await window.loadingController.create({ message: 'Eliminando...' })
       await loading.present()
       await window.server.send({
-        endpoint: `/api/fs/${base}`,
+        endpoint: `fs/${base}`,
         method: 'delete',
         data: JSON.stringify({
           path: path.join('|')
@@ -117,7 +117,7 @@ export class FilesController {
       const { download } = downloadElement.dataset
       const path = download.split('|')
       const base = path.shift()
-      const { href } = window.server.createURL('file', base, ...path)
+      const { href } = window.server.createURL({ path: ['file', base, ...path] })
       const anchor = document.createElement('a')
       anchor.download = path[path.length - 1]
       anchor.href = href
@@ -133,12 +133,12 @@ export class FilesController {
     } else {
       this.initBreadcrumbs(base, segments)
       const results: FileInfo[] = await window.server.send({
-        endpoint: `/api/fs/${base}/list`,
+        endpoint: `fs/${base}/list`,
         method: 'post',
         data: JSON.stringify({
           path: segments.join('|')
         })
-      }).then(response => response.json())
+      })
       if (results.length > 0) {
         let itemsHTML = ''
         const folderItems = results.filter(item => !item.isFile)

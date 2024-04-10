@@ -32,10 +32,10 @@ export class IndexController {
       inputElement.addEventListener('change', async () => {
         const loading = await window.loadingController.create({ message: 'Instalando...' })
         const file = inputElement.files.item(0)
-        const fileUploader = window.server.createUploader(
-          'api/apps',
-          { name: 'package_zip', file }
-        )
+        const fileUploader = window.server.createUploader({
+          path: ['apps'],
+          file: { name: 'package_zip', file }
+        })
         fileUploader.on('end', ({ message }) => {
           loading
             .dismiss()
@@ -66,10 +66,9 @@ export class IndexController {
     this.#progressBarRef.style.display = 'block'
     const apps: App[] = await window.server
       .send({
-        endpoint: 'api/apps',
+        endpoint: 'apps',
         method: 'get'
       })
-      .then(response => response.json())
       .then((apps: App[]) => apps.filter(app => app.package_name !== 'com.apps.sys'))
     this.#appListRef.innerHTML = ''
     const _this = this
@@ -97,7 +96,7 @@ export class IndexController {
             const loading = await window.loadingController.create({ message: checked ? 'Habilitando...' : 'Deshabilitando...' })
             await loading.present()
             await window.server.send({
-              endpoint: `api/sources/${source.id}`,
+              endpoint: `sources/${source.id}`,
               method: checked ? 'post' : 'delete'
             })
             await loading.dismiss()
@@ -138,7 +137,7 @@ export class IndexController {
             const loading = await window.loadingController.create({ message: checked ? 'Habilitando...' : 'Deshabilitando...' })
             await loading.present()
             await window.server.send({
-              endpoint: `api/permissions/${permission.id}`,
+              endpoint: `permissions/${permission.id}`,
               method: checked ? 'post' : 'delete'
             })
             await loading.dismiss()
@@ -183,7 +182,7 @@ export class IndexController {
                 const loading = await window.loadingController.create({ message: 'Desinstalando...' })
                 await loading.present()
                 await window.server.send({
-                  endpoint: `api/apps/${app.package_name}`,
+                  endpoint: `apps/${app.package_name}`,
                   method: 'delete'
                 })
                 await loading.dismiss()
