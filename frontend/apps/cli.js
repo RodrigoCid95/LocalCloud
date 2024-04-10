@@ -68,7 +68,8 @@ const callbacks = {
       splitting: true,
       format: 'esm',
       loader: { '.webp': 'dataurl', '.svg': 'dataurl' },
-      plugins
+      plugins,
+      sourcemap: true
     })
     const { port } = await ctx.serve({
       servedir: 'www'
