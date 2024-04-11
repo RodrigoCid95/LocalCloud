@@ -21,7 +21,12 @@ export class FileController {
       })
       return
     }
-    res.sendFile(path)
+    const query = Object.keys(req.query)
+    if (query.includes('download')) {
+      res.download(path)
+    } else {
+      res.sendFile(path)
+    }
   }
   @On(GET, '/shared/*')
   @AfterMiddleware(['responseFile'])
