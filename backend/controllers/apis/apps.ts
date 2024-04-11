@@ -1,4 +1,3 @@
-import type fileUpload from 'express-fileupload'
 import { verifySession } from './middlewares/session'
 import { verifyPermissions } from './middlewares/permissions'
 import { decryptRequest } from './middlewares/encrypt'
@@ -29,14 +28,14 @@ export class AppsAPIController {
   @On(PUT, '/')
   @BeforeMiddleware([verifyPermissions('INSTALL_APP')])
   public async install(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
-    const package_zip = req.files?.package_zip as fileUpload.UploadedFile | undefined
+    const [package_zip] = req.files || []
     if (package_zip) {
       let package_name: string[] | string = package_zip.name.split('.')
       package_name.pop()
       package_name = package_name.join('.')
       const result = await this.appsModel.getAppByPackageName(package_name)
       if (!result) {
-        await this.appsModel.install(package_name, package_zip.data)
+        await this.appsModel.install(package_name, package_zip.content)
         res.json(true)
       } else {
         res.status(400).json({
