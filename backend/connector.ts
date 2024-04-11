@@ -39,31 +39,39 @@ const encrypting: Encrypting = new Encrypting()
 class FileUploader {
   #xhr: XMLHttpRequest
   #form: FormData
-  constructor(endpoint: string, files: FileOptions[] = [], metadata?: MetaData) {
+  #listenerLoadList: any[] = []
+  #listenerProgressList: any[] = []
+  constructor(endpoint: string, files: FileOptions[] = [], metadata: MetaData = {}) {
     this.#xhr = new XMLHttpRequest()
     this.#form = new FormData()
     for (const { name, file } of files) {
       this.#form.append(name, file)
     }
-    if (metadata) {
-      const keys = Object.keys(metadata)
-      for (const key of keys) {
-        this.#form.append(key, metadata[key])
-      }
+    const meta = Object.entries(metadata)
+    for (const [name, value] of meta) {
+      this.#form.append(name, value)
     }
+    this.#xhr.addEventListener('load', () => {
+      const isJSON = this.#xhr.getResponseHeader('content-type')?.includes('application/json')
+      const response = isJSON ? JSON.parse(this.#xhr.response) : this.#xhr.response
+      for (const listener of this.#listenerLoadList) {
+        listener(response)
+      }
+    })
+    this.#xhr.addEventListener('progress', event => {
+      if (event.lengthComputable) {
+        const percentComplete = (event.loaded / event.total) * 100
+        for (const listener of this.#listenerProgressList) {
+          listener(percentComplete)
+        }
+      }
+    })
     this.#xhr.open('PUT', endpoint, true)
     this.#xhr.setRequestHeader('token', TOKEN)
   }
   on(event: 'progress' | 'end' | 'error' | 'abort', callback: any) {
     if (event === 'end') {
-      this.#xhr.addEventListener('load', () => {
-        const isJSON = this.#xhr.getResponseHeader('content-type')?.includes('application/json')
-        if (isJSON) {
-          callback(JSON.parse(this.#xhr.response))
-        } else {
-          callback()
-        }
-      })
+      this.#listenerLoadList.push(callback)
       return
     }
     if (event === 'abort') {
@@ -74,12 +82,24 @@ class FileUploader {
       this.#xhr.addEventListener('error', callback)
       return
     }
-    this.#xhr.addEventListener('progress', event => {
-      if (event.lengthComputable) {
-        const percentComplete = (event.loaded / event.total) * 100
-        callback(percentComplete)
-      }
-    })
+    if (event === 'progress') {
+      this.#listenerProgressList.push(callback)
+    }
+  }
+  off(event: 'progress' | 'end' | 'error' | 'abort', callback: any) {
+    if (event === 'end') {
+      this.#listenerLoadList = this.#listenerLoadList.filter(listener => listener !== callback)
+      return
+    }
+    if (event === 'abort') {
+      this.#xhr.removeEventListener('abort', callback)
+      return
+    }
+    if (event === 'error') {
+      this.#xhr.removeEventListener('error', callback)
+      return
+    }
+    this.#listenerProgressList = this.#listenerProgressList.filter(listener => listener !== callback)
   }
   start = () => this.#xhr.send(this.#form)
   cancel = () => this.#xhr.abort()
@@ -123,16 +143,24 @@ export class ServerConector {
   }
   createURL({ path = [], params = {} }: CreateURLArgs): URL {
     const url = new URL(path.join('/'), IS_DEV ? import.meta.resolve('./..') : location.origin)
-    const keys = Object.keys(params)
-    for (const key of keys) {
-      url.searchParams.append(key, params[key])
+    const entries = Object.entries(params)
+    for (const [name, value] of entries) {
+      if (typeof value === 'string') {
+        url.searchParams.append(name, value)
+      }
+      if (typeof value === 'number') {
+        url.searchParams.append(name, value.toString())
+      }
+      if (typeof value === 'boolean') {
+        url.searchParams.append(name, '')
+      }
     }
     return url
   }
 }
 
 interface URLParams {
-  [key: string]: string
+  [key: string]: string | number | boolean
 }
 
 interface SendArgs {

@@ -14,7 +14,7 @@ interface ServerConector {
 }
 
 interface URLParams {
-  [key: string]: string
+  [key: string]: string | number | boolean
 }
 
 interface SendArgs {
