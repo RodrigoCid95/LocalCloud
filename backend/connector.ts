@@ -175,8 +175,8 @@ class FileDownloader implements FileTransfer {
 }
 
 export class ServerConector {
-  createUploader = ({ path, file, metadata }: CreateUploaderArgs) => new FileUploader(this.createURL({ path: ['api', ...path] }).href, Array.isArray(file) ? file : [file], metadata)
-  createDownloader = (...path: string[]) => new FileDownloader(this.createURL({ path: ['file', ...path], params: { download: true } }).href, path[path.length - 1])
+  createUploader = ({ path, file, metadata }: CreateUploaderArgs) => new FileUploader(this.createURL({ path: ['api', 'fs', ...path] }).href, Array.isArray(file) ? file : [file], metadata)
+  createDownloader = (...path: string[]) => new FileDownloader(this.createURL({ path: ['api', 'fs', ...path], params: { download: true } }).href, path[path.length - 1])
   #launch = (url: string) => window.open(url, undefined, 'popup,noopener,noopener')
   launchFile = (base: 'shared' | 'user', ...path: string[]) => this.#launch(this.createURL({ path: ['launch', base, ...path] }).href)
   launchApp = (package_name: string, params: URLParams) => this.#launch(this.createURL({ path: ['app', package_name], params }).href)
