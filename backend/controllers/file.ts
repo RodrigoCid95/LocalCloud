@@ -1,3 +1,4 @@
+import fs from 'node:fs'
 import { verifySession } from './middlewares/session'
 
 declare const Namespace: PXIOHTTP.NamespaceDecorator
@@ -22,8 +23,21 @@ export class FileController {
       return
     }
     const query = Object.keys(req.query)
-    if (query.includes('download')) {
-      res.download(path)
+    if (req.headers['sec-fetch-dest'] === 'empty' || query.includes('download')) {
+      const result = this.fsModel.resolveFileOrDirectory(path)
+      let fileInfo: FileSystem.ItemInfo | undefined = undefined
+      if (Array.isArray(result)) {
+        fileInfo = result[0]
+      }
+      if (typeof result === 'object' && !Array.isArray(result)) {
+        fileInfo = result
+      }
+      if (fileInfo) {
+        res.setHeader('Content-Length', fileInfo.size)
+        res.setHeader('Content-Disposition', `attachment; filename="${fileInfo.name}"`)
+      }
+      const archivoStream = fs.createReadStream(path)
+      archivoStream.pipe(res)
     } else {
       res.sendFile(path)
     }

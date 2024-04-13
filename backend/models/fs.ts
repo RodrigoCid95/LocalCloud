@@ -5,7 +5,7 @@ declare const Library: PXIO.LibraryDecorator
 
 export class FileSystemModel {
   @Library('paths') private paths: Paths.Class
-  private resolveFileOrDirectory(result: string | boolean): boolean | FileSystem.ItemInfo[] | FileSystem.ItemInfo {
+  public resolveFileOrDirectory(result: string | boolean): boolean | FileSystem.ItemInfo[] | FileSystem.ItemInfo {
     if (typeof result === 'boolean') {
       return false
     }
