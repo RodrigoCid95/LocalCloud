@@ -1,4 +1,8 @@
 <style>
+  .d-contents {
+    display: contents;
+  }
+
   .breadcrumbs {
     display: contents;
   }
@@ -25,26 +29,62 @@
     cursor: pointer;
   }
 </style>
-<ion-app>
-  <ion-header>
-    <ion-toolbar>
-      <ion-title>Explorador de archivos</ion-title>
-    </ion-toolbar>
-  </ion-header>
-  <ion-content class="ion-padding">
-    <app-files></app-files>
-    <ion-fab class="commands" slot="fixed" horizontal="end" vertical="bottom">
-      <ion-fab-button>
-        <ion-icon name="add"></ion-icon>
-      </ion-fab-button>
-      <ion-fab-list side="top">
-        <ion-fab-button id="create-folder">
-          <ion-icon name="folder-outline"></ion-icon>
-        </ion-fab-button>
-        <ion-fab-button id="upload">
-          <ion-icon name="cloud-upload-outline"></ion-icon>
-        </ion-fab-button>
-      </ion-fab-list>
-    </ion-fab>
-  </ion-content>
-</ion-app>
+<ion-tabs>
+  <ion-tab tab="home">
+    <ion-nav id="home-nav"></ion-nav>
+    <div id="home-page" class="d-contents">
+      <ion-header>
+        <ion-toolbar>
+          <ion-title>Explorador de archivos</ion-title>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content fullscreen>
+        <app-files></app-files>
+        <ion-fab class="commands" slot="fixed" horizontal="end" vertical="bottom">
+          <ion-fab-button>
+            <ion-icon name="add"></ion-icon>
+          </ion-fab-button>
+          <ion-fab-list side="top">
+            <ion-fab-button id="create-folder">
+              <ion-icon name="folder-outline"></ion-icon>
+            </ion-fab-button>
+            <ion-fab-button id="upload">
+              <ion-icon name="cloud-upload-outline"></ion-icon>
+            </ion-fab-button>
+          </ion-fab-list>
+        </ion-fab>
+      </ion-content>
+    </div>
+  </ion-tab>
+  <ion-tab tab="swap">
+    <ion-nav id="swap-nav"></ion-nav>
+    <div id="swap-page" class="d-contents">
+      <ion-header>
+        <ion-toolbar>
+          <ion-title>Transferencias</ion-title>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content fullscreen>
+        <app-swaps></app-swaps>
+      </ion-content>
+    </div>
+  </ion-tab>
+  <ion-tab-bar slot="bottom">
+    <ion-tab-button tab="home">
+      <ion-icon name="home-outline"></ion-icon>
+    </ion-tab-button>
+    <ion-tab-button tab="swap">
+      <ion-icon name="swap-vertical-outline"></ion-icon>
+    </ion-tab-button>
+  </ion-tab-bar>
+</ion-tabs>
+
+<script>
+  const homeNav = document.querySelector('#home-nav')
+  const homePage = document.querySelector('#home-page')
+  homeNav.root = homePage
+
+  const swapNav = document.querySelector('#swap-nav')
+  const swapPage = document.querySelector('#swap-page')
+  swapNav.root = swapPage
+</script>

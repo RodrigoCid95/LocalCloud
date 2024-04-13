@@ -7,7 +7,9 @@ export class FilesController {
   #commandsRef: HTMLIonFabElement
   #createFolderRef: HTMLIonFabButtonElement
   #uploadRef: HTMLIonFabButtonElement
+  #swapElement: HTMLAppSwapsElement
   constructor(element: HTMLElement) {
+    this.#swapElement = document.querySelector('app-swaps')
     this.#breadcrumbsRef = element.querySelector('.breadcrumbs')
     this.#listRef = element.querySelector('ion-list')
     this.#commandsRef = document.querySelector('.commands')
@@ -69,10 +71,20 @@ export class FilesController {
         .then(alert => alert.present())
     })
     this.#uploadRef.addEventListener('click', () => {
-      const { path } = this.#commandsRef.dataset
-      const segments = path.split('|')
-      const base = segments.shift()
-      console.log(base, ...segments)
+      const input = document.createElement('input')
+      input.type = 'file'
+      input.multiple = true
+      input.addEventListener('change', () => {
+        const { path } = this.#commandsRef.dataset
+        const segments = path.split('|')
+        const base = segments.shift()
+        const files: File[] = []
+        for (let index = 0; index < input.files.length; index++) {
+          files.push(input.files.item(index))
+        }
+        setTimeout(() => this.#swapElement.addUpload(files, base, ...segments), 250)
+      })
+      input.click()
     })
   }
   listenLinks(base: HTMLElement = this.#listRef) {
@@ -116,12 +128,9 @@ export class FilesController {
     base.querySelectorAll('[data-download]').forEach((downloadElement: HTMLElement) => downloadElement.addEventListener('click', () => {
       const { download } = downloadElement.dataset
       const path = download.split('|')
-      const base = path.shift()
-      const { href } = window.server.createURL({ path: ['file', base, ...path] })
-      const anchor = document.createElement('a')
-      anchor.download = path[path.length - 1]
-      anchor.href = href
-      anchor.click()
+      const base = path.shift();
+      (downloadElement.parentElement.parentElement as any).close()
+      setTimeout(() => this.#swapElement.addDownload(base, ...path), 250)
     }))
   }
   async loadItems(base: string, segments: string[]) {

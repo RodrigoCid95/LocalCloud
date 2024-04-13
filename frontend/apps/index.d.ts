@@ -1,12 +1,8 @@
 import type { alertController, loadingController, modalController, pickerController, toastController, menuController, actionSheetController } from '@ionic/core'
 
-interface FileUploader {
-  on(event: 'progress' | 'end' | 'error' | 'abort', callback: any): void
-  start(): void
-  cancel(): void
-}
 interface ServerConector {
-  createUploader(opts: CreateUploaderArgs): FileUploader
+  createUploader(opts: CreateUploaderArgs): FileTransfer
+  createDownloader(...path: string[]): FileTransfer
   launchFile(base: 'shared' | 'user', ...path: string[]): void
   launchApp(package_name: string, params: URLParams): void
   send<R = Object>({ endpoint, method, params, data: body }: SendArgs): Promise<R>
@@ -35,6 +31,11 @@ interface CreateUploaderArgs {
   metadata?: MetaData
 }
 
+interface CreateDownloaderArgs {
+  path: string[]
+  file: string
+}
+
 interface FileOptions {
   name: string
   file: File
@@ -45,6 +46,12 @@ interface MetaData {
 }
 
 declare global {
+  interface FileTransfer {
+    on(event: 'progress' | 'end' | 'error' | 'abort', callback: any): void
+    off(event: 'progress' | 'end' | 'error' | 'abort', callback: any): void
+    start(): void
+    cancel(): void
+  }
   interface Window {
     actionSheetController: typeof actionSheetController
     alertController: typeof alertController
