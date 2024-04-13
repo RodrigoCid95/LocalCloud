@@ -21,11 +21,11 @@ export class LCOAuth {
     if (!Object.values(data).includes('')) {
       const loading = await window.loadingController.create({ message: 'Iniciando sesión ...' })
       await loading.present()
-      const response = await window.server.send({
+      const response = await window.server.send<any>({
         method: 'post',
-        endpoint: 'api/auth',
+        endpoint: 'auth',
         data: JSON.stringify(data)
-      }).then(response => response.json())
+      })
       await loading.dismiss()
       this.logged.emit(response)
     }
@@ -52,7 +52,7 @@ export class LCOAuth {
                   </ion-item>
                 </ion-list>
                 <div class="ion-padding">
-                  <ion-button expand="block" class="ion-no-margin" onclick={this._handlerOnEnter.bind(this)}>Instalar</ion-button>
+                  <ion-button expand="block" class="ion-no-margin" onclick={this._handlerOnEnter.bind(this)}>Iniciar sesión</ion-button>
                 </div>
               </ion-col>
             </ion-row>

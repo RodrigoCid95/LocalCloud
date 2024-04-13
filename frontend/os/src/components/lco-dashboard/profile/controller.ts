@@ -29,11 +29,11 @@ export default async (el: HTMLElement) => {
     }
     progressBarRef.style.display = 'block'
     try {
-      const { ok, message } = await window.server.send({
+      const { ok, message } = await window.server.send<any>({
         method: 'put',
-        endpoint: 'api/profile',
+        endpoint: 'profile',
         data: JSON.stringify(data)
-      }).then(response => response.json())
+      })
       if (ok) {
         currentPasswordRef.value = ''
         newPasswordRef.value = ''
@@ -50,14 +50,14 @@ export default async (el: HTMLElement) => {
   })
   buttonLogoutRef.addEventListener('click', async () => {
     await (await window.loadingController.create({ message: 'Cerrando sesión ...' })).present()
-    await window.server.send({ method: 'delete', endpoint: 'api/auth' })
+    await window.server.send({ method: 'delete', endpoint: 'auth' })
     localStorage.clear()
     window.location.reload()
   })
-  const { user_name, full_name, email, phone } = await window.server.send({
+  const { user_name, full_name, email, phone } = await window.server.send<any>({
     method: 'get',
-    endpoint: 'api/profile'
-  }).then(response => response.json())
+    endpoint: 'profile'
+  })
   userNameRef.value = user_name
   fullNameRef.value = full_name
   emailRef.value = email
@@ -76,9 +76,9 @@ export default async (el: HTMLElement) => {
       progressBarRef.style.display = 'block'
       const { code, message }: any = await window.server.send({
         method: 'post',
-        endpoint: 'api/profile',
+        endpoint: 'profile',
         data: JSON.stringify(data)
-      }).then(response => response.json())
+      })
       if (code) {
         window.alertController
           .create({

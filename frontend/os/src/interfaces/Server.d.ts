@@ -1,7 +1,7 @@
 import type { alertController, loadingController, modalController, pickerController, toastController, menuController } from '@ionic/core'
 
 interface ServerConector {
-  send(args: SendArgs): Promise<Response>
+  send<R = Object>({ endpoint, method, params, data: body }: SendArgs): Promise<R>
 }
 
 interface SendArgs {
