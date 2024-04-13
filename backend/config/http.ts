@@ -46,10 +46,6 @@ export const HTTP: PXIOHTTP.Config = {
     {
       route: '/',
       dir: path.resolve(__dirname, '..', 'public')
-    },
-    {
-      route: '/app',
-      dir: path.resolve(__dirname, '..', 'public')
     }
   ]
 }
