@@ -33,7 +33,8 @@ export class IndexController {
         const loading = await window.loadingController.create({ message: 'Instalando...' })
         const file = inputElement.files.item(0)
         const fileUploader = window.server.createUploader({
-          path: ['apps'],
+          api: 'apps',
+          path: [],
           file: { name: 'package_zip', file }
         })
         fileUploader.on('end', ({ message }) => {

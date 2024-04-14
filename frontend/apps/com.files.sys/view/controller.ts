@@ -78,13 +78,11 @@ export class FilesController {
       input.multiple = true
       input.addEventListener('change', () => {
         const { path } = this.#commandsRef.dataset
-        const segments = path.split('|')
-        const base = segments.shift()
         const files: File[] = []
         for (let index = 0; index < input.files.length; index++) {
           files.push(input.files.item(index))
         }
-        setTimeout(() => this.#swapElement.addUpload(files, base, ...segments), 250)
+        setTimeout(() => this.#swapElement.addUpload(files, ...path.split('|')), 250)
       })
       input.click()
     })

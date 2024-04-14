@@ -26,6 +26,7 @@ interface CreateURLArgs {
 }
 
 interface CreateUploaderArgs {
+  api?: 'fs' | 'apps'
   path: string[]
   file: FileOptions | FileOptions[]
   metadata?: MetaData
