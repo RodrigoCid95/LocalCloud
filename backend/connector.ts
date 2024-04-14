@@ -175,7 +175,14 @@ class FileDownloader implements FileTransfer {
 }
 
 export class ServerConector {
-  createUploader = ({ path, file, metadata }: CreateUploaderArgs) => new FileUploader(this.createURL({ path: ['api', 'fs', ...path] }).href, Array.isArray(file) ? file : [file], metadata)
+  createUploader = ({ path, file, metadata }: CreateUploaderArgs) => {
+    const base = path.shift() || ''
+    return new FileUploader(
+      this.createURL({ path: ['api', 'fs', base] }).href,
+      Array.isArray(file) ? file : [file],
+      { ...metadata, path: path.join('|') }
+    )
+  }
   createDownloader = (...path: string[]) => new FileDownloader(this.createURL({ path: ['api', 'fs', ...path], params: { download: true } }).href, path[path.length - 1])
   #launch = (url: string) => window.open(url, undefined, 'popup,noopener,noopener')
   launchFile = (base: 'shared' | 'user', ...path: string[]) => this.#launch(this.createURL({ path: ['launch', base, ...path] }).href)
