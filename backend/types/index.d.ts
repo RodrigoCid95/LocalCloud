@@ -4,6 +4,7 @@ import './DevMode'
 import './Encrypting'
 import './Paths'
 import './Permissions'
+import './Shared'
 import './Users'
 
 declare global {

@@ -1,5 +1,6 @@
 import fs from 'node:fs'
 import { verifySession } from './middlewares/session'
+import { responseFile } from './middlewares/file'
 
 declare const Namespace: PXIOHTTP.NamespaceDecorator
 declare const Model: PXIO.ModelDecorator
@@ -13,45 +14,20 @@ const { GET } = METHODS
 export class FileController {
   @Model('DevModeModel') public devModeModel: Models<'DevModeModel'>
   @Model('FileSystemModel') private fsModel: Models<'FileSystemModel'>
-  public responseFile(req: PXIOHTTP.Request, res: PXIOHTTP.Response): void {
-    const path = req.body
-    if (typeof path === 'boolean') {
-      res.status(404).json({
-        code: 'not-found',
-        message: 'La ruta que indicaste no existe.'
-      })
-      return
-    }
-    const query = Object.keys(req.query)
-    if (req.headers['sec-fetch-dest'] === 'empty' || query.includes('download')) {
-      const result = this.fsModel.resolveFileOrDirectory(path)
-      let fileInfo: FileSystem.ItemInfo | undefined = undefined
-      if (Array.isArray(result)) {
-        fileInfo = result[0]
-      }
-      if (typeof result === 'object' && !Array.isArray(result)) {
-        fileInfo = result
-      }
-      if (fileInfo) {
-        res.setHeader('Content-Length', fileInfo.size)
-        res.setHeader('Content-Disposition', `attachment; filename="${fileInfo.name}"`)
-      }
-      const archivoStream = fs.createReadStream(path)
-      archivoStream.pipe(res)
-    } else {
-      res.sendFile(path)
-    }
-  }
   @On(GET, '/shared/*')
-  @AfterMiddleware(['responseFile'])
+  @AfterMiddleware([responseFile])
   public sharedFile(req: PXIOHTTP.Request, _: PXIOHTTP.Response, next: PXIOHTTP.Next): void {
-    req.body = this.fsModel.resolveSharedFile(req.params[0].split('/'))
+    const path = this.fsModel.resolveSharedFile(req.params[0].split('/'))
+    const file = this.fsModel.resolveFileOrDirectory(path)
+    req.body = { path, file }
     next()
   }
   @On(GET, '/user/*')
-  @AfterMiddleware(['responseFile'])
+  @AfterMiddleware([responseFile])
   public userFile(req: PXIOHTTP.Request<LocalCloud.SessionData>, _: PXIOHTTP.Response, next: PXIOHTTP.Next): void {
-    req.body = this.fsModel.resolveUserFile(req.session.user?.uuid || '', req.params[0].split('/'))
+    const path = this.fsModel.resolveUserFile(req.session.user?.uuid || '', req.params[0].split('/'))
+    const file = this.fsModel.resolveFileOrDirectory(path)
+    req.body = { path, file }
     next()
   }
 }

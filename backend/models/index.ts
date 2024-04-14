@@ -1,6 +1,7 @@
 export * from './apps'
 export * from './dev-mode'
 export * from './fs'
+export * from './shared'
 export * from './permissions'
 export * from './profile'
 export * from './sources'
