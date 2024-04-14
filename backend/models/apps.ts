@@ -74,7 +74,6 @@ export class AppsModel {
     await unzipper.Open
       .buffer(data)
       .then(d => d.extract({ path: tempDir }))
-    const appPath = this.paths.getApp(package_name)
     const manifestPath = path.join(tempDir, 'manifest.json')
     if (!fs.existsSync(manifestPath)) {
       fs.rmSync(tempDir, { recursive: true, force: true })

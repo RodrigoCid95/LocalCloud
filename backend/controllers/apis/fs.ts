@@ -1,7 +1,7 @@
 import { verifySession } from './middlewares/session'
 import { decryptRequest } from './middlewares/encrypt'
 import { verifyPermissions } from './middlewares/permissions'
-import { uploader } from './middlewares/uploader'
+import fileUpload from 'express-fileupload'
 
 declare const Namespace: PXIOHTTP.NamespaceDecorator
 declare const Model: PXIO.ModelDecorator
@@ -18,7 +18,7 @@ const formatPath = (req: PXIOHTTP.Request, _: PXIOHTTP.Response, next: PXIOHTTP.
   next()
 }
 
-@Namespace('/api/fs', { before: [verifySession, decryptRequest, uploader, formatPath] })
+@Namespace('/api/fs', { before: [verifySession, decryptRequest, fileUpload(), formatPath] })
 export class FileSystemAPIController {
   @Model('DevModeModel') public devModeModel: Models<'DevModeModel'>
   @Model('FileSystemModel') private fsModel: Models<'FileSystemModel'>
@@ -71,8 +71,9 @@ export class FileSystemAPIController {
       })
       return
     }
-    for (const { name, content } of files) {
-      this.fsModel.writeToShared([...req.body, name], content)
+    const entries = Object.entries(files)
+    for (const [name, value] of entries) {
+      this.fsModel.writeToShared([...req.body, name], (value as fileUpload.UploadedFile).data)
     }
     res.json(true)
   }
@@ -87,8 +88,9 @@ export class FileSystemAPIController {
       })
       return
     }
-    for (const { name, content } of files) {
-      this.fsModel.writeToUser(req.session.user?.uuid || '', [...req.body, name], content)
+    const entries = Object.entries(files)
+    for (const [name, value] of entries) {
+      this.fsModel.writeToUser(req.session.user?.uuid || '', [...req.body, name], (value as fileUpload.UploadedFile).data)
     }
     res.json(true)
   }

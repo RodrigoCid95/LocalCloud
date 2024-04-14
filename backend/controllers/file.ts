@@ -1,4 +1,3 @@
-import fs from 'node:fs'
 import { verifySession } from './middlewares/session'
 import { responseFile } from './middlewares/file'
 

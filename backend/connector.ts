@@ -175,15 +175,15 @@ class FileDownloader implements FileTransfer {
 }
 
 export class ServerConector {
-  createUploader = ({ path, file, metadata }: CreateUploaderArgs) => {
+  createUploader = ({ api = 'fs', path, file, metadata }: CreateUploaderArgs) => {
     const base = path.shift() || ''
     return new FileUploader(
-      this.createURL({ path: ['api', 'fs', base] }).href,
+      this.createURL({ path: ['api', api, base] }).href,
       Array.isArray(file) ? file : [file],
       { ...metadata, path: path.join('|') }
     )
   }
-  createDownloader = (...path: string[]) => new FileDownloader(this.createURL({ path: ['api', 'fs', ...path], params: { download: true } }).href, path[path.length - 1])
+  createDownloader = (...path: string[]) => new FileDownloader(this.createURL({ path: ['file', ...path], params: { download: true } }).href, path[path.length - 1])
   #launch = (url: string) => window.open(url, undefined, 'popup,noopener,noopener')
   launchFile = (base: 'shared' | 'user', ...path: string[]) => this.#launch(this.createURL({ path: ['launch', base, ...path] }).href)
   launchApp = (package_name: string, params: URLParams) => this.#launch(this.createURL({ path: ['app', package_name], params }).href)
@@ -261,6 +261,7 @@ interface CreateURLArgs {
 }
 
 interface CreateUploaderArgs {
+  api?: 'fs' | 'apps'
   path: string[]
   file: FileOptions | FileOptions[]
   metadata?: MetaData

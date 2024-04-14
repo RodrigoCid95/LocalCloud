@@ -25,7 +25,6 @@ export const uploader: PXIOHTTP.Middleware = (req: PXIOHTTP.Request, res: PXIOHT
         } else {
           const match = part.match(/name="([^"]+)"/)
           if (match) {
-            debugger
             const content = part.split('\r\n\r\n')[1].split('\r\n')[0]
             Object.defineProperty(req.body, match[1], { value: content })
           }
