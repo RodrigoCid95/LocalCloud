@@ -18,8 +18,8 @@ const formatPath = (req: PXIOHTTP.Request, _: PXIOHTTP.Response, next: PXIOHTTP.
   next()
 }
 
-@Namespace('/api/fs', { before: [verifySession, decryptRequest, formatPath] })
-export class FileSystemController {
+@Namespace('/api/fs', { before: [verifySession, decryptRequest, uploader, formatPath] })
+export class FileSystemAPIController {
   @Model('DevModeModel') public devModeModel: Models<'DevModeModel'>
   @Model('FileSystemModel') private fsModel: Models<'FileSystemModel'>
   @On(POST, '/shared/list')
@@ -61,7 +61,7 @@ export class FileSystemController {
     res.json(true)
   }
   @On(PUT, '/shared')
-  @BeforeMiddleware([verifyPermissions('UPLOAD_SHARED_FILE'), uploader])
+  @BeforeMiddleware([verifyPermissions('UPLOAD_SHARED_FILE')])
   public uploadSharedDrive(req: PXIOHTTP.Request, res: PXIOHTTP.Response) {
     const { files } = req
     if (!files) {
@@ -77,7 +77,7 @@ export class FileSystemController {
     res.json(true)
   }
   @On(PUT, '/user')
-  @BeforeMiddleware([verifyPermissions('UPLOAD_USER_FILE'), uploader])
+  @BeforeMiddleware([verifyPermissions('UPLOAD_USER_FILE')])
   public uploadUserDrive(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response) {
     const { files } = req
     if (!files) {
