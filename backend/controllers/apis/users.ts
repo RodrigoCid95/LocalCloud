@@ -12,7 +12,7 @@ declare const METHODS: PXIOHTTP.METHODS
 const { GET, POST, PUT, DELETE } = METHODS
 
 @Namespace('api/users', { before: [verifySession] })
-export class UsersController {
+export class UsersAPIController {
   @Model('DevModeModel') public devModeModel: Models<'DevModeModel'>
   @Model('UsersModel') private usersModel: Models<'UsersModel'>
   @Model('ProfileModel') private profileModel: Models<'ProfileModel'>

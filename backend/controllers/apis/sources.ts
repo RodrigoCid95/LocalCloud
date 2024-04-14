@@ -10,7 +10,7 @@ declare const METHODS: PXIOHTTP.METHODS
 const { POST, DELETE } = METHODS
 
 @Namespace('api/sources', { before: [verifySession] })
-export class SecureSourcesController {
+export class SecureSourcesAPIController {
   @Model('DevModeModel') public devModeModel: Models<'DevModeModel'>
   @Model('SourcesModel') sourcesModel: Models<'SourcesModel'>
   @On(POST, '/:id')
