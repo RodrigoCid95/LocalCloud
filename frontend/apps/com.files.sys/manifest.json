@@ -10,7 +10,10 @@
     "UPLOAD_SHARED_FILE": "Permite subir archivos dentro de la carpeta compartida.",
     "UPLOAD_USER_FILE": "Permite subir archivos dentro de la carpeta del usuario.",
     "REMOVE_SHARED_FILES_AND_DIRECTORIES": "Permite eliminar archivos y/o directorios en la carpeta compartida.",
-    "REMOVE_USER_FILES_AND_DIRECTORIES": "Permite eliminar archivos y/o directorios en la carpeta compartida del usuario."
+    "REMOVE_USER_FILES_AND_DIRECTORIES": "Permite eliminar archivos y/o directorios en la carpeta compartida del usuario.",
+    "SHARED_LIST": "Permite consultar los link generados por el usuario.",
+    "SHARED_CREATE": "Permite crear links para compartir archivos.",
+    "SHARED_DELETE": "Permite eliminar links generados por el usuario."
   },
   "sources": []
 }

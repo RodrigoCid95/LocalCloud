@@ -1,9 +1,88 @@
 import { FilesController } from './view/controller'
 import template from './template.html'
 import { SwapController } from './swap/controller'
+import { SharedController } from './shared/controller'
 
 document.addEventListener("onReady", async () => {
   let swapCounter = 0
+  window.customElements.define('app-shared', class extends HTMLElement implements HTMLSharedElement {
+    connectedCallback() {
+      this.innerHTML = SharedController.template
+      setTimeout(() => this.loadItems(), 100)
+    }
+    async loadItems() {
+      const results = await window.server.send<Shared[]>({
+        endpoint: 'shared',
+        method: 'get'
+      })
+      const sharedRef = document.getElementById('shared')
+      sharedRef.innerHTML = ''
+      if (results.length === 0) {
+        sharedRef.innerHTML = '<ion-item><ion-label class="ion-text-center">No hay archivos compartidos.</ion-label></ion-item>'
+      }
+      for (const { id, path } of results) {
+        const itemElement = document.createElement('ion-item-sliding')
+        itemElement.innerHTML = `<ion-item>
+            <ion-icon slot="start" name="share-social-outline"></ion-icon>
+            <ion-label>${path[path.length - 1]}</ion-label>
+          </ion-item>
+          <ion-item-options slot="end">
+            <ion-item-option data-copy>
+              <ion-icon slot="icon-only" name="clipboard-outline"></ion-icon>
+            </ion-item-option>
+            <ion-item-option color="danger" data-trash>
+              <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+            </ion-item-option>
+          </ion-item-options>`
+        itemElement.querySelector('ion-item').addEventListener('contextmenu', e => {
+          e.preventDefault()
+          itemElement.open('end')
+        })
+        itemElement.querySelector('[data-copy]').addEventListener('click', () => {
+          const url = window.server.createURL({ path: ['shared', id] }).href
+          if ('clipboard' in navigator) {
+            navigator.clipboard.writeText(url)
+            window.toastController
+              .create({ message: 'Copiado!', buttons: ['Aceptar'], duration: 2000 })
+              .then(toast => toast.present())
+          }
+          itemElement.close()
+        })
+        itemElement.querySelector('[data-trash]').addEventListener('click', async () => {
+          itemElement.close()
+          const loading = await window.loadingController.create({ message: 'Eliminando...' })
+          await loading.present()
+          await window.server.send({
+            endpoint: `shared/${id}`,
+            method: 'delete'
+          })
+          await loading.dismiss()
+          this.loadItems()
+        })
+        sharedRef.append(itemElement)
+      }
+    }
+    async addShared(path: string[]): Promise<void> {
+      const toast = await window.toastController.create({ message: 'Compartiendo...', buttons: ['Aceptar'] })
+      await toast.present()
+      const result = await window.server.send<any>({
+        endpoint: 'shared',
+        method: 'post',
+        data: JSON.stringify({ path })
+      })
+      toast.message = 'Compartido!'
+      if (!toast.isOpen) {
+        await toast.present()
+        if ('clipboard' in navigator) {
+          const url = window.server.createURL({ path: ['shared', result.id] }).href
+          if (document.hasFocus()) {
+            navigator.clipboard.writeText(url)
+          }
+        }
+      }
+      this.loadItems()
+    }
+  })
   window.customElements.define('app-swaps', class extends HTMLElement implements HTMLAppSwapsElement {
     connectedCallback() {
       this.innerHTML = SwapController.template
@@ -83,6 +162,14 @@ document.addEventListener("onReady", async () => {
 })
 
 declare global {
+  interface Shared {
+    id: string
+    uuid: string
+    path: string[]
+  }
+  interface HTMLSharedElement extends HTMLElement {
+    addShared(path: string[]): void
+  }
   interface AddSwapDownloadOptions {
     type: 'download'
     path: string[]
@@ -98,5 +185,6 @@ declare global {
   }
   interface HTMLElementTagNameMap {
     "app-swaps": HTMLAppSwapsElement
+    'app-shared': HTMLSharedElement
   }
 }

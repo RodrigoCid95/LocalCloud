@@ -8,8 +8,10 @@ export class FilesController {
   #createFolderRef: HTMLIonFabButtonElement
   #uploadRef: HTMLIonFabButtonElement
   #swapElement: HTMLAppSwapsElement
+  #sharedElement: HTMLSharedElement
   constructor(element: HTMLElement) {
     this.#swapElement = document.querySelector('app-swaps')
+    this.#sharedElement = document.querySelector('app-shared')
     this.#breadcrumbsRef = element.querySelector('.breadcrumbs')
     this.#listRef = element.querySelector('ion-list')
     this.#commandsRef = document.querySelector('.commands')
@@ -88,6 +90,12 @@ export class FilesController {
     })
   }
   listenLinks(base: HTMLElement = this.#listRef) {
+    const contextmenu = (linkElement: HTMLElement) => (e: MouseEvent) => {
+      if (linkElement.tagName !== 'ION-BREADCRUMB') {
+        (linkElement.parentElement as HTMLIonItemSlidingElement).open('end')
+        e.preventDefault()
+      }
+    }
     base.querySelectorAll('[data-link]').forEach((linkElement: HTMLElement) => {
       linkElement.addEventListener('click', () => {
         const { link } = linkElement.dataset
@@ -95,19 +103,17 @@ export class FilesController {
         const base = segments.shift()
         this.loadItems(base, segments)
       })
-      linkElement.addEventListener('contextmenu', (e) => {
-        if (linkElement.tagName !== 'ION-BREADCRUMB') {
-          (linkElement.parentElement as HTMLIonItemSlidingElement).open('end')
-          e.preventDefault()
-        }
-      })
+      linkElement.addEventListener('contextmenu', contextmenu(linkElement))
     })
-    base.querySelectorAll('[data-file]').forEach((linkElement: HTMLElement) => linkElement.addEventListener('click', () => {
-      const { file } = linkElement.dataset
-      const segments = file.split('|')
-      const base: 'shared' | 'user' = segments.shift() as any
-      window.server.launchFile(base, ...segments)
-    }))
+    base.querySelectorAll('[data-file]').forEach((linkElement: HTMLElement) => {
+      linkElement.addEventListener('click', () => {
+        const { file } = linkElement.dataset
+        const segments = file.split('|')
+        const base: 'shared' | 'user' = segments.shift() as any
+        window.server.launchFile(base, ...segments)
+      })
+      linkElement.addEventListener('contextmenu', contextmenu(linkElement))
+    })
     base.querySelectorAll('[data-delete]').forEach((deleteElement: HTMLElement) => deleteElement.addEventListener('click', async () => {
       const { delete: dlt } = deleteElement.dataset
       const path = dlt.split('|')
@@ -126,11 +132,14 @@ export class FilesController {
       this.loadItems(base, path)
     }))
     base.querySelectorAll('[data-download]').forEach((downloadElement: HTMLElement) => downloadElement.addEventListener('click', () => {
-      const { download } = downloadElement.dataset
-      const path = download.split('|')
-      const base = path.shift();
       (downloadElement.parentElement.parentElement as any).close()
-      setTimeout(() => this.#swapElement.addDownload(base, ...path), 250)
+      const { download } = downloadElement.dataset
+      setTimeout(() => this.#swapElement.addDownload(...download.split('|')), 250)
+    }))
+    base.querySelectorAll('[data-shared]').forEach((shareElement: HTMLElement) => shareElement.addEventListener('click', () => {
+      const { shared } = shareElement.dataset
+      const path = shared.split('|')
+      this.#sharedElement.addShared(path)
     }))
   }
   async loadItems(base: string, segments: string[]) {
@@ -168,17 +177,20 @@ export class FilesController {
                 <ion-icon slot="start" name="${item.isFile ? 'document' : 'folder'}-outline"></ion-icon>
                 <ion-label>
                   ${item.name}
-                  <p>Tamaño: ${formatSize(item.size)}</p>
+                  ${item.isFile ? `<p>Tamaño: ${formatSize(item.size)}</p>` : ''}
                 </ion-label>
               </ion-item>
               <ion-item-options slot="end">
                 ${!item.isFile ? '' : `
+                <ion-item-option color="success" data-shared="${newPath}">
+                  <ion-icon slot="icon-only" name="share-social-outline"></ion-icon>
+                </ion-item-option>
                 <ion-item-option data-download="${newPath}">
                   <ion-icon slot="icon-only" name="cloud-download-outline"></ion-icon>
                 </ion-item-option>
                 `}
                 <ion-item-option color="danger" data-delete="${newPath}">
-                  <ion-icon slot="icon-only" name="trash"></ion-icon>
+                  <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
                 </ion-item-option>
               </ion-item-options>
             </ion-item-sliding>

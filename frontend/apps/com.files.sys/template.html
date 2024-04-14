@@ -69,12 +69,28 @@
       </ion-content>
     </div>
   </ion-tab>
+  <ion-tab tab="shared">
+    <ion-nav id="shared-nav"></ion-nav>
+    <div id="shared-page" class="d-contents">
+      <ion-header>
+        <ion-toolbar>
+          <ion-title>Archivos compartidos</ion-title>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content fullscreen>
+        <app-shared></app-shared>
+      </ion-content>
+    </div>
+  </ion-tab>
   <ion-tab-bar slot="bottom">
     <ion-tab-button tab="home">
       <ion-icon name="home-outline"></ion-icon>
     </ion-tab-button>
     <ion-tab-button tab="swap">
       <ion-icon name="swap-vertical-outline"></ion-icon>
+    </ion-tab-button>
+    <ion-tab-button tab="shared">
+      <ion-icon name="share-outline"></ion-icon>
     </ion-tab-button>
   </ion-tab-bar>
 </ion-tabs>
