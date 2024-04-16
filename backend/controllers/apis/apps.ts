@@ -36,8 +36,8 @@ export class AppsAPIController {
       package_name = package_name.join('.')
       const result = await this.appsModel.getAppByPackageName(package_name)
       if (!result) {
-        await this.appsModel.install(package_name, package_zip.data)
-        res.json(true)
+        const result = await this.appsModel.install(package_name, package_zip.data)
+        res.json(result)
       } else {
         res.status(400).json({
           code: 'app-already-exist',

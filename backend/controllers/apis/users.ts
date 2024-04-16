@@ -50,7 +50,7 @@ export class UsersAPIController {
   @BeforeMiddleware([verifyPermissions('CREATE_USER', true), decryptRequest])
   public async create(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
     const { email, full_name, phone, user_name, password } = req.body
-    if (!email || !full_name || !user_name || !password) {
+    if (!full_name || !user_name || !password) {
       res.status(400).json({
         code: 'fields-required',
         message: 'Faltan campos!'
@@ -82,7 +82,7 @@ export class UsersAPIController {
     const { user_name, full_name, email, phone } = req.body
     if (user_name) {
       const [result] = await this.usersModel.find({ user_name })
-      if (result) {
+      if (result && result.uuid !== req.params.uuid) {
         res.json({
           code: 'user-already-exists',
           message: `El usuario ${user_name} ya existe!`
