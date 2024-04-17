@@ -230,7 +230,7 @@ export class ServerConector {
         url.searchParams.append(name, value.toString())
       }
       if (typeof value === 'boolean') {
-        url.searchParams.append(name, '')
+        url.searchParams.append(name, value ? 'true' : 'false')
       }
     }
     return url
