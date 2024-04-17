@@ -73,12 +73,14 @@ declare global {
   }
   interface Permission {
     id: number
+    package_name: string
     api: string
     justification: string
     active: boolean
   }
   interface Source {
     id: number
+    package_name: string
     type: string
     source: string
     justification: string
