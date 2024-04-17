@@ -2,6 +2,7 @@ declare global {
   namespace SecureSources {
     interface Source {
       id: number
+      package_name: string
       type: string
       source: string
       justification: string

@@ -13,36 +13,11 @@ export class AppsModel {
   private async parse(results: Apps.Result[]): Promise<Apps.App[]> {
     const apps: Apps.App[] = []
     for (const result of results) {
-      const permissionsResults = await new Promise<Permissions.Result[]>(resolve => this.database.all<Permissions.Result>(
-        'SELECT * FROM permissions WHERE package_name = ?',
-        [result.package_name],
-        (error, rows) => error ? resolve([]) : resolve(rows)
-      ))
-      const secureSourceResults = await new Promise<SecureSources.Result[]>(resolve => this.database.all<SecureSources.Result>(
-        'SELECT * FROM secure_sources WHERE package_name = ?',
-        [result.package_name],
-        (error, rows) => error ? resolve([]) : resolve(rows)
-      ))
-      const permissions: Permissions.Permission[] = permissionsResults.map(permission => ({
-        id: permission.id_permission,
-        api: permission.api,
-        justification: permission.justification,
-        active: (permission.active as unknown as number) === 1
-      }))
-      const secureSources: SecureSources.Source[] = secureSourceResults.map(secureSource => ({
-        id: secureSource.id_source,
-        type: secureSource.type,
-        source: secureSource.source,
-        justification: secureSource.justification,
-        active: (secureSource.active as unknown as number) === 1
-      }))
       apps.push({
         package_name: result.package_name,
         title: result.title,
         description: result.description,
         author: result.author,
-        permissions,
-        secureSources,
         extensions: (result.extensions || '').split('|')
       })
     }
