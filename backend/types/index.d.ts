@@ -11,6 +11,7 @@ declare global {
   namespace LocalCloud {
     interface SessionApp extends Omit<Apps.App, 'package_name'> {
       token: string
+      secureSources: SecureSources.Source[]
     }
     interface SessionData {
       user: Users.User

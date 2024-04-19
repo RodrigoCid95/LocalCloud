@@ -43,7 +43,6 @@ export default async (el: HTMLElement) => {
         await alert.present()
       }
     } catch (error) {
-      debugger
       console.log(error)
     }
     progressBarRef.style.display = 'none'

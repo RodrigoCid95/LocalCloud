@@ -13,6 +13,7 @@ export class AuthAPIController {
   @Model('UsersModel') private userModel: Models<'UsersModel'>
   @Model('AppsModel') private appsModel: Models<'AppsModel'>
   @Model('DevModeModel') private devModeModel: Models<'DevModeModel'>
+  @Model('SourcesModel') private sourcesModel: Models<'SourcesModel'>
   @On(GET, '/')
   public async index(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
     if (req.session.user || this.devModeModel.isDevMode.isDevMode) {
@@ -34,9 +35,11 @@ export class AuthAPIController {
         req.session.apps = {}
         const apps = await this.appsModel.getAppsByUUID(user.uuid)
         for (const app of apps) {
+          const secureSources = await this.sourcesModel.find({ package_name: app.package_name })
           const sessionApp: LocalCloud.SessionApp = {
+            ...app,
+            secureSources,
             token: v4(),
-            ...app
           }
           req.session.apps[app.package_name] = sessionApp
         }
