@@ -37,9 +37,13 @@ export default class AppsUserElement extends LitElement implements HTMLAppsUserE
     })
     await loading.dismiss()
   }
+  handlerOnDismiss() {
+    this.uuid = undefined
+    this.apps = []
+  }
   render() {
     return html`
-      <ion-modal ${ref(this.modal)} @ionModalWillDismiss=${() => this.uuid = undefined}>
+      <ion-modal ${ref(this.modal)} @ionModalWillDismiss=${this.handlerOnDismiss.bind(this)}>
         <ion-header>
           <ion-toolbar>
             <ion-title>Apps</ion-title>

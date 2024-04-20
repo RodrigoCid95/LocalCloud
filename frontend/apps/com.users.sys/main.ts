@@ -24,8 +24,8 @@ export default class AppRootElement extends LitElement {
           <ion-toolbar>
             <ion-title>Usuarios</ion-title>
             <ion-buttons slot="end">
-              <ion-button id="refresh">
-                <ion-icon slot="icon-only" name="refresh" @click=${() => this.userListElement.value?.loadUsers()}></ion-icon>
+              <ion-button @click=${() => this.userListElement.value?.loadUsers()}>
+                <ion-icon slot="icon-only" name="refresh"></ion-icon>
               </ion-button>
             </ion-buttons>
           </ion-toolbar>
