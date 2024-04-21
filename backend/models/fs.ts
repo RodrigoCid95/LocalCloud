@@ -93,4 +93,38 @@ export class FileSystemModel {
       fs.rmSync(dirPath, { force: true, recursive: true })
     }
   }
+  private resolvePath(uuid: string, pth: string[], verify: boolean): string | boolean {
+    const segments = [...pth]
+    const base = segments.shift()
+    let result: string | boolean = ''
+    if (base === 'shared') {
+      result = this.paths.resolveSharedPath({ segments, verify })
+    } else {
+      result = this.paths.resolveUserPath({ uuid, segments, verify })
+    }
+    return result
+  }
+  public copy(uuid: string, origin: string[], dest: string[], move: boolean = false) {
+    const originPath = this.resolvePath(uuid, origin, true)
+    if (typeof originPath === 'boolean') {
+      return
+    }
+    const newDest = [...dest, origin[origin.length - 1]]
+    let destPath = this.resolvePath(uuid, newDest, true)
+    if (typeof destPath === 'boolean') {
+      destPath = this.resolvePath(uuid, newDest, false) as string
+    } else {
+      return
+    }
+    const statOrigin = fs.statSync(originPath)
+    const isFile = statOrigin.isFile()
+    if (isFile) {
+      fs.copyFileSync(originPath, destPath)
+    } else {
+      fs.cpSync(originPath, destPath, { recursive: true })
+    }
+    if (move) {
+      fs.rmSync(originPath, { recursive: true, force: true })
+    }
+  }
 }
