@@ -1,22 +1,49 @@
 import { LitElement, html } from 'lit'
 import { customElement } from 'lit/decorators/custom-element.js'
-import { createRef, ref } from 'lit/directives/ref.js'
 import { property } from 'lit/decorators/property.js'
 
 @customElement('folder-item')
 export default class FolderItem extends LitElement {
   @property({ type: Array }) private path: string[]
   @property({ type: Object }) private folder: FileInfo
-  private slidingElement = createRef<HTMLIonItemSlidingElement>()
   connectedCallback(): void {
     super.connectedCallback()
     this.addEventListener('contextmenu', e => {
       e.preventDefault()
-      this.slidingElement.value?.open('end')
+      window.actionSheetController
+        .create({
+          header: this.folder.name,
+          buttons: [
+            {
+              text: 'Abrir',
+              handler: this.launch.bind(this)
+            },
+            {
+              text: 'Copiar',
+              handler: () => this.dispatchEvent(new CustomEvent('copy', { detail: [...this.path, this.folder.name] }))
+            },
+            {
+              text: 'Cortar',
+              handler: () => this.dispatchEvent(new CustomEvent('cut', { detail: [...this.path, this.folder.name] }))
+            },
+            {
+              text: 'Eliminar',
+              role: 'destructive',
+              handler: this.delete.bind(this)
+            },
+            {
+              text: 'Cancelar',
+              role: 'cancel'
+            }
+          ]
+        })
+        .then(actionSheet => actionSheet.present())
     })
   }
-  async delete() {
-    await this.slidingElement.value?.close()
+  private launch() {
+    this.dispatchEvent(new CustomEvent('go', { detail: [...this.path, this.folder.name] }))
+  }
+  private async delete() {
     const loading = await window.loadingController.create({ message: 'Eliminando carpeta ...' })
     await loading.present()
     const path = [...this.path, this.folder.name]
@@ -24,24 +51,18 @@ export default class FolderItem extends LitElement {
     await window.server.send({
       endpoint: `fs/${base}`,
       method: 'delete',
-      data: JSON.stringify({ path: path.join('|') })
+      data: JSON.stringify({ path })
     })
     await loading.dismiss()
     this.remove()
+    this.dispatchEvent(new CustomEvent('delete'))
   }
   render() {
     return html`
-      <ion-item-sliding ${ref(this.slidingElement)}>
-        <ion-item button @click=${() => this.dispatchEvent(new CustomEvent('go', { detail: [...this.path, this.folder.name] }))}>
-          <ion-icon slot="start" name="folder-outline"></ion-icon>
-          <ion-label>${this.folder.name}<ion-label>
-        </ion-item>
-        <ion-item-options side="end">
-          <ion-item-option color="danger" @click=${this.delete.bind(this)}>
-            <ion-icon slot="icon-only" name="trash"></ion-icon>
-          </ion-item-option>
-        </ion-item-options>
-      </ion-item-sliding>
+      <ion-item button @click=${this.launch.bind(this)}>
+        <ion-icon slot="start" name="folder-outline"></ion-icon>
+        <ion-label>${this.folder.name}</ion-label>
+      </ion-item>
     `
   }
   createRenderRoot = () => this

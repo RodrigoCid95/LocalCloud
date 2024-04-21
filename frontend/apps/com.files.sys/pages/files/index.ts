@@ -1,6 +1,8 @@
-import { LitElement, html } from 'lit'
+import type { ActionSheetOptions } from '@ionic/core'
+import { LitElement, html, type PropertyValueMap } from 'lit'
 import { customElement } from 'lit/decorators/custom-element.js'
 import { state } from 'lit/decorators/state.js'
+import { createRef, ref } from 'lit/directives/ref.js'
 
 import './components/file'
 import './components/folder'
@@ -15,8 +17,13 @@ export default class PageFiles extends LitElement {
   @state() private path: string[] = []
   @state() private folders: FileInfo[] = []
   @state() private files: FileInfo[] = []
-  async go(newPath: string[]) {
+  private breadcrumbs = createRef<HTMLIonBreadcrumbsElement>()
+  private clipboardCopy: string[] | undefined
+  private clipboardCut: string[] | undefined
+  private async go(newPath: string[]) {
     this.path = newPath
+    this.folders = []
+    this.files = []
     if (newPath.length > 0) {
       const path = [...newPath]
       const base = path.shift()
@@ -25,7 +32,7 @@ export default class PageFiles extends LitElement {
       let results = await window.server.send<FileInfo[]>({
         endpoint: `fs/${base}/list`,
         method: 'post',
-        data: JSON.stringify({ path: path.join('|') })
+        data: JSON.stringify({ path })
       })
       results = results.sort()
       const folders = []
@@ -42,7 +49,7 @@ export default class PageFiles extends LitElement {
       await loading.dismiss()
     }
   }
-  createFolder() {
+  private createFolder() {
     const go = this.go.bind(this)
     const segments = [...this.path]
     const base: string = segments.shift() as string
@@ -77,7 +84,7 @@ export default class PageFiles extends LitElement {
                 await window.server.send({
                   endpoint: `fs/${base}`,
                   method: 'post',
-                  data: JSON.stringify({ path: [...segments, name].join('|') })
+                  data: JSON.stringify({ path: [...segments, name] })
                 })
                 await loading.dismiss()
                 go([base, ...segments])
@@ -88,7 +95,7 @@ export default class PageFiles extends LitElement {
       })
       .then(alert => alert.present())
   }
-  selectFile() {
+  private selectFile() {
     const { path } = this
     const inputFile = document.createElement('input')
     inputFile.type = 'file'
@@ -105,6 +112,77 @@ export default class PageFiles extends LitElement {
     })
     inputFile.click()
   }
+  protected updated(_changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
+    super.updated(_changedProperties)
+    setTimeout(() => {
+      const { value } = this.breadcrumbs
+      if (value) {
+        value.scrollLeft = value.scrollWidth - value.clientWidth
+      }
+    }, 100)
+  }
+  private async paste() {
+    const loading = await window.loadingController.create({})
+    if (this.clipboardCopy) {
+      loading.message = 'Copiando ...'
+      await loading.present()
+      await window.server.send({
+        endpoint: 'fs/copy',
+        method: 'post',
+        data: JSON.stringify({
+          origin: this.clipboardCopy,
+          dest: this.path
+        })
+      })
+      this.clipboardCopy = undefined
+    }
+    if (this.clipboardCut) {
+      loading.message = 'Moviendo ...'
+      await loading.present()
+      await window.server.send({
+        endpoint: 'fs/copy',
+        method: 'post',
+        data: JSON.stringify({
+          origin: this.clipboardCut,
+          dest: this.path
+        })
+      })
+      this.clipboardCut = undefined
+    }
+    await loading.dismiss()
+    this.go(this.path)
+  }
+  async handlerOptions() {
+    const buttons: ActionSheetOptions['buttons'] = [
+      {
+        text: 'Actualizar',
+        handler: () => this.go(this.path)
+      },
+      {
+        text: 'Crear carpeta',
+        handler: this.createFolder.bind(this)
+      },
+      {
+        text: 'Subir archivo',
+        handler: this.selectFile.bind(this)
+      }
+    ]
+    if (this.clipboardCopy || this.clipboardCut) {
+      buttons.push({
+        text: 'Pegar',
+        handler: this.paste.bind(this)
+      })
+    }
+    buttons.push({
+      text: 'Cancelar',
+      role: 'cancel'
+    })
+    const actionSheet = await window.actionSheetController.create({
+      header: 'Opciones',
+      buttons
+    })
+    await actionSheet.present()
+  }
   render() {
     return html`
       <ion-header>
@@ -112,8 +190,8 @@ export default class PageFiles extends LitElement {
           <ion-title>Archivos</ion-title>
           ${this.path.length === 0 ? '' : html`
             <ion-buttons slot="end">
-              <ion-button button @click=${() => this.go(this.path)}>
-                <ion-icon slot="icon-only" name="reload"></ion-icon>
+              <ion-button button @click=${this.handlerOptions.bind(this)}>
+                <ion-icon slot="icon-only" name="options"></ion-icon>
               </ion-button>
             </ion-buttons>
           `}
@@ -121,6 +199,12 @@ export default class PageFiles extends LitElement {
       </ion-header>
       <ion-content>
         <style>
+          ion-list {
+            position: fixed;
+            max-height: calc(100% - 165px);
+            width: calc(100% - 32px);
+            overflow-y: auto !important;
+          }
           .breadcrumbs {
             display: contents;
           }
@@ -132,12 +216,15 @@ export default class PageFiles extends LitElement {
           ion-breadcrumb {
             cursor: pointer;
           }
+          folder-item {
+            position: relative;
+          }
         </style>
         ${this.path.length === 0 ? '' : html`
           <div class="breadcrumbs">
             <ion-card>
               <ion-card-content>
-                <ion-breadcrumbs>
+                <ion-breadcrumbs ${ref(this.breadcrumbs)}>
                   <ion-breadcrumb @click=${() => this.go([])}>Inicio</ion-breadcrumb>
                   ${this.path.map((path, index, array) => html`
                     <ion-breadcrumb @click=${() => this.go(array.slice(0, index + 1))}>
@@ -155,13 +242,19 @@ export default class PageFiles extends LitElement {
               <folder-item
                 .path=${this.path}
                 .folder=${folder}
-                @go=${(e: CustomEvent) => this.go(e.detail)}
+                @go=${({ detail }: CustomEvent) => this.go(detail)}
+                @copy=${({ detail }: CustomEvent) => this.clipboardCopy = detail}
+                @cut=${({ detail }: CustomEvent) => this.clipboardCut = detail}
+                @delete=${() => this.go(this.path)}
               ></folder-item>
             `)}
             ${this.files.map(file => html`
               <file-item
                 .path=${this.path}
                 .file=${file}
+                @copy=${({ detail }: CustomEvent) => this.clipboardCopy = detail}
+                @cut=${({ detail }: CustomEvent) => this.clipboardCut = detail}
+                @delete=${() => this.go(this.path)}
               ></file-item>
             `)}
             ${this.folders.length === 0 && this.files.length === 0 ? html`
@@ -180,21 +273,6 @@ export default class PageFiles extends LitElement {
             </ion-item>
           `}
         </ion-list>
-        ${this.path.length === 0 ? '' : html`
-          <ion-fab slot="fixed" horizontal="end" vertical="bottom">
-            <ion-fab-button>
-              <ion-icon name="add"></ion-icon>
-            </ion-fab-button>
-            <ion-fab-list side="top">
-              <ion-fab-button @click=${this.createFolder.bind(this)}>
-                <ion-icon name="folder-outline"></ion-icon>
-              </ion-fab-button>
-              <ion-fab-button @click=${this.selectFile.bind(this)}>
-                <ion-icon name="cloud-upload-outline"></ion-icon>
-              </ion-fab-button>
-            </ion-fab-list>
-          </ion-fab>
-        `}
       </ion-content>
     `
   }
