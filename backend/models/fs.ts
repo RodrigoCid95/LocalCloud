@@ -127,4 +127,18 @@ export class FileSystemModel {
       fs.rmSync(originPath, { recursive: true, force: true })
     }
   }
+  public rename(uuid: string, path: string[], newName: string) {
+    const oldPath = this.resolvePath(uuid, path, true)
+    if (typeof oldPath === 'boolean') {
+      return
+    }
+    const segments = [...path]
+    segments.pop()
+    let newPath = this.resolvePath(uuid, [...segments, newName], true)
+    if (typeof newPath === 'string') {
+      return
+    }
+    newPath = this.resolvePath(uuid, [...segments, newName], false) as string
+    fs.renameSync(oldPath, newPath)
+  }
 }

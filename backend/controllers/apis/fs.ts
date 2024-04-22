@@ -135,4 +135,18 @@ export class FileSystemAPIController {
     this.fsModel.copy(req.session.user?.uuid || '', origin, dest, true)
     res.json(true)
   }
+  @On(POST, '/rename')
+  @BeforeMiddleware([verifyPermissions('RENAME_FILES_AND_DIRECTORIES')])
+  public rename(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response) {
+    const { path, newName } = req.body
+    if (!Array.isArray(path) || typeof newName !== 'string') {
+      res.status(400).json({
+        code: 'fields-required',
+        message: 'Faltan campos!'
+      })
+      return
+    }
+    this.fsModel.rename(req.session.user?.uuid || '', path, newName)
+    res.json(true)
+  }
 }
