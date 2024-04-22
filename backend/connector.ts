@@ -58,15 +58,15 @@ class FileUploader implements FileTransfer {
         listener(response)
       }
     })
-    this.#xhr.addEventListener('progress', event => {
+    this.#xhr.upload.addEventListener('progress', event => {
       if (event.lengthComputable) {
         const percentComplete = (event.loaded / event.total) * 100
         for (const listener of this.#listenerProgressList) {
-          listener(percentComplete)
+          listener(percentComplete.toFixed(2))
         }
       }
     })
-    this.#xhr.open('PUT', endpoint, true)
+    this.#xhr.open('PUT', endpoint)
     this.#xhr.setRequestHeader('token', TOKEN)
   }
   on(event: 'progress' | 'end' | 'error' | 'abort', callback: any) {
