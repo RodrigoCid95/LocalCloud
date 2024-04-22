@@ -32,7 +32,11 @@ export default class SwapItem extends LitElement implements HTMLSwapItemElement 
       this.status = `La ${this.file ? 'subida' : 'descarga'} fue cancelada.`
       this.finished = true
     })
+    this.fileTransfer.on('progress', (progress: number) => {
+      this.status = `${progress.toString()}%`
+    })
     this.fileTransfer.start()
+    this.finished = false
   }
   end() {
     if (this.finished) {
