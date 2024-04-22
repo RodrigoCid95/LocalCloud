@@ -13,7 +13,10 @@
     "REMOVE_USER_FILES_AND_DIRECTORIES": "Permite eliminar archivos y/o directorios en la carpeta compartida del usuario.",
     "SHARED_LIST": "Permite consultar los link generados por el usuario.",
     "SHARED_CREATE": "Permite crear links para compartir archivos.",
-    "SHARED_DELETE": "Permite eliminar links generados por el usuario."
+    "SHARED_DELETE": "Permite eliminar links generados por el usuario.",
+    "COPY_FILES_AND_DIRECTORIES": "Permite copiar archivos y carpetas.",
+    "MOVE_FILES_AND_DIRECTORIES": "Permite mover archiovs y carpetas.",
+    "RENAME_FILES_AND_DIRECTORIES": "Permite renombrar archiovs y carpetas."
   },
   "sources": []
 }

@@ -27,6 +27,10 @@ export default class FolderItem extends LitElement {
               handler: () => this.dispatchEvent(new CustomEvent('cut', { detail: [...this.path, this.folder.name] }))
             },
             {
+              text: 'Renombrar',
+              handler: () => this.dispatchEvent(new CustomEvent('rename', { detail: [...this.path, this.folder.name] }))
+            },
+            {
               text: 'Eliminar',
               role: 'destructive',
               handler: this.delete.bind(this)

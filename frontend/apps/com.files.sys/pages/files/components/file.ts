@@ -27,6 +27,10 @@ export default class FileItem extends LitElement {
               handler: () => this.dispatchEvent(new CustomEvent('cut', { detail: [...this.path, this.file.name] }))
             },
             {
+              text: 'Renombrar',
+              handler: () => this.dispatchEvent(new CustomEvent('rename', { detail: [...this.path, this.file.name] }))
+            },
+            {
               text: 'Descargar',
               handler: this.download.bind(this)
             },

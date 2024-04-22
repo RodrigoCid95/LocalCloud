@@ -152,7 +152,61 @@ export default class PageFiles extends LitElement {
     await loading.dismiss()
     this.go(this.path)
   }
+  private rename(path: string[], renew: boolean = false) {
+    const reload = (newName: string) => {
+      if (renew) {
+        this.path.pop()
+        this.path.push(newName)
+      }
+      this.go(this.path)
+    }
+    window.alertController
+      .create({
+        header: 'Renombrar',
+        message: 'Escribe el nuevo nombre',
+        inputs: [{
+          type: 'text',
+          name: 'nName',
+          value: path[path.length - 1]
+        }],
+        buttons: [
+          {
+            text: 'Cancelar',
+            role: 'cancel'
+          },
+          {
+            text: 'Renombrar',
+            async handler({ nName }) {
+              const newName = nName.trim()
+              if (newName) {
+                if (!/^[a-zA-Z0-9_-\s]+$/.test(newName)) {
+                  window.alertController
+                    .create({
+                      header: 'Nombre inválido',
+                      message: 'El nombre que indicaste no es válido.',
+                      buttons: ['Aceptar']
+                    })
+                    .then(alert => alert.present())
+                } else {
+                  const loading = await window.loadingController.create({ message: 'Renombrando ...' })
+                  await loading.present()
+                  await window.server.send({
+                    endpoint: 'fs/rename',
+                    method: 'post',
+                    data: JSON.stringify({ path, newName })
+                  })
+                  await loading.dismiss()
+                  reload(newName)
+                }
+              }
+            }
+          }
+        ]
+      })
+      .then(alert => alert.present())
+  }
   async handlerOptions() {
+    const rename = this.rename.bind(this)
     const buttons: ActionSheetOptions['buttons'] = [
       {
         text: 'Actualizar',
@@ -167,6 +221,12 @@ export default class PageFiles extends LitElement {
         handler: this.selectFile.bind(this)
       }
     ]
+    if (this.path.length > 1) {
+      buttons.push({
+        text: 'Renombrar',
+        handler: () => rename([...this.path], true)
+      })
+    }
     if (this.clipboardCopy || this.clipboardCut) {
       buttons.push({
         text: 'Pegar',
@@ -177,8 +237,9 @@ export default class PageFiles extends LitElement {
       text: 'Cancelar',
       role: 'cancel'
     })
+    const baseDir = this.path[this.path.length - 1]
     const actionSheet = await window.actionSheetController.create({
-      header: 'Opciones',
+      header: NAME_DIRECTORIES[baseDir] || baseDir,
       buttons
     })
     await actionSheet.present()
@@ -246,6 +307,7 @@ export default class PageFiles extends LitElement {
                 @copy=${({ detail }: CustomEvent) => this.clipboardCopy = detail}
                 @cut=${({ detail }: CustomEvent) => this.clipboardCut = detail}
                 @delete=${() => this.go(this.path)}
+                @rename=${({ detail }: CustomEvent) => this.rename(detail)}
               ></folder-item>
             `)}
             ${this.files.map(file => html`
@@ -255,6 +317,7 @@ export default class PageFiles extends LitElement {
                 @copy=${({ detail }: CustomEvent) => this.clipboardCopy = detail}
                 @cut=${({ detail }: CustomEvent) => this.clipboardCut = detail}
                 @delete=${() => this.go(this.path)}
+                @rename=${({ detail }: CustomEvent) => this.rename(detail)}
               ></file-item>
             `)}
             ${this.folders.length === 0 && this.files.length === 0 ? html`
