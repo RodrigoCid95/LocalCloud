@@ -1,4 +1,4 @@
-CREATE TABLE permissions (
+CREATE TABLE IF NOT EXISTS permissions (
     id_permission INTEGER PRIMARY KEY AUTOINCREMENT,
     package_name TEXT REFERENCES apps (package_name) ON DELETE CASCADE ON UPDATE CASCADE,
     api TEXT NOT NULL,

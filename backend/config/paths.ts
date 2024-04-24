@@ -39,6 +39,7 @@ export const paths: Paths.Config = {
     path: users,
     user: {
       path: user
-    }
+    },
+    recycleBin: path.join(users, 'recycler-bin')
   }
 }

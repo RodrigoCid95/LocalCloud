@@ -66,7 +66,8 @@ declare global {
            * Ruta raíz del almacén de usuarios.
            */
           path: string
-        }
+        },
+        recycleBin: string
       }
     }
     interface ResolveSharedPathArgs {
@@ -82,11 +83,14 @@ declare global {
       readonly apps: string
       readonly users: string
       readonly shared: string
+      readonly recycleBin: string
       getApp(packagename: string): string
       getAppPublic(packagename: string): string
       getAppDatabases(packagename: string): string
       getAppDatabase(packagename: string, name: string): string
       getUser(uuid: string): string
+      getRecycleBin(uuid: string): string
+      getRecycleBinItem(uuid: string, id: string): string
       resolveSharedPath(args: ResolveSharedPathArgs): string | boolean
       resolveUserPath(args: ResolveUsersPathArgs): string | boolean
     }

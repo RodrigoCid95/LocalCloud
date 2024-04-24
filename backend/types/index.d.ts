@@ -4,6 +4,7 @@ import './DevMode'
 import './Encrypting'
 import './Paths'
 import './Permissions'
+import './Recycle_bin'
 import './Shared'
 import './Users'
 
@@ -12,6 +13,7 @@ declare global {
     interface SessionApp extends Omit<Apps.App, 'package_name'> {
       token: string
       secureSources: SecureSources.Source[]
+      permissions: Permissions.Permission[]
     }
     interface SessionData {
       user: Users.User

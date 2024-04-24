@@ -13,7 +13,9 @@ export async function verifySession(req: PXIOHTTP.Request<LocalCloud.SessionData
       for (const app of apps) {
         const sessionApp: LocalCloud.SessionApp = {
           token: v4(),
-          ...app
+          ...app,
+          secureSources: [],
+          permissions: []
         }
         req.session.apps[app.package_name] = sessionApp
       }

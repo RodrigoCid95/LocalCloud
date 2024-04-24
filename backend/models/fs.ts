@@ -93,7 +93,7 @@ export class FileSystemModel {
       fs.rmSync(dirPath, { force: true, recursive: true })
     }
   }
-  private resolvePath(uuid: string, pth: string[], verify: boolean): string | boolean {
+  public resolvePath(uuid: string, pth: string[], verify: boolean): string | boolean {
     const segments = [...pth]
     const base = segments.shift()
     let result: string | boolean = ''
@@ -110,17 +110,20 @@ export class FileSystemModel {
       return
     }
     const newDest = [...dest, origin[origin.length - 1]]
-    let destPath = this.resolvePath(uuid, newDest, true)
-    if (typeof destPath === 'boolean') {
-      destPath = this.resolvePath(uuid, newDest, false) as string
-    } else {
-      return
-    }
+    let destPath = this.resolvePath(uuid, newDest, false) as string
     const statOrigin = fs.statSync(originPath)
     const isFile = statOrigin.isFile()
     if (isFile) {
+      while (fs.existsSync(destPath)) {
+        const segments = destPath.split('.')
+        const ext = segments.pop()
+        destPath = `${segments.join('.')}-copia.${ext}`
+      }
       fs.copyFileSync(originPath, destPath)
     } else {
+      while (fs.existsSync(destPath)) {
+        destPath += '-copia'
+      }
       fs.cpSync(originPath, destPath, { recursive: true })
     }
     if (move) {

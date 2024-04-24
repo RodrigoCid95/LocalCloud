@@ -1,4 +1,4 @@
-CREATE TABLE if NOT EXISTS apps (
+CREATE TABLE IF NOT EXISTS apps (
     package_name TEXT PRIMARY KEY,
     title TEXT NOT NULL,
     description TEXT,

@@ -20,6 +20,9 @@ class Paths implements Paths.Class {
   get shared() {
     return this.config.users.shared
   }
+  get recycleBin() {
+    return this.config.users.recycleBin
+  }
   constructor(private config: Paths.Config) { }
   getApp(packagename: string): string {
     return this.config.system.apps.app.path.replace(/:packagename/, packagename)
@@ -35,6 +38,12 @@ class Paths implements Paths.Class {
   }
   getUser(uuid: string): string {
     return this.config.users.user.path.replace(/:uuid/, uuid)
+  }
+  getRecycleBin(uuid: string): string {
+    return path.join(this.recycleBin, uuid)
+  }
+  getRecycleBinItem(uuid: string, id: string): string {
+    return path.join(this.recycleBin, uuid, id)
   }
   private resolve(segments: string[], verify = true): string | boolean {
     const pathSegments = segments.filter(segment => segment !== '..')

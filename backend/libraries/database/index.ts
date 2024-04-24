@@ -4,6 +4,7 @@ import path from 'node:path'
 import { verbose } from 'sqlite3'
 import { v4, v5 } from 'uuid'
 import users from './users.sql'
+import recycle_bin from './recycle_bin.sql'
 import shared from './shared.sql'
 import apps from './apps.sql'
 import users_to_apps from './users_to_apps.sql'
@@ -20,6 +21,7 @@ export const database: () => Promise<Database> = async (): Promise<Database> => 
   const sqlite3: sqlite3 = verbose()
   const connector = new sqlite3.Database(database.path)
   await new Promise(resolve => connector.run(users, resolve))
+  await new Promise(resolve => connector.run(recycle_bin, resolve))
   await new Promise(resolve => connector.run(shared, resolve))
   await new Promise(resolve => connector.run(apps, resolve))
   await new Promise(resolve => connector.run(users_to_apps, resolve))
