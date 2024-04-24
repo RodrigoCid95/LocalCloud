@@ -70,7 +70,7 @@ export default class PageFiles extends LitElement {
             role: 'destructive',
             text: 'Crear',
             async handler({ name }) {
-              if (!/^[a-zA-Z0-9_-\s]+$/.test(name)) {
+              if (!/^[a-zA-Z0-9_ ]+(?:\.[a-zA-Z0-9_ ]+)*$/.test(name)) {
                 window.alertController
                   .create({
                     header: 'Nombre inválido',
@@ -179,7 +179,7 @@ export default class PageFiles extends LitElement {
             async handler({ nName }) {
               const newName = nName.trim()
               if (newName) {
-                if (!/^[a-zA-Z0-9_-\s]+$/.test(newName)) {
+                if (!/^[a-zA-Z0-9_ ]+(?:\.[a-zA-Z0-9_ ]+)*$/.test(newName)) {
                   window.alertController
                     .create({
                       header: 'Nombre inválido',
