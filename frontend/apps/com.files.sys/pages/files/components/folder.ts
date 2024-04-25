@@ -31,7 +31,7 @@ export default class FolderItem extends LitElement {
               handler: () => this.dispatchEvent(new CustomEvent('rename', { detail: [...this.path, this.folder.name] }))
             },
             {
-              text: 'Eliminar',
+              text: 'Mover a la papelera',
               role: 'destructive',
               handler: this.delete.bind(this)
             },
@@ -50,13 +50,7 @@ export default class FolderItem extends LitElement {
   private async delete() {
     const loading = await window.loadingController.create({ message: 'Eliminando carpeta ...' })
     await loading.present()
-    const path = [...this.path, this.folder.name]
-    const base = path.shift()
-    await window.server.send({
-      endpoint: `fs/${base}`,
-      method: 'delete',
-      data: JSON.stringify({ path })
-    })
+    await document.querySelector('page-recycle-bin')?.add([...this.path, this.folder.name])
     await loading.dismiss()
     this.remove()
     this.dispatchEvent(new CustomEvent('delete'))

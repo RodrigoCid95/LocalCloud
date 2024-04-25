@@ -104,4 +104,15 @@ declare global {
     creationDate: Date
     isFile: boolean
   }
+  interface Shared {
+    id: string
+    uuid: string
+    path: string[]
+  }
+  interface RecycleBinItem {
+    id: string
+    uuid: string
+    path: string[]
+    date: string
+  }
 }

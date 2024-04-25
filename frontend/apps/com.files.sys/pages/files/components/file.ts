@@ -39,7 +39,7 @@ export default class FileItem extends LitElement {
               handler: this.share.bind(this)
             },
             {
-              text: 'Eliminar',
+              text: 'Mover a la papelera',
               role: 'destructive',
               handler: this.delete.bind(this)
             },
@@ -70,13 +70,7 @@ export default class FileItem extends LitElement {
   private async delete() {
     const loading = await window.loadingController.create({ message: 'Eliminando archivo ...' })
     await loading.present()
-    const path = [...this.path, this.file.name]
-    const base = path.shift()
-    await window.server.send({
-      endpoint: `fs/${base}`,
-      method: 'delete',
-      data: JSON.stringify({ path })
-    })
+    await document.querySelector('page-recycle-bin')?.add([...this.path, this.file.name])
     await loading.dismiss()
     this.remove()
     this.dispatchEvent(new CustomEvent('delete'))
