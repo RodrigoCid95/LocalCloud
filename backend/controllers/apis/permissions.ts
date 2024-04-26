@@ -1,5 +1,6 @@
 import { verifySession } from "./middlewares/session"
-import { verifyPermissions } from "./middlewares/permissions"
+import { verifyPermission } from "./middlewares/permissions"
+import { PERMISSIONS } from 'libraries/classes/APIList'
 
 declare const Namespace: PXIOHTTP.NamespaceDecorator
 declare const Model: PXIO.ModelDecorator
@@ -14,7 +15,7 @@ export class PermissionsAPIController {
   @Model('DevModeModel') public devModeModel: Models<'DevModeModel'>
   @Model('PermissionsModel') permissionModel: Models<'PermissionsModel'>
   @On(GET, '/')
-  @BeforeMiddleware([verifyPermissions('PERMISSION_LIST')])
+  @BeforeMiddleware([verifyPermission(PERMISSIONS.FIND)])
   public async find(req: PXIOHTTP.Request, res: PXIOHTTP.Response): Promise<void> {
     const { package_name, api, active } = req.query
     const query: Partial<Permissions.Result> = {}
@@ -31,14 +32,14 @@ export class PermissionsAPIController {
     res.json(results)
   }
   @On(POST, '/:id')
-  @BeforeMiddleware([verifyPermissions('ENABLE_PERMISSION')])
+  @BeforeMiddleware([verifyPermission(PERMISSIONS.ENABLE)])
   public async enable(req: PXIOHTTP.Request, res: PXIOHTTP.Response): Promise<void> {
     const { id } = req.params
     await this.permissionModel.setActive(id as unknown as number, true)
     res.json(true)
   }
   @On(DELETE, '/:id')
-  @BeforeMiddleware([verifyPermissions('DISABLE_PERMISSION')])
+  @BeforeMiddleware([verifyPermission(PERMISSIONS.DISABLE)])
   public async disable(req: PXIOHTTP.Request, res: PXIOHTTP.Response): Promise<void> {
     const { id } = req.params
     await this.permissionModel.setActive(id as unknown as number, false)

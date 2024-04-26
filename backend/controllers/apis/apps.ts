@@ -1,7 +1,8 @@
-import { verifySession } from './middlewares/session'
-import { verifyPermissions } from './middlewares/permissions'
-import { decryptRequest } from './middlewares/encrypt'
 import fileUpload, { type UploadedFile } from 'express-fileupload'
+import { verifySession } from './middlewares/session'
+import { verifyPermission } from './middlewares/permissions'
+import { decryptRequest } from './middlewares/encrypt'
+import { APPS } from 'libraries/classes/APIList'
 
 declare const Namespace: PXIOHTTP.NamespaceDecorator
 declare const Model: PXIO.ModelDecorator
@@ -15,19 +16,19 @@ export class AppsAPIController {
   @Model('DevModeModel') public devModeModel: Models<'DevModeModel'>
   @Model('AppsModel') private appsModel: Models<'AppsModel'>
   @On(GET, '/')
-  @BeforeMiddleware([verifyPermissions('APP_LIST')])
+  @BeforeMiddleware([verifyPermission(APPS.APPS)])
   public async apps(_: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
     const results = await this.appsModel.getApps()
     res.json(results)
   }
   @On(GET, '/:uuid')
-  @BeforeMiddleware([verifyPermissions('APP_LIST_BY_UUID')])
+  @BeforeMiddleware([verifyPermission(APPS.APPS_BY_UUID)])
   public async appsByUUID(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
     const results = await this.appsModel.getAppsByUUID(req.params.uuid)
     res.json(results)
   }
   @On(PUT, '/')
-  @BeforeMiddleware([verifyPermissions('INSTALL_APP'), fileUpload()])
+  @BeforeMiddleware([verifyPermission(APPS.INSTALL), fileUpload()])
   public async install(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
     const package_zip: UploadedFile | undefined = req.files?.package_zip as any
     if (package_zip) {
@@ -52,7 +53,7 @@ export class AppsAPIController {
     }
   }
   @On(DELETE, '/:package_name')
-  @BeforeMiddleware([verifyPermissions('UNINSTALL_APP')])
+  @BeforeMiddleware([verifyPermission(APPS.UNINSTALL)])
   public async unInstall(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
     const { package_name } = req.params
     const app = await this.appsModel.getAppByPackageName(package_name)

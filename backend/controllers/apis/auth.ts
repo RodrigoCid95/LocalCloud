@@ -1,5 +1,7 @@
 import { v4, v5 } from 'uuid'
 import { decryptRequest } from './middlewares/encrypt'
+import { verifyPermission } from './middlewares/permissions'
+import { AUTH } from 'libraries/classes/APIList'
 
 declare const Namespace: PXIOHTTP.NamespaceDecorator
 declare const Model: PXIO.ModelDecorator
@@ -16,15 +18,16 @@ export class AuthAPIController {
   @Model('SourcesModel') private sourcesModel: Models<'SourcesModel'>
   @Model('PermissionsModel') private permissionsModel: Models<'PermissionsModel'>
   @On(GET, '/')
+  @BeforeMiddleware([verifyPermission(AUTH.INDEX)])
   public async index(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
-    if (req.session.user || this.devModeModel.isDevMode.isDevMode) {
+    if (req.session.user || this.devModeModel.devMode.config.isDevMode) {
       res.json(true)
     } else {
-      res.json(null)
+      res.json(false)
     }
   }
   @On(POST, '/')
-  @BeforeMiddleware([decryptRequest])
+  @BeforeMiddleware([verifyPermission(AUTH.LOGIN), decryptRequest])
   public async login(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
     const { userName, password } = req.body
     const [user] = await this.userModel.find({ user_name: userName })
@@ -56,6 +59,7 @@ export class AuthAPIController {
     }
   }
   @On(DELETE, '/')
+  @BeforeMiddleware([verifyPermission(AUTH.LOGOUT)])
   public logout(req: PXIOHTTP.Request, res: PXIOHTTP.Response): void {
     req.session.destroy((): void => {
       res.json(true)

@@ -6,6 +6,10 @@ declare global {
       cors: string
       connectorPath: string
     }
+    interface Class {
+      readonly config: Config
+      resolve(path: string[]): string
+    }
   }
 }
 

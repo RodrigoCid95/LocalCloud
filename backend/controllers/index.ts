@@ -15,22 +15,10 @@ export class IndexController {
   public dashboard(_: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): void {
     res.render('dashboard', { title: 'LocalCloud - Dashboard', description: 'LocalCloud - Dashboard' })
   }
-  @On(GET, '/connector.js')
-  @BeforeMiddleware([tokens])
-  public generateConnector(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): void {
-    res.set('Content-Type', 'text/javascript');
-    res.send(this.devModeModel.transformJS(req.session.token || '', req.session.key || ''))
-  }
   @On(GET, '/login')
   @BeforeMiddleware([devMode, tokens, verifyNotSession])
   public login(_: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): void {
     res.render('login', { title: 'LocalCloud - Iniciar sesión', description: 'LocalCloud - Iniciar sesión' })
-  }
-  @On(GET, '/login/connector.js')
-  @BeforeMiddleware([tokens])
-  public generateLoginConnector(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): void {
-    res.set('Content-Type', 'text/javascript');
-    res.send(this.devModeModel.transformJS(req.session.token || '', req.session.key || ''))
   }
 }
 

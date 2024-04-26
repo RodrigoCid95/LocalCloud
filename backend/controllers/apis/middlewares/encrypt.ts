@@ -1,4 +1,5 @@
 import { Encrypt } from 'libraries/classes/Encrypt'
+import { verifyDevMode } from './dev-mode'
 
 const encrypt: Encrypt = new Encrypt()
 
@@ -8,7 +9,11 @@ const DENIED_ERROR = {
   message: 'No tienes permiso para hacer esto!'
 }
 
-export const decryptRequest = async (req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response, next: PXIOHTTP.Next) => {
+export async function decryptRequest(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response, next: PXIOHTTP.Next): Promise<void> {
+  if (verifyDevMode.bind(this)()) {
+    next()
+    return
+  }
   let nextError: any = undefined
   if (req.session.key && typeof req.body === 'string') {
     try {

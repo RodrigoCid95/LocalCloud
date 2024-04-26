@@ -17,5 +17,5 @@ export const devMode: DevMode.Config = {
   isDevMode,
   uuid,
   cors,
-  connectorPath: path.join(process.cwd(), 'connector.ts')
+  connectorPath: path.join(process.cwd(), 'connector')
 }

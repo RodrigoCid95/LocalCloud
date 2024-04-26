@@ -1,7 +1,8 @@
 import { v5 } from 'uuid'
 import { verifySession } from './middlewares/session'
-import { verifyPermissions } from './middlewares/permissions'
+import { verifyPermission } from './middlewares/permissions'
 import { decryptRequest } from './middlewares/encrypt'
+import { PROFILE } from 'libraries/classes/APIList'
 
 declare const Namespace: PXIOHTTP.NamespaceDecorator
 declare const Model: PXIO.ModelDecorator
@@ -18,12 +19,12 @@ export class ProfileAPIController {
   @Model('UsersModel') private usersModel: Models<'UsersModel'>
   @Model('ProfileModel') private profileModel: Models<'ProfileModel'>
   @On(GET, '/')
-  @BeforeMiddleware([verifyPermissions('PROFILE_INFO', true)])
+  @BeforeMiddleware([verifyPermission(PROFILE.INDEX)])
   public index(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): void {
     res.json(req.session.user)
   }
   @On(GET, '/apps')
-  @BeforeMiddleware([verifyPermissions('PROFILE_APP_LIST', true)])
+  @BeforeMiddleware([verifyPermission(PROFILE.APPS)])
   public async apps(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
     const results = await this.appsModel.getAppsByUUID(req.session.user?.uuid || '')
     const apps: Partial<Apps.App>[] = results.map(app => ({
@@ -35,7 +36,7 @@ export class ProfileAPIController {
     res.json(apps)
   }
   @On(POST, '/')
-  @BeforeMiddleware([verifyPermissions('UPDATE_PROFILE_INFO', true), decryptRequest])
+  @BeforeMiddleware([verifyPermission(PROFILE.UPDATE), decryptRequest])
   public async update(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
     if (req.session.user) {
       const { user_name, full_name, email, phone } = req.body
@@ -69,7 +70,7 @@ export class ProfileAPIController {
     res.json(true)
   }
   @On(PUT, '/')
-  @BeforeMiddleware([verifyPermissions('UPDATE_PASSWORD', true), decryptRequest])
+  @BeforeMiddleware([verifyPermission(PROFILE.UPDATE_PASSWORD), decryptRequest])
   public async updatePassword(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
     const { current_password, new_password } = req.body
     const [user] = await this.usersModel.find({ uuid: req.session.user?.uuid })

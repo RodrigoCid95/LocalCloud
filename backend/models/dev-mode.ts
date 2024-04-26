@@ -1,16 +1,42 @@
 import type { Database } from 'sqlite3'
-import fs from 'node:fs'
+import { v4 } from 'uuid'
 import esbuild from 'esbuild'
+import * as API_LIST from 'libraries/classes/APIList'
 
 declare const Library: PXIO.LibraryDecorator
 
 export class DevModeModel {
-  @Library('devMode') public isDevMode: DevMode.Config
+  @Library('devMode') public devMode: DevMode.Class
   @Library('database') public database: Database
+  public privateAPIList: string[] = []
+  public dashAPIList: string[] = []
+  public publicAPIList: string[] = []
+  private allAPIList: string[] = []
+  constructor() {
+    const entries = Object.entries(API_LIST)
+    for (const [_, value] of entries) {
+      const subEntries = Object.entries(value)
+      for (const [_, value2] of subEntries) {
+        if (typeof value2 === 'object') {
+          if (value2.freeForDashboard) {
+            this.dashAPIList.push(value2.name)
+            this.allAPIList.push(value2.name)
+          }
+          if (value2.public) {
+            this.publicAPIList.push(value2.name)
+            this.allAPIList.push(value2.name)
+          }
+        } else {
+          this.privateAPIList.push(value2)
+          this.allAPIList.push(value2)
+        }
+      }
+    }
+  }
   public async getUser(): Promise<Users.User | undefined> {
     const [result] = await new Promise<Users.Result[]>(resolve => this.database.all<Users.Result>(
       'SELECT * FROM users WHERE uuid = ?',
-      [this.isDevMode.uuid],
+      [this.devMode.config.uuid],
       (error, rows) => error ? resolve([]) : resolve(rows)
     ))
     if (result) {
@@ -18,62 +44,53 @@ export class DevModeModel {
       return { uuid, full_name, user_name, photo, email, phone }
     }
   }
-  private async parse(results: Apps.Result[]): Promise<Apps.App[]> {
-    const apps: Apps.App[] = []
-    for (const result of results) {
-      const permissionsResults = await new Promise<Permissions.Result[]>(resolve => this.database.all<Permissions.Result>(
-        'SELECT * FROM permissions WHERE package_name = ?',
-        [result.package_name],
-        (error, rows) => error ? resolve([]) : resolve(rows)
-      ))
-      const secureSourceResults = await new Promise<SecureSources.Result[]>(resolve => this.database.all<SecureSources.Result>(
-        'SELECT * FROM secure_source WHERE package_name = ?',
-        [result.package_name],
-        (error, rows) => error ? resolve([]) : resolve(rows)
-      ))
-      const permissions: Permissions.Permission[] = permissionsResults.map(permission => ({
-        id: permission.id_permission,
-        api: permission.api,
-        justification: permission.justification,
-        active: (permission.active as unknown as number) === 1
-      }))
-      const secureSources: SecureSources.Source[] = secureSourceResults.map(secureSource => ({
-        id: secureSource.id_source,
-        type: secureSource.type,
-        source: secureSource.source,
-        justification: secureSource.justification,
-        active: (secureSource.active as unknown as number) === 1
-      }))
-      apps.push({
+  public async getApps(): Promise<LocalCloud.SessionData['apps']> {
+    const apps: Apps.App[] = await new Promise(resolve => this.database.all<Apps.Result>(
+      'SELECT apps.package_name, apps.title, apps.description, apps.author FROM users_to_apps INNER JOIN apps ON users_to_apps.package_name = apps.package_name WHERE users_to_apps.uuid = ?;',
+      [this.devMode.config.uuid],
+      (error, rows) => error ? resolve([]) : resolve(rows.map(result => ({
         package_name: result.package_name,
         title: result.title,
         description: result.description,
         author: result.author,
-        permissions,
-        secureSources,
         extensions: (result.extensions || '').split('|')
-      })
-    }
-    return apps
-  }
-  public getApps(): Promise<Apps.App[]> {
-    return new Promise(resolve => this.database.all<Apps.Result>(
-      'SELECT apps.package_name, apps.title, apps.description, apps.author FROM users_to_apps INNER JOIN apps ON users_to_apps.package_name = apps.package_name WHERE users_to_apps.uuid = ?;',
-      [this.isDevMode.uuid],
-      (error, rows) => error ? resolve([]) : resolve(this.parse(rows))
+      })))
     ))
+    const appList: LocalCloud.SessionData['apps'] = {}
+    for (const app of apps) {
+      const sessionApp: LocalCloud.SessionApp = {
+        token: v4(),
+        ...app,
+        secureSources: [],
+        permissions: []
+      }
+      appList[app.package_name] = sessionApp
+    }
+    return appList
   }
-  public transformJS(token: string, key: string): string {
-    const content = esbuild.transformSync(fs.readFileSync(this.isDevMode.connectorPath, { encoding: 'utf-8' }), {
+  public transformJS(token: string, key: string, apis: string[]): string {
+    const inject = apis.map(api => this.devMode.resolve(['apis', `${api}.ts`]))
+    const modules = {}
+    for (const api of this.allAPIList) {
+      modules[`$${api}`] = apis.includes(api) ? 'true' : 'false'
+    }
+    const content = esbuild.buildSync({
+      entryPoints: [this.devMode.resolve(['main'])],
+      bundle: true,
       platform: 'browser',
-      loader: 'ts',
       define: {
         TOKEN: `"${token}"`,
         KEY: `"${key}"`,
-        IS_DEV: this.isDevMode.isDevMode ? 'true' : 'false'
+        IS_DEV: this.devMode.config.isDevMode ? 'true' : 'false',
+        ...modules
       },
-      minify: !this.isDevMode.isDevMode
+      /* minify: !this.devMode.config.isDevMode, */
+      minify: false,
+      format: 'esm',
+      write: false,
+      inject,
+      treeShaking: true
     })
-    return content.code
+    return content.outputFiles[0].text
   }
 }

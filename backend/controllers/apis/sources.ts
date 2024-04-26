@@ -1,5 +1,6 @@
 import { verifySession } from './middlewares/session'
-import { verifyPermissions } from "./middlewares/permissions"
+import { verifyPermission } from "./middlewares/permissions"
+import { SOURCES } from 'libraries/classes/APIList'
 
 declare const Namespace: PXIOHTTP.NamespaceDecorator
 declare const Model: PXIO.ModelDecorator
@@ -14,7 +15,7 @@ export class SecureSourcesAPIController {
   @Model('DevModeModel') public devModeModel: Models<'DevModeModel'>
   @Model('SourcesModel') sourcesModel: Models<'SourcesModel'>
   @On(GET, '/')
-  @BeforeMiddleware([verifyPermissions('SOURCE_LIST')])
+  @BeforeMiddleware([verifyPermission(SOURCES.FIND)])
   public async find(req: PXIOHTTP.Request, res: PXIOHTTP.Response) {
     const { package_name, type, active } = req.query
     const query: Partial<SecureSources.Source> = {}
@@ -31,14 +32,14 @@ export class SecureSourcesAPIController {
     res.json(results)
   }
   @On(POST, '/:id')
-  @BeforeMiddleware([verifyPermissions('ENABLE_SOURCE')])
+  @BeforeMiddleware([verifyPermission(SOURCES.ENABLE)])
   public async enable(req: PXIOHTTP.Request, res: PXIOHTTP.Response): Promise<void> {
     const { id } = req.params
     await this.sourcesModel.setActive(id as unknown as number, true)
     res.json(true)
   }
   @On(DELETE, '/:id')
-  @BeforeMiddleware([verifyPermissions('DISABLE_SOURCE')])
+  @BeforeMiddleware([verifyPermission(SOURCES.DISABLE)])
   public async disable(req: PXIOHTTP.Request, res: PXIOHTTP.Response): Promise<void> {
     const { id } = req.params
     await this.sourcesModel.setActive(id as unknown as number, false)

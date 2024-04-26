@@ -15,11 +15,12 @@ declare global {
       secureSources: SecureSources.Source[]
       permissions: Permissions.Permission[]
     }
+    interface SessionApps {
+      [package_name: string]: SessionApp
+    }
     interface SessionData {
       user: Users.User
-      apps: {
-        [x: string]: SessionApp
-      }
+      apps: SessionApps
       key: string
       token: string
     }

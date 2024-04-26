@@ -35,12 +35,6 @@ export class AppController {
     const app = (req.session as LocalCloud.SessionData).apps[req.params.packagename]
     res.render('app', { title: app.title, description: app.description, package_name: req.params.packagename })
   }
-  @On(METHODS.GET, '/:packagename/connector.js')
-  public connector(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response) {
-    const app = (req.session as LocalCloud.SessionData).apps[req.params.packagename]
-    res.set('Content-Type', 'text/javascript');
-    res.send(this.devModeModel.transformJS(app.token, req.session.key || ''))
-  }
   @On(METHODS.GET, '/:packagename/*')
   public source(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response) {
     const appPath = this.appsModel.paths.getAppPublic(req.params.packagename)

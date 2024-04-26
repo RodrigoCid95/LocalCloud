@@ -10,19 +10,13 @@ export class AppsModel {
   @Library('database') private database: Database
   @Library('paths') public paths: Paths.Class
   private isJSON = (text: string): boolean => /^[\],:{}\s]*$/.test(text.replace(/\\["\\\/bfnrtu]/g, '@').replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']').replace(/(?:^|:|,)(?:\s*\[)+/g, ''))
-  private async parse(results: Apps.Result[]): Promise<Apps.App[]> {
-    const apps: Apps.App[] = []
-    for (const result of results) {
-      apps.push({
-        package_name: result.package_name,
-        title: result.title,
-        description: result.description,
-        author: result.author,
-        extensions: (result.extensions || '').split('|')
-      })
-    }
-    return apps
-  }
+  private parse = (results: Apps.Result[]): Apps.App[] => results.map(result => ({
+    package_name: result.package_name,
+    title: result.title,
+    description: result.description,
+    author: result.author,
+    extensions: (result.extensions || '').split('|')
+  }))
   public getAppsByUUID(uuid: string): Promise<Apps.App[]> {
     return new Promise(resolve => this.database.all<Apps.Result>(
       'SELECT apps.package_name, apps.title, apps.description, apps.author FROM users_to_apps INNER JOIN apps ON users_to_apps.package_name = apps.package_name WHERE users_to_apps.uuid = ?;',

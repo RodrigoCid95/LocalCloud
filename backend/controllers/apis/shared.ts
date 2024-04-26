@@ -1,7 +1,8 @@
 import { v4 } from 'uuid'
 import { verifySession } from './middlewares/session'
 import { decryptRequest } from './middlewares/encrypt'
-import { verifyPermissions } from './middlewares/permissions'
+import { verifyPermission } from './middlewares/permissions'
+import { SHARED } from 'libraries/classes/APIList'
 
 declare const Namespace: PXIOHTTP.NamespaceDecorator
 declare const Model: PXIO.ModelDecorator
@@ -16,13 +17,13 @@ export class SharedAPIController {
   @Model('DevModeModel') public devModeModel: Models<'DevModeModel'>
   @Model('SharedModel') private sharedModel: Models<'SharedModel'>
   @On(GET, '/')
-  @BeforeMiddleware([verifyPermissions('SHARED_LIST')])
+  @BeforeMiddleware([verifyPermission(SHARED.INDEX)])
   public async index(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
     const results = await this.sharedModel.find({ uuid: req.session.user?.uuid })
     res.json(results)
   }
   @On(POST, '/')
-  @BeforeMiddleware([verifyPermissions('SHARED_CREATE')])
+  @BeforeMiddleware([verifyPermission(SHARED.CREATE)])
   public async create(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
     const { path } = req.body as unknown as Partial<Shared.New>
     if (!path) {
@@ -43,7 +44,7 @@ export class SharedAPIController {
     }
   }
   @On(DELETE, '/:id')
-  @BeforeMiddleware([verifyPermissions('SHARED_DELETE')])
+  @BeforeMiddleware([verifyPermission(SHARED.DELETE)])
   public async delete(req: PXIOHTTP.Request, res: PXIOHTTP.Response): Promise<void> {
     const { id } = req.params
     await this.sharedModel.delete(id)

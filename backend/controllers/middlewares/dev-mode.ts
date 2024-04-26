@@ -1,7 +1,9 @@
+import { verifyDevMode } from "controllers/apis/middlewares/dev-mode"
+
 export function devMode(_: PXIOHTTP.Request, res: PXIOHTTP.Response, next: PXIOHTTP.Next) {
-  const _this: any = this
-  if ((_this?.devModeModel as Models<'DevModeModel'>)?.isDevMode?.isDevMode) {
-    res.redirect((_this.devModeModel as Models<'DevModeModel'>).isDevMode.cors)
+  const model = verifyDevMode.bind(this)()
+  if (model) {
+    res.redirect(model.devMode.config.cors)
   } else {
     next()
   }
