@@ -14,8 +14,8 @@ export default async (el: HTMLElement) => {
   const buttonLogoutRef = buttons.item(3)
   buttonChangePasswordRef.addEventListener('click', async () => {
     const data = {
-      current_password: currentPasswordRef.value,
-      new_password: newPasswordRef.value,
+      current_password: currentPasswordRef.value as string,
+      new_password: newPasswordRef.value as string,
       confirm_password: confirmPasswordRef.value
     }
     const values = Object.values(data)
@@ -29,18 +29,15 @@ export default async (el: HTMLElement) => {
     }
     progressBarRef.style.display = 'block'
     try {
-      const { ok, message } = await window.server.send<any>({
-        method: 'put',
-        endpoint: 'profile',
-        data: JSON.stringify(data)
-      })
-      if (ok) {
+      delete data['confirm_password']
+      const response = await window.connectors.profile.updatePassword(data)
+      if (response.ok === false) {
+        const alert = await window.alertController.create({ message: response.message, buttons: ['Aceptar'] })
+        await alert.present()
+      } else {
         currentPasswordRef.value = ''
         newPasswordRef.value = ''
         confirmPasswordRef.value = ''
-      } else {
-        const alert = await window.alertController.create({ message, buttons: ['Aceptar'] })
-        await alert.present()
       }
     } catch (error) {
       console.log(error)
@@ -49,14 +46,11 @@ export default async (el: HTMLElement) => {
   })
   buttonLogoutRef.addEventListener('click', async () => {
     await (await window.loadingController.create({ message: 'Cerrando sesión ...' })).present()
-    await window.server.send({ method: 'delete', endpoint: 'auth' })
+    await window.connectors.auth.logOut()
     localStorage.clear()
     window.location.reload()
   })
-  const { user_name, full_name, email, phone } = await window.server.send<any>({
-    method: 'get',
-    endpoint: 'profile'
-  })
+  const { user_name, full_name, email, phone } = await window.connectors.profile.info()
   userNameRef.value = user_name
   fullNameRef.value = full_name
   emailRef.value = email
@@ -64,20 +58,16 @@ export default async (el: HTMLElement) => {
   progressBarRef.style.display = 'none'
   buttonSendRef.addEventListener('click', async () => {
     const data = {
-      full_name: fullNameRef.value,
-      email: emailRef.value,
-      phone: phoneRef.value,
+      full_name: fullNameRef.value as string,
+      email: emailRef.value as string,
+      phone: phoneRef.value as string,
     }
     if (user_name !== userNameRef.value) {
       data['user_name'] = userNameRef.value
     }
     if (!Object.values(data).includes('')) {
       progressBarRef.style.display = 'block'
-      const { code, message }: any = await window.server.send({
-        method: 'post',
-        endpoint: 'profile',
-        data: JSON.stringify(data)
-      })
+      const { code, message }: any = await window.connectors.profile.update(data)
       if (code) {
         window.alertController
           .create({

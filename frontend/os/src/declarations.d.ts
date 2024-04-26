@@ -1,2 +1,4 @@
+import './types'
 import './types/Apps'
-import './types/Encrypting'
+import './types/Users'
+import './../../../backend/connector/apis'

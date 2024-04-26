@@ -14,18 +14,14 @@ export class LCOAuth {
   @State() private password: string = ''
 
   async _handlerOnEnter() {
-    const data = {
+    const data: Auth.Credentials = {
       userName: this.userName,
       password: this.password
     }
     if (!Object.values(data).includes('')) {
       const loading = await window.loadingController.create({ message: 'Iniciando sesión ...' })
       await loading.present()
-      const response = await window.server.send<any>({
-        method: 'post',
-        endpoint: 'auth',
-        data: JSON.stringify(data)
-      })
+      const response = await window.connectors.auth.login(data)
       await loading.dismiss()
       this.logged.emit(response)
     }

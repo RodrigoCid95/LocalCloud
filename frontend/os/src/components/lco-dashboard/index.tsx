@@ -1,4 +1,3 @@
-import type { App } from './../../interfaces/Apps'
 import { Component, h, Element, State } from '@stencil/core'
 import Profile from './profile/component'
 import Settings from './settings/component'
@@ -11,13 +10,10 @@ import SettingsController from './settings/controller'
 })
 export class AppDashboard {
   @Element() el: HTMLElement
-  @State() apps: App[] | undefined = undefined
+  @State() apps: Apps.App[] | undefined = undefined
   componentDidLoad() {
     document.addEventListener('onReady', async () => {
-      this.apps = await window.server.send({
-        endpoint: 'profile/apps',
-        method: 'get'
-      })
+      this.apps = await window.connectors.profile.listApps()
       const tabs = this.el.querySelectorAll('ion-tab')
       ProfileController(tabs.item(0))
       SettingsController(tabs.item(1))
