@@ -6,6 +6,16 @@ declare global {
       description: string
       author: string
     }
+    type ListMethod = () => Promise<App[]>
+    type ListByUUIDMethod = (uuid: Users.User['uuid']) => Promise<App[]>
+    type InstallMethod = (file: File) => FileTransfer
+    type UninstallMethod = (package_name: App['package_name']) => Promise<void>
+    interface Connector {
+      list: ListMethod
+      listByUUID: ListByUUIDMethod
+      install: InstallMethod
+      uninstall: UninstallMethod
+    }
   }
 }
 

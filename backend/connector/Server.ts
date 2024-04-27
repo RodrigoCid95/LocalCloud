@@ -14,7 +14,7 @@ export class ServerConector {
       { ...metadata, path: path.join('|') }
     )
   }
-  createDownloader = (...path: string[]) => new FileDownloader(this.createURL({ path: ['file', ...path], params: { download: true } }).href, path[path.length - 1])
+  createDownloader = (path: string[]) => new FileDownloader(this.createURL({ path: ['file', ...path], params: { download: true } }).href, path[path.length - 1])
   #launch = (url: string) => window.open(url, undefined, 'popup,noopener,noopener')
   launchFile = (base: 'shared' | 'user', ...path: string[]) => this.#launch(this.createURL({ path: ['launch', base, ...path] }).href)
   launchApp = (package_name: string, params: URLParams) => this.#launch(this.createURL({ path: ['app', package_name], params }).href)

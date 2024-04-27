@@ -14,12 +14,12 @@ declare global {
       current_password: string
       new_password: string
     }
-    type UpdatePasswordMethod = (data: UpdatePasswordMethod) => Promise<UpdatePasswordSuccess | UpdatePasswordFail>
+    type UpdatePasswordMethod = (data: UpdatePasswordMethodArgs) => Promise<UpdatePasswordSuccess | UpdatePasswordFail>
     interface Connector {
-      info?: InfoMethod
-      listApps?: ListAppsMethod
-      update?: UpdateMethod
-      updatePassword?: UpdatePasswordMethod
+      info: InfoMethod
+      listApps: ListAppsMethod
+      update: UpdateMethod
+      updatePassword: UpdatePasswordMethod
     }
   }
 }
