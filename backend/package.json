@@ -19,13 +19,13 @@
 		"express-session": "^1.17.3",
 		"liquidjs": "^10.9.3",
 		"netjet": "^1.4.0",
-		"px.io": "^0.10.8-beta",
 		"spdy": "^4.0.2",
 		"sqlite3": "^5.1.6",
 		"unzipper": "^0.10.14",
 		"uuid": "^9.0.1"
 	},
 	"devDependencies": {
+		"px.io": "^0.10.8-beta",
 		"@ionic/core": "^7.5.3",
 		"@types/compression": "^1.7.4",
 		"@types/express": "^4.17.21",
@@ -45,7 +45,8 @@
 			".lc",
 			".users",
 			"connector.ts",
-			"ecosystem.json"
+			"ecosystem.json",
+			"connector"
 		],
 		"loader": {
 			".sql": "text"
