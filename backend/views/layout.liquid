@@ -12,24 +12,19 @@
       <script
         type="module"
         src="/app/{{ package_name }}/main.js"
-        defer=""></script>
+        defer></script>
     {% endif %}
+    <link rel="stylesheet" href="/js/app.css">
     <script
       type="module"
       src="/js/app.esm.js"
-      defer=""
-      data-stencil
-      data-resources-url="/js/"
-      data-stencil-namespace="app"></script>
+      defer></script>
     <script
       type="module"
       src="/api/connector.js"
-      defer=""></script>
-    <script
-      nomodule=""
-      src="/js/app.js"
-      data-stencil></script>
-    <link href="/js/app.css" rel="stylesheet"> <link rel="apple-touch-icon" href="/assets/icon/icon.png"> <link
+      defer></script>
+    <link rel="apple-touch-icon" href="/assets/icon/icon.png">
+    <link
       rel="icon"
       type="image/x-icon"
       href="/assets/icon/favicon.ico">

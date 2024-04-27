@@ -26,7 +26,7 @@ export const verifyApp = (req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PX
   }
 }
 
-@Namespace('app', { before: [devMode, verifySession, verifyApp] })
+@Namespace('/app', { before: [devMode, verifySession, verifyApp] })
 export class AppController {
   @Model('DevModeModel') public devModeModel: Models<'DevModeModel'>
   @Model('AppsModel') private appsModel: Models<'AppsModel'>
