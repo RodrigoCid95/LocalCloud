@@ -15,7 +15,7 @@ export default class EditUserElement extends LitElement implements HTMLEditUserE
   private fullNameRef = createRef<HTMLIonInputElement>()
   private emailRef = createRef<HTMLIonInputElement>()
   private phoneRef = createRef<HTMLIonInputElement>()
-  setUser(user: User): void {
+  setUser(user: Users.User): void {
     this.uuid = user.uuid;
     (this.userNameRef.value as HTMLIonInputElement).value = user.user_name;
     (this.fullNameRef.value as HTMLIonInputElement).value = user.full_name;
@@ -39,12 +39,12 @@ export default class EditUserElement extends LitElement implements HTMLEditUserE
       this.fullNameRef.value?.setFocus()
       return
     }
-    const data = JSON.stringify({ user_name, full_name, email, phone })
+    const data = { user_name, full_name, email, phone }
     const loading = await window.loadingController.create({ message: 'Actualizando usuario ...' })
     await loading.present()
-    const response = await window.server.send<any>({ endpoint: `users/${this.uuid}`, method: 'put', data })
+    const response = await window.connectors.users.update(this.uuid, data)
     await loading.dismiss()
-    if (response.code) {
+    if (typeof response === 'object' && response.code) {
       if (response.code === 'user-already-exists') {
         this.userNameRef.value?.setAttribute('error-text', 'Este usuario ya existe')
         this.userNameRef.value?.classList.add('ion-invalid')
@@ -132,7 +132,7 @@ export default class EditUserElement extends LitElement implements HTMLEditUserE
 
 declare global {
   interface HTMLEditUserElement extends LitElement {
-    setUser(user: User): void
+    setUser(user: Users.User): void
   }
   interface HTMLElementTagNameMap {
     'edit-user': HTMLEditUserElement

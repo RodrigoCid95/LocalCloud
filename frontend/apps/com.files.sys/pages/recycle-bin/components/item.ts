@@ -4,7 +4,7 @@ import { property } from 'lit/decorators/property.js'
 
 @customElement('recycle-bin-item')
 export class RecycleBinItemComponent extends LitElement implements HTMLRecycleBinItemElement {
-  @property({ type: Object }) private item: RecycleBinItem | undefined
+  @property({ type: Object }) private item: RecycleBin.Item | undefined
   constructor() {
     super()
     this.addEventListener('click', () => {
@@ -46,23 +46,17 @@ export class RecycleBinItemComponent extends LitElement implements HTMLRecycleBi
     })
   }
   async restore(omitDispatchEvent?: boolean) {
-    const id = this.item?.id
+    const id = this.item?.id || ''
     this.item = undefined
-    await window.server.send({
-      endpoint: `recycle-bin/${id}`,
-      method: 'put'
-    })
+    await window.connectors.recycleBin.restore(id)
     if (!omitDispatchEvent) {
       this.dispatchEvent(new CustomEvent('remove'))
     }
   }
   async delete(omitDispatchEvent?: boolean) {
-    const id = this.item?.id
+    const id = this.item?.id || ''
     this.item = undefined
-    await window.server.send({
-      endpoint: `recycle-bin/${id}`,
-      method: 'delete'
-    })
+    await window.connectors.recycleBin.delete(id)
     if (!omitDispatchEvent) {
       this.dispatchEvent(new CustomEvent('remove'))
     }

@@ -15,8 +15,8 @@ const NAME_DIRECTORIES: any = {
 @customElement('page-files')
 export default class PageFiles extends LitElement {
   @state() private path: string[] = []
-  @state() private folders: FileInfo[] = []
-  @state() private files: FileInfo[] = []
+  @state() private folders: FS.ItemInfo[] = []
+  @state() private files: FS.ItemInfo[] = []
   private breadcrumbs = createRef<HTMLIonBreadcrumbsElement>()
   private clipboardCopy: string[] | undefined
   private clipboardCut: string[] | undefined
@@ -29,11 +29,15 @@ export default class PageFiles extends LitElement {
       const base = path.shift()
       const loading = await window.loadingController.create({ message: 'Cargando contenido ...' })
       await loading.present()
-      let results = await window.server.send<FileInfo[]>({
-        endpoint: `fs/${base}/list`,
-        method: 'post',
-        data: JSON.stringify({ path })
-      })
+      let results: FS.ItemInfo[] | FS.PathNotFound
+      if (base === 'shared') {
+        results = await window.connectors.fs.sharedLs(path)
+      } else {
+        results = await window.connectors.fs.userLs(path)
+      }
+      if (typeof results === 'object') {
+        results = []
+      }
       results = results.sort()
       const folders = []
       const files = []
@@ -81,11 +85,12 @@ export default class PageFiles extends LitElement {
               } else {
                 const loading = await window.loadingController.create({ message: 'Creando carpeta ...' })
                 await loading.present()
-                await window.server.send({
-                  endpoint: `fs/${base}`,
-                  method: 'post',
-                  data: JSON.stringify({ path: [...segments, name] })
-                })
+                const path = [...segments, name]
+                if (base === 'shared') {
+                  await window.connectors.fs.sharedMkdir(path)
+                } else {
+                  await window.connectors.fs.userMkdir(path)
+                }
                 await loading.dismiss()
                 go([base, ...segments])
               }
@@ -126,27 +131,13 @@ export default class PageFiles extends LitElement {
     if (this.clipboardCopy) {
       loading.message = 'Copiando ...'
       await loading.present()
-      await window.server.send({
-        endpoint: 'fs/copy',
-        method: 'post',
-        data: JSON.stringify({
-          origin: this.clipboardCopy,
-          dest: this.path
-        })
-      })
+      await window.connectors.fs.copy(this.clipboardCopy, this.path)
       this.clipboardCopy = undefined
     }
     if (this.clipboardCut) {
       loading.message = 'Moviendo ...'
       await loading.present()
-      await window.server.send({
-        endpoint: 'fs/copy',
-        method: 'post',
-        data: JSON.stringify({
-          origin: this.clipboardCut,
-          dest: this.path
-        })
-      })
+      await window.connectors.fs.copy(this.clipboardCut, this.path)
       this.clipboardCut = undefined
     }
     await loading.dismiss()
@@ -190,11 +181,7 @@ export default class PageFiles extends LitElement {
                 } else {
                   const loading = await window.loadingController.create({ message: 'Renombrando ...' })
                   await loading.present()
-                  await window.server.send({
-                    endpoint: 'fs/rename',
-                    method: 'post',
-                    data: JSON.stringify({ path, newName })
-                  })
+                  await window.connectors.fs.rename(path, newName)
                   await loading.dismiss()
                   reload(newName)
                 }

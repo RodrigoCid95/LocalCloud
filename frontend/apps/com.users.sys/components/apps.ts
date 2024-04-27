@@ -7,34 +7,28 @@ import { createRef, ref } from 'lit/directives/ref.js'
 export default class AppsUserElement extends LitElement implements HTMLAppsUserElement {
   @state() private apps: AppItem[] = []
   private modal = createRef<HTMLIonModalElement>()
-  private uuid?: User['uuid']
-  async setUser(user: User): Promise<void> {
+  private uuid?: Users.User['uuid']
+  async setUser(user: Users.User): Promise<void> {
     const loading = await window.loadingController.create({ message: 'Cargando lista de apps ...' })
     await loading.present()
     this.uuid = user.uuid
-    const userApps = await window.server.send<App[]>({
-      endpoint: `apps/${user.uuid}`,
-      method: 'get'
-    })
-    this.apps = (await window.server.send<AppItem[]>({
-      endpoint: 'apps',
-      method: 'get'
-    })).map(app => ({
+    const userApps = await window.connectors.apps.listByUUID(this.uuid)
+    this.apps = (await window.connectors.apps.list()).map(app => ({
       ...app,
       assign: userApps.findIndex(userApp => app.package_name === userApp.package_name) > -1
     }))
     await loading.dismiss()
     await this.modal.value?.present()
   }
-  async changeAssign(package_name: App['package_name'], value: boolean) {
+  async changeAssign(package_name: Apps.App['package_name'], value: boolean) {
     const message = value ? 'Asignando ...' : 'Quitando asignación ...'
     const loading = await window.loadingController.create({ message })
     await loading.present()
-    await window.server.send({
-      endpoint: `users/${value ? '' : 'un'}assign-app`,
-      method: 'post',
-      data: JSON.stringify({ uuid: this.uuid, package_name })
-    })
+    if (value) {
+      await window.connectors.users.assignApp(this.uuid || '', package_name)
+    } else {
+      await window.connectors.users.unassignApp(this.uuid || '', package_name)
+    }
     await loading.dismiss()
   }
   handlerOnDismiss() {
@@ -76,13 +70,13 @@ export default class AppsUserElement extends LitElement implements HTMLAppsUserE
   }
 }
 
-interface AppItem extends App {
+interface AppItem extends Apps.App {
   assign: boolean
 }
 
 declare global {
   interface HTMLAppsUserElement extends LitElement {
-    setUser(user: User): void
+    setUser(user: Users.User): void
   }
   interface HTMLElementTagNameMap {
     'apps-user': HTMLAppsUserElement

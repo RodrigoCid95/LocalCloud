@@ -37,12 +37,12 @@ export default class NewUserElement extends LitElement implements HTMLNewUserEle
       this.passwordRef.value?.setFocus()
       return
     }
-    const data = JSON.stringify({ user_name, full_name, email, phone, password })
+    const data = { user_name, full_name, email, phone, password }
     const loading = await window.loadingController.create({ message: 'Creando usuario ...' })
     await loading.present()
-    const response = await window.server.send<any>({ endpoint: 'users', method: 'post', data })
+    const response = await window.connectors.users.create(data)
     await loading.dismiss()
-    if (response.code) {
+    if (typeof response === 'object' && response.code) {
       if (response.code === 'user-already-exists') {
         this.userNameRef.value?.setAttribute('error-text', 'Este usuario ya existe')
         this.userNameRef.value?.classList.add('ion-invalid')

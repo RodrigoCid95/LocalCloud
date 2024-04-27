@@ -5,7 +5,7 @@ import { property } from 'lit/decorators/property.js'
 @customElement('folder-item')
 export default class FolderItem extends LitElement {
   @property({ type: Array }) private path: string[]
-  @property({ type: Object }) private folder: FileInfo
+  @property({ type: Object }) private folder: FS.ItemInfo
   connectedCallback(): void {
     super.connectedCallback()
     this.addEventListener('contextmenu', e => {

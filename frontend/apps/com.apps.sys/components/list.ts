@@ -4,7 +4,7 @@ import { state } from 'lit/decorators/state.js'
 
 @customElement('app-list')
 export default class AppListElement extends LitElement implements HTMLAppListElement {
-  @state() private apps: App[] = []
+  @state() private apps: Apps.App[] = []
   connectedCallback(): void {
     super.connectedCallback()
     this.loadApps()
@@ -12,13 +12,10 @@ export default class AppListElement extends LitElement implements HTMLAppListEle
   async loadApps(): Promise<void> {
     const loading = await window.loadingController.create({ message: 'Cargando lista de aplicaciones ...' })
     await loading.present()
-    this.apps = await window.server.send({
-      endpoint: 'apps',
-      method: 'get'
-    })
+    this.apps = await window.connectors.apps.list()
     await loading.dismiss()
   }
-  uninstall(package_name: App['package_name']) {
+  uninstall(package_name: Apps.App['package_name']) {
     const loadApps = this.loadApps.bind(this)
     window.alertController.create({
       header: 'Desinstalar app',
@@ -31,10 +28,7 @@ export default class AppListElement extends LitElement implements HTMLAppListEle
           async handler() {
             const loading = await window.loadingController.create({ message: 'Desinstalando ...' })
             await loading.present()
-            await window.server.send({
-              endpoint: `apps/${package_name}`,
-              method: 'delete'
-            })
+            await window.connectors.apps.uninstall(package_name)
             await loading.dismiss()
             loadApps()
           }

@@ -5,7 +5,7 @@ import { createRef, ref } from 'lit/directives/ref.js'
 
 @customElement('app-permissions')
 export default class AppPermissionsElement extends LitElement implements HTMLAppPermissionsElement {
-  @state() private permissionList: Permission[] = []
+  @state() private permissionList: Permissions.Permission[] = []
   private modal = createRef<HTMLIonModalElement>()
   private PERMISSION_LIST: PermissionList = {
     'APP_LIST': 'Lista de aplicaciones instaladas.',
@@ -36,24 +36,21 @@ export default class AppPermissionsElement extends LitElement implements HTMLApp
     'ASSIGN_APP_TO_USER': 'Asignar una aplicación a un usuario.',
     'UNASSIGN_APP_TO_USER': 'Quitar la asignación de una aplicación a un usuario.',
   }
-  async open(package_name: App['package_name']): Promise<void> {
+  async open(package_name: Apps.App['package_name']): Promise<void> {
     const loading = await window.loadingController.create({ message: 'Cargando lista de permisos ...' })
     await loading.present()
-    this.permissionList = await window.server.send<Permission[]>({
-      endpoint: 'permissions',
-      method: 'get',
-      params: { package_name }
-    })
+    this.permissionList = await window.connectors.permissions.find({ package_name })
     await loading.dismiss()
     await this.modal.value?.present()
   }
-  async setPermission(id: Permission['id'], active: Permission['active']) {
-    const loading = await window.loadingController.create({ message: active ? 'Concediendo permiso ...' : 'Revocando permiso ...'})
+  async setPermission(id: Permissions.Permission['id'], active: Permissions.Permission['active']) {
+    const loading = await window.loadingController.create({ message: active ? 'Concediendo permiso ...' : 'Revocando permiso ...' })
     await loading.present()
-    await window.server.send({
-      endpoint: `permissions/${id}`,
-      method: active ? 'post' : 'delete'
-    })
+    if (active) {
+      await window.connectors.permissions.enable(id)
+    } else {
+      await window.connectors.permissions.disable(id)
+    }
     await loading.dismiss()
   }
   render() {
@@ -103,7 +100,7 @@ interface PermissionList {
 
 declare global {
   interface HTMLAppPermissionsElement extends LitElement {
-    open(package_name: App['package_name']): void
+    open(package_name: Apps.App['package_name']): void
   }
   interface HTMLElementTagNameMap {
     'app-permissions': HTMLAppPermissionsElement

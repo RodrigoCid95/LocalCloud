@@ -13,12 +13,15 @@ export default class SwapItem extends LitElement implements HTMLSwapItemElement 
   connectedCallback(): void {
     super.connectedCallback()
     if (this.file) {
-      this.fileTransfer = window.server.createUploader({
-        path: this.path,
-        file: { name: this.file.name, file: this.file }
-      })
+      const path = [...this.path]
+      const base = path.shift()
+      if (base === 'shared') {
+        this.fileTransfer = window.connectors.fs.sharedUpload({ path, file: this.file })
+      } else {
+        this.fileTransfer = window.connectors.fs.userUpload({ path, file: this.file })
+      }
     } else {
-      this.fileTransfer = window.server.createDownloader(...this.path)
+      this.fileTransfer = window.createDownloader(this.path)
     }
     this.fileTransfer.on('end', () => {
       this.status = 'Completado.'

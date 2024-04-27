@@ -5,26 +5,23 @@ import { createRef, ref } from 'lit/directives/ref.js'
 
 @customElement('app-sources')
 export default class AppSourcesElement extends LitElement implements HTMLAppSourcesElement {
-  @state() private secureSourceList: Source[] = []
+  @state() private secureSourceList: Sources.Source[] = []
   private modal = createRef<HTMLIonModalElement>()
-  async open(package_name: App['package_name']): Promise<void> {
+  async open(package_name: Apps.App['package_name']): Promise<void> {
     const loading = await window.loadingController.create({ message: 'Cargando lista de fuentes seguras ...' })
     await loading.present()
-    this.secureSourceList = await window.server.send<Source[]>({
-      endpoint: 'sources',
-      method: 'get',
-      params: { package_name }
-    })
+    this.secureSourceList = await window.connectors.sources.find({ package_name })
     await loading.dismiss()
     await this.modal.value?.present()
   }
-  async setSecure(id: Source['id'], active: Source['active']) {
+  async setSecure(id: Sources.Source['id'], active: Sources.Source['active']) {
     const loading = await window.loadingController.create({ message: active ? 'Habilitando fuente ...' : 'Deshabilitando fuente ...' })
     await loading.present()
-    await window.server.send({
-      endpoint: `sources/${id}`,
-      method: active ? 'post' : 'delete'
-    })
+    if (active) {
+      await window.connectors.sources.enable(id)
+    } else {
+      await window.connectors.sources.disable(id)
+    }
     await loading.dismiss()
   }
   render() {
@@ -64,7 +61,7 @@ export default class AppSourcesElement extends LitElement implements HTMLAppSour
 
 declare global {
   interface HTMLAppSourcesElement extends LitElement {
-    open(package_name: App['package_name']): void
+    open(package_name: Apps.App['package_name']): void
   }
   interface HTMLElementTagNameMap {
     'app-sources': HTMLAppSourcesElement

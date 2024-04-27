@@ -5,7 +5,7 @@ import { createRef, ref } from 'lit/directives/ref.js'
 
 @customElement('shared-item')
 export default class SharedItem extends LitElement {
-  @property({ type: Object }) private shared: Shared
+  @property({ type: Object }) private shared: Shared.Shared
   private slidingElement = createRef<HTMLIonItemSlidingElement>()
   connectedCallback(): void {
     super.connectedCallback()
@@ -17,7 +17,7 @@ export default class SharedItem extends LitElement {
   async copy() {
     await this.slidingElement.value?.close()
     if ('clipboard' in navigator) {
-      const url = window.server.createURL({
+      const url = window.createURL({
         path: ['shared', this.shared.id]
       }).href
       if (document.hasFocus()) {
@@ -35,10 +35,7 @@ export default class SharedItem extends LitElement {
     await this.slidingElement.value?.close()
     const loading = await window.loadingController.create({ message: 'Eliminando ...' })
     await loading.present()
-    await window.server.send({
-      endpoint: `shared/${this.shared.id}`,
-      method: 'delete'
-    })
+    await window.connectors.shared.delete(this.shared.id)
     await loading.dismiss()
     this.dispatchEvent(new CustomEvent('delete'))
   }

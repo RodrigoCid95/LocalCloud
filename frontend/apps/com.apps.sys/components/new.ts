@@ -12,11 +12,7 @@ export default class NewAppElement extends LitElement implements HTMLNewAppEleme
       const file: File = inputFile.files?.item(0) as File
       const loading = await window.loadingController.create({ message: 'Comenzando instalación ...' })
       await loading.present()
-      const uploader = window.server.createUploader({
-        api: 'apps',
-        path: [],
-        file: { name: 'package_zip', file }
-      })
+      const uploader = window.connectors.apps.install(file)
       uploader.on('end', ({ message }: any) => {
         loading
           .dismiss()

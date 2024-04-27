@@ -3,7 +3,7 @@ import { customElement, state } from 'lit/decorators.js'
 
 @customElement('user-list')
 export default class UserListElement extends LitElement implements HTMLUserListElement {
-  @state() private userList: User[] = []
+  @state() private userList: Users.User[] = []
   connectedCallback(): void {
     super.connectedCallback()
     this.loadUsers()
@@ -12,12 +12,12 @@ export default class UserListElement extends LitElement implements HTMLUserListE
     const loading = await window.loadingController.create({ message: 'Cargando ...' })
     await loading.present()
     this.userList = []
-    const currentUser = await window.server.send<User>({ endpoint: 'profile', method: 'get' })
-    const list = await window.server.send<User[]>({ endpoint: 'users', method: 'get' })
+    const currentUser = await window.connectors.profile.info()
+    const list = await window.connectors.users.list()
     this.userList = list.filter(item => item.uuid !== currentUser.uuid)
     await loading.dismiss()
   }
-  private delete(uuid: User['uuid']) {
+  private delete(uuid: Users.User['uuid']) {
     const loadUsers = this.loadUsers.bind(this)
     window.alertController
       .create({
@@ -33,10 +33,7 @@ export default class UserListElement extends LitElement implements HTMLUserListE
             async handler() {
               const loading = await window.loadingController.create({ message: 'Eliminando ...' })
               await loading.present()
-              await window.server.send({
-                endpoint: `users/${uuid}`,
-                method: 'delete'
-              })
+              await window.connectors.users.delete(uuid)
               await loading.dismiss()
               await loadUsers()
             }

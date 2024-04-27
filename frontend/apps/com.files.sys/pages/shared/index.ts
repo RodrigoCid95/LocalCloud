@@ -6,7 +6,7 @@ import './components/item'
 
 @customElement('page-shared')
 export default class PageShared extends LitElement implements HTMLPageSharedElement {
-  @state() sharedList: Shared[] = []
+  @state() sharedList: Shared.Shared[] = []
   constructor() {
     super()
     this.loadItems()
@@ -14,18 +14,14 @@ export default class PageShared extends LitElement implements HTMLPageSharedElem
   async addItem(path: string[]) {
     const toast = await window.toastController.create({ message: 'Compartiendo ...', buttons: ['Aceptar'] })
     await toast.present()
-    const result = await window.server.send<any>({
-      endpoint: 'shared',
-      method: 'post',
-      data: JSON.stringify({ path })
-    })
+    const result = await window.connectors.shared.create(path)
     toast.message = 'Compartido!'
     toast.duration = 1500
     if (!toast.isOpen) {
       await toast.present()
     }
     if ('clipboard' in navigator) {
-      const url = window.server.createURL({ path: ['shared', result.id] }).href
+      const url = window.createURL({ path: ['shared', result.id] }).href
       if (document.hasFocus()) {
         navigator.clipboard.writeText(url)
       }
@@ -33,10 +29,7 @@ export default class PageShared extends LitElement implements HTMLPageSharedElem
     this.loadItems()
   }
   async loadItems() {
-    this.sharedList = await window.server.send<Shared[]>({
-      endpoint: 'shared',
-      method: 'get'
-    })
+    this.sharedList = await window.connectors.shared.list()
   }
   render() {
     return html`

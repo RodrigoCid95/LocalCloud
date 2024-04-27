@@ -11,16 +11,10 @@ const NAME_DIRECTORIES: any = {
 
 @customElement('page-recycle-bin')
 export class RecycleBinPage extends LitElement implements HTMLPageRecycleBinElement {
-  @state() private itemsList: RecycleBinItem[] = []
+  @state() private itemsList: RecycleBin.Item[] = []
   @state() private loading: boolean = true
   async add(path: string[]): Promise<void> {
-    await window.server.send({
-      endpoint: 'recycle-bin',
-      method: 'post',
-      data: JSON.stringify({
-        path
-      })
-    })
+    await window.connectors.recycleBin.add(path)
     await this.loadItems()
   }
   constructor() {
@@ -29,10 +23,7 @@ export class RecycleBinPage extends LitElement implements HTMLPageRecycleBinElem
   }
   async loadItems() {
     this.loading = true
-    this.itemsList = (await window.server.send<RecycleBinItem[]>({
-      endpoint: 'recycle-bin',
-      method: 'get'
-    })).map(item => {
+    this.itemsList = (await window.connectors.recycleBin.list()).map(item => {
       item.path[0] = NAME_DIRECTORIES[item.path[0]] || item.path[0]
       return item
     })

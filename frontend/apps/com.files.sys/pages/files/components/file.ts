@@ -5,7 +5,7 @@ import { property } from 'lit/decorators/property.js'
 @customElement('file-item')
 export default class FileItem extends LitElement {
   @property({ type: Array }) private path: string[]
-  @property({ type: Object }) private file: FileInfo
+  @property({ type: Object }) private file: FS.ItemInfo
   connectedCallback(): void {
     super.connectedCallback()
     this.addEventListener('contextmenu', e => {
@@ -62,7 +62,7 @@ export default class FileItem extends LitElement {
   private launch() {
     const path = [...this.path, this.file.name]
     const base: any = path.shift()
-    window.server.launchFile(base, ...path)
+    window.launchFile(base, ...path)
   }
   private async download() {
     document.querySelector('page-swaps')?.addItem([...this.path, this.file.name])
