@@ -5,7 +5,9 @@ declare global {
       uuid: string
       path: string[]
     }
-    interface New extends Partial<Shared> { }
+    interface New {
+      path: string[]
+    }
     interface Result extends Omit<Shared, 'path'> {
       path: string
     }

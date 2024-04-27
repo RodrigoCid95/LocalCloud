@@ -4,7 +4,6 @@ declare const Library: PXIO.LibraryDecorator
 
 export class SharedModel {
   @Library('database') private database: Database
-  @Library('paths') private paths: Paths.Class
   public async find(query?: Partial<Shared.Shared>): Promise<Shared.Shared[]> {
     let strQuery = 'SELECT * FROM shared'
     const opts: any[] = []
