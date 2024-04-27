@@ -11,8 +11,7 @@ export const config: Config = {
       type: 'www',
       serviceWorker: false,
       dir: '../../backend/public',
-      buildDir: 'js',
-      indexHtml: '../views/layout.liquid'
+      buildDir: 'js'
     },
   ],
 };

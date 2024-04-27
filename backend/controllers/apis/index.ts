@@ -30,8 +30,11 @@ export class APIController {
     const { referer } = req.headers
     if (referer) {
       const origin = getOrigin(referer)
-      if (typeof origin === 'string') {
-        res.send(this.devModeModel.transformJS(token, key, this.devModeModel.publicAPIList))
+      if (typeof origin === 'string' && req.session.apps) {
+        const apis = req.session.apps[origin].permissions
+          .filter(permission => permission.active)
+          .map(permission => permission.api)
+        res.send(this.devModeModel.transformJS(token, key, apis))
       } else {
         if (origin === 0) {
           res.send(this.devModeModel.transformJS(token, key, this.devModeModel.publicAPIList))

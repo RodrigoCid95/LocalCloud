@@ -69,7 +69,7 @@ export class DevModeModel {
     return appList
   }
   public transformJS(token: string, key: string, apis: string[]): string {
-    const inject = apis.map(api => this.devMode.resolve(['apis', `${api}.ts`]))
+    const inject = this.allAPIList.map(api => this.devMode.resolve(['apis', `${api}.ts`]))
     const modules = {}
     for (const api of this.allAPIList) {
       modules[`$${api}`] = apis.includes(api) ? 'true' : 'false'
@@ -84,8 +84,7 @@ export class DevModeModel {
         IS_DEV: this.devMode.config.isDevMode ? 'true' : 'false',
         ...modules
       },
-      /* minify: !this.devMode.config.isDevMode, */
-      minify: false,
+      minify: !this.devMode.config.isDevMode,
       format: 'esm',
       write: false,
       inject,

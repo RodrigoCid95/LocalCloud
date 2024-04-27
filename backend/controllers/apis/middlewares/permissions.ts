@@ -11,7 +11,7 @@ export const getOrigin = (referer: string): Origin => {
     return 1
   }
   if (/^\/app\/.+$/.test(pathname)) {
-    const segments = origin.split('/')
+    const segments = pathname.split('/')
     return segments[2]
   }
   return 0
