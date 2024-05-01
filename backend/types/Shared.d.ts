@@ -1,10 +1,5 @@
 declare global {
   namespace Shared {
-    interface Shared {
-      id: string
-      uuid: string
-      path: string[]
-    }
     interface New {
       path: string[]
     }

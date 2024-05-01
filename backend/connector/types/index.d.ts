@@ -14,5 +14,6 @@ declare global {
     launchApp(package_name: string, params: URLParams): void
     createURL(args: CreateURLArgs): URL
     createDownloader(path: string[]): FileTransfer
+    connectors: Connectors
   }
 }

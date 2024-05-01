@@ -8,25 +8,16 @@ declare const METHODS: PXIOHTTP.METHODS
 @Namespace('/api')
 export class APIController {
   @Model('DevModeModel') public devModeModel: Models<'DevModeModel'>
+  @Model('BuilderModel') public builderModel: Models<'BuilderModel'>
   @On(METHODS.GET, '/connector.js')
   public connector(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response) {
     res.set('Content-Type', 'text/javascript')
-    let token = req.session.token || ''
-    const key = req.session.key || ''
     if (this.devModeModel.devMode.config.isDevMode) {
-      res.send(
-        this.devModeModel.transformJS(
-          token,
-          key,
-          [
-            ...this.devModeModel.privateAPIList,
-            ...this.devModeModel.publicAPIList,
-            ...this.devModeModel.dashAPIList
-          ]
-        )
-      )
+      res.send(this.builderModel.build())
       return
     }
+    let token = req.session.token || ''
+    const key = req.session.key || ''
     const { referer } = req.headers
     if (referer) {
       const origin = getOrigin(referer)
@@ -34,13 +25,13 @@ export class APIController {
         const apis = req.session.apps[origin].permissions
           .filter(permission => permission.active)
           .map(permission => permission.api)
-        res.send(this.devModeModel.transformJS(token, key, apis))
+        res.send(this.builderModel.build({ token, key, apis }))
       } else {
         if (origin === 0) {
-          res.send(this.devModeModel.transformJS(token, key, this.devModeModel.publicAPIList))
+          res.send(this.builderModel.build({token, key, apis: this.builderModel.publicAPIList}))
         }
         if (origin === 1) {
-          res.send(this.devModeModel.transformJS(token, key, this.devModeModel.dashAPIList))
+          res.send(this.builderModel.build({token, key, apis: this.builderModel.dashAPIList}))
         }
       }
     } else {

@@ -1,4 +1,5 @@
 export * from './apps'
+export * from './builder'
 export * from './dev-mode'
 export * from './fs'
 export * from './shared'

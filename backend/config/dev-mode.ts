@@ -1,5 +1,3 @@
-import path from 'node:path'
-
 declare const flags: PXIO.Flags
 
 let isDevMode = flags.get('dev-mode') !== undefined
@@ -16,6 +14,5 @@ if (isDevMode) {
 export const devMode: DevMode.Config = {
   isDevMode,
   uuid,
-  cors,
-  connectorPath: path.join(process.cwd(), 'connector')
+  cors
 }

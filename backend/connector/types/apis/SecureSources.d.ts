@@ -1,5 +1,5 @@
 declare global {
-  namespace Sources {
+  namespace SecureSources {
     interface Source {
       id: number
       package_name: string

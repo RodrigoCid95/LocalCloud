@@ -5,7 +5,7 @@ import './Permissions'
 import './Profile'
 import './RecycleBin'
 import './Shared'
-import './Sources'
+import './SecureSources'
 import './Users'
 
 declare global {
@@ -17,11 +17,8 @@ declare global {
     profile: Profile.Connector
     recycleBin: RecycleBin.Connector
     shared: Shared.Connector
-    sources: Sources.Connector
+    sources: SecureSources.Connector
     users: Users.Connector
-  }
-  interface Window {
-    connectors: Connectors
   }
 }
 

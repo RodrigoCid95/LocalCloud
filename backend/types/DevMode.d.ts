@@ -4,11 +4,9 @@ declare global {
       isDevMode: boolean
       uuid: string
       cors: string
-      connectorPath: string
     }
     interface Class {
       readonly config: Config
-      resolve(path: string[]): string
     }
   }
 }

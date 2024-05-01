@@ -1,38 +1,11 @@
 import type { Database } from 'sqlite3'
 import { v4 } from 'uuid'
-import esbuild from 'esbuild'
-import * as API_LIST from 'libraries/classes/APIList'
 
 declare const Library: PXIO.LibraryDecorator
 
 export class DevModeModel {
   @Library('devMode') public devMode: DevMode.Class
   @Library('database') public database: Database
-  public privateAPIList: string[] = []
-  public dashAPIList: string[] = []
-  public publicAPIList: string[] = []
-  private allAPIList: string[] = []
-  constructor() {
-    const entries = Object.entries(API_LIST)
-    for (const [_, value] of entries) {
-      const subEntries = Object.entries(value)
-      for (const [_, value2] of subEntries) {
-        if (typeof value2 === 'object') {
-          if (value2.freeForDashboard) {
-            this.dashAPIList.push(value2.name)
-            this.allAPIList.push(value2.name)
-          }
-          if (value2.public) {
-            this.publicAPIList.push(value2.name)
-            this.allAPIList.push(value2.name)
-          }
-        } else {
-          this.privateAPIList.push(value2)
-          this.allAPIList.push(value2)
-        }
-      }
-    }
-  }
   public async getUser(): Promise<Users.User | undefined> {
     const [result] = await new Promise<Users.Result[]>(resolve => this.database.all<Users.Result>(
       'SELECT * FROM users WHERE uuid = ?',
@@ -67,29 +40,5 @@ export class DevModeModel {
       appList[app.package_name] = sessionApp
     }
     return appList
-  }
-  public transformJS(token: string, key: string, apis: string[]): string {
-    const inject = this.allAPIList.map(api => this.devMode.resolve(['apis', `${api}.ts`]))
-    const modules = {}
-    for (const api of this.allAPIList) {
-      modules[`$${api}`] = apis.includes(api) ? 'true' : 'false'
-    }
-    const content = esbuild.buildSync({
-      entryPoints: [this.devMode.resolve(['main'])],
-      bundle: true,
-      platform: 'browser',
-      define: {
-        TOKEN: `"${token}"`,
-        KEY: `"${key}"`,
-        IS_DEV: this.devMode.config.isDevMode ? 'true' : 'false',
-        ...modules
-      },
-      minify: !this.devMode.config.isDevMode,
-      format: 'esm',
-      write: false,
-      inject,
-      treeShaking: true
-    })
-    return content.outputFiles[0].text
   }
 }
