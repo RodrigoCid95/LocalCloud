@@ -18,7 +18,8 @@
     "jest": "~27.0.3",
     "jest-cli": "~27.4.5",
     "monaco-editor": "^0.45.0",
-    "puppeteer": "^20.4.0"
+    "puppeteer": "^20.4.0",
+    "workbox-build": "^7.1.0"
   },
   "license": "MIT"
 }
