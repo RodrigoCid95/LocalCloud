@@ -15,8 +15,13 @@
     "SHARED_CREATE": "Permite crear links para compartir archivos.",
     "SHARED_DELETE": "Permite eliminar links generados por el usuario.",
     "COPY_FILES_AND_DIRECTORIES": "Permite copiar archivos y carpetas.",
-    "MOVE_FILES_AND_DIRECTORIES": "Permite mover archiovs y carpetas.",
-    "RENAME_FILES_AND_DIRECTORIES": "Permite renombrar archiovs y carpetas."
+    "MOVE_FILES_AND_DIRECTORIES": "Permite mover archivos y carpetas.",
+    "RENAME_FILES_AND_DIRECTORIES": "Permite renombrar archivos y carpetas.",
+    "LIST_RECYCLE_BIN": "Permite acceder a la papelera de reciclaje.",
+    "ADD_ITEMS_TO_RECYCLE_BIN": "Permite mover elementos a la papelera de reciclaje.",
+    "RESTORE_ITEMS_TO_RECYCLE_BIN": "Permite sacar elementos de la papelera de reciclaje.",
+    "DELETE_ITEMS_TO_RECYCLE_BIN": "Permite eliminar de forma permanente elementos de la papelera de reciclaje.",
+    "CLEAN_RECYCLE_BIN": "Permite vaciar la papelera de reciclaje."
   },
   "sources": []
 }

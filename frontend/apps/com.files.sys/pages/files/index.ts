@@ -35,7 +35,7 @@ export default class PageFiles extends LitElement {
       } else {
         results = await window.connectors.fs.userLs(path)
       }
-      if (typeof results === 'object') {
+      if (!Array.isArray(results)) {
         results = []
       }
       results = results.sort()
