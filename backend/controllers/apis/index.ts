@@ -12,7 +12,7 @@ export class APIController {
   @On(METHODS.GET, '/connector.js')
   public connector(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response) {
     res.set('Content-Type', 'text/javascript')
-    if (this.devModeModel.devMode.config.isDevMode) {
+    if (this.devModeModel.devMode.config.enable) {
       res.send(this.builderModel.build())
       return
     }

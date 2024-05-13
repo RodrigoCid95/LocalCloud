@@ -24,7 +24,7 @@ export class FileController {
   @On(GET, '/user/*')
   @AfterMiddleware([responseFile])
   public userFile(req: PXIOHTTP.Request<LocalCloud.SessionData>, _: PXIOHTTP.Response, next: PXIOHTTP.Next): void {
-    const path = this.fsModel.resolveUserFile(req.session.user?.uuid || '', req.params[0].split('/'))
+    const path = this.fsModel.resolveUserFile(req.session.user?.name || '', req.params[0].split('/'))
     const file = this.fsModel.resolveFileOrDirectory(path)
     req.body = { path, file }
     next()

@@ -1,18 +1,9 @@
 declare const flags: PXIO.Flags
 
-let isDevMode = flags.get('dev-mode') !== undefined
-let uuid = ''
-let cors = ''
-if (isDevMode) {
-  uuid = flags.get('uuid') as string
-  cors = flags.get('cors') as string
-  if (!uuid || !cors) {
-    isDevMode = false
-  }
+let enable = false
+let user = flags.get('user') as string
+if (user) {
+  enable = true
 }
 
-export const devMode: DevMode.Config = {
-  isDevMode,
-  uuid,
-  cors
-}
+export const devMode: DevMode.Config = { enable, user }

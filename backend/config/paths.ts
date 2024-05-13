@@ -15,10 +15,10 @@ const systemApps: string = path.join(system, 'apps')
 const systemApp: string = path.join(system, 'apps', ':packagename')
 const systemDatabases: string = path.join(systemApp, 'data')
 
-const users: string = path.resolve(systemDir, '.users')
-const user: string = path.join(users, ':uuid')
-
 export const paths: Paths.Config = {
+  shadow: '/etc/shadow',
+  passwd: '/etc/passwd',
+  groups: '/etc/group',
   system: {
     path: system,
     apps: {
@@ -35,11 +35,8 @@ export const paths: Paths.Config = {
     database: path.join(system, 'system.db')
   },
   users: {
-    shared: path.join(users, 'shared'),
-    path: users,
-    user: {
-      path: user
-    },
-    recycleBin: path.join(users, 'recycler-bin')
+    shared: path.join('/', 'shared'),
+    path: path.join('/', 'home'),
+    recycleBin: path.join('/', 'recycler-bin')
   }
 }

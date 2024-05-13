@@ -9,6 +9,7 @@ backend/public
 frontend/os/package-lock.json
 frontend/os/dist
 frontend/os/node_modules
+frontend/os/.stencil
 
 frontend/apps/node_modules
 frontend/apps/package-lock.json

@@ -5,6 +5,15 @@ declare const configs: PXIO.Configs
 declare const moduleEmitters: PXIO.Emitters
 
 class Paths implements Paths.Class {
+  get shadow(): string {
+    return this.config.shadow
+  }
+  get passwd(): string {
+    return this.config.passwd
+  }
+  get groups(): string {
+    return this.config.groups
+  }
   get system() {
     return this.config.system.path
   }
@@ -36,14 +45,14 @@ class Paths implements Paths.Class {
   getAppDatabase(packagename: string, name: string): string {
     return this.config.system.apps.app.databases.database.replace(/:packagename/, packagename).replace(/:name/, name)
   }
-  getUser(uuid: string): string {
-    return this.config.users.user.path.replace(/:uuid/, uuid)
+  getUser(name: string): string {
+    return path.join(this.config.users.path, name)
   }
-  getRecycleBin(uuid: string): string {
-    return path.join(this.recycleBin, uuid)
+  getRecycleBin(name: string): string {
+    return path.join(this.recycleBin, name)
   }
-  getRecycleBinItem(uuid: string, id: string): string {
-    return path.join(this.recycleBin, uuid, id)
+  getRecycleBinItem(name: string, id: string): string {
+    return path.join(this.recycleBin, name, id)
   }
   private resolve(segments: string[], verify = true): string | boolean {
     const pathSegments = segments.filter(segment => segment !== '..')
@@ -59,8 +68,8 @@ class Paths implements Paths.Class {
   resolveSharedPath({ segments, verify = true }: Paths.ResolveSharedPathArgs): string | boolean {
     return this.resolve([this.shared, ...segments], verify)
   }
-  resolveUserPath({ uuid, segments, verify = true }: Paths.ResolveUsersPathArgs): string | boolean {
-    return this.resolve([this.getUser(uuid), ...segments], verify)
+  resolveUserPath({ name, segments, verify = true }: Paths.ResolveUsersPathArgs): string | boolean {
+    return this.resolve([this.getUser(name), ...segments], verify)
   }
 }
 
@@ -72,11 +81,9 @@ export const paths = () => {
   if (!fs.existsSync(paths.apps)) {
     fs.mkdirSync(paths.apps)
   }
-  if (!fs.existsSync(paths.users)) {
-    fs.mkdirSync(paths.users)
-  }
   if (!fs.existsSync(paths.shared)) {
-    fs.mkdirSync(paths.shared)
+    console.error(`Shared Dir Error: El directorio "${paths.shared}" no existe.`)
+    process.exit(1)
   }
   moduleEmitters.emit('Paths:ready')
   return paths

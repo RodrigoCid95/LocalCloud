@@ -50,8 +50,8 @@ export default async (el: HTMLElement) => {
     localStorage.clear()
     window.location.reload()
   })
-  const { user_name, full_name, email, phone } = await window.connectors.profile.info()
-  userNameRef.value = user_name
+  const { name, full_name, email, phone } = await window.connectors.profile.info()
+  userNameRef.value = name
   fullNameRef.value = full_name
   emailRef.value = email
   phoneRef.value = phone
@@ -62,7 +62,7 @@ export default async (el: HTMLElement) => {
       email: emailRef.value as string,
       phone: phoneRef.value as string,
     }
-    if (user_name !== userNameRef.value) {
+    if (name !== userNameRef.value) {
       data['user_name'] = userNameRef.value
     }
     if (!Object.values(data).includes('')) {

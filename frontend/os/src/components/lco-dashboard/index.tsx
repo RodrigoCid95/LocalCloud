@@ -12,12 +12,17 @@ export class AppDashboard {
   @Element() el: HTMLElement
   @State() apps: Apps.App[] | undefined = undefined
   componentDidLoad() {
-    document.addEventListener('onReady', async () => {
-      this.apps = await window.connectors.profile.listApps()
-      const tabs = this.el.querySelectorAll('ion-tab')
-      ProfileController(tabs.item(0))
-      SettingsController(tabs.item(1))
-    })
+    if ('connectors' in window) {
+      this.init()
+    } else {
+      document.addEventListener('onReady', this.init.bind(this))
+    }
+  }
+  async init() {
+    this.apps = await window.connectors.profile.listApps()
+    const tabs = this.el.querySelectorAll('ion-tab')
+    ProfileController(tabs.item(0))
+    SettingsController(tabs.item(1))
   }
   private _handlerLaunchApp(packageName: string) {
     const url = `/app/${packageName}`
@@ -38,7 +43,7 @@ export class AppDashboard {
                   <ion-tab tab="ionic">
                     <Settings />
                   </ion-tab>
-                  <ion-tab-bar slot="bottom">
+                  <ion-tab-bar slot="bottom" color="light">
                     <ion-tab-button tab="profile">
                       <ion-icon name="person-circle-outline"></ion-icon>
                       Perfil

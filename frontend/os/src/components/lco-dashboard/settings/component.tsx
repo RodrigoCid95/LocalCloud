@@ -33,7 +33,7 @@ export default () => (
           <ion-input label="Texto de botón atrás" label-placement="floating"></ion-input>
         </ion-item>
         <ion-item>
-          <ion-button slot="end">Aplicar cambios</ion-button>
+          <ion-button slot="end" color="dark" fill="outline">Aplicar cambios</ion-button>
         </ion-item>
       </ion-list>
     </ion-content>

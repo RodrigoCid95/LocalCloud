@@ -19,7 +19,7 @@ export class RecycleBinController {
   @On(GET, '/')
   @BeforeMiddleware([verifyPermission(RECYCLE_BIN.LIST)])
   public async list(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response) {
-    const results = await this.recycleBinModel.findByUUID(req.session.user?.uuid || '')
+    const results = await this.recycleBinModel.findByUUID(req.session.user?.name || '')
     res.json(results)
   }
   @On(POST, '/')
@@ -33,7 +33,7 @@ export class RecycleBinController {
       return
     }
     const path = req.body.path || []
-    const result = this.fsModel.resolvePath(req.session.user?.uuid || '', path, true)
+    const result = this.fsModel.resolvePath(req.session.user?.name || '', path, true)
     if (typeof result === 'boolean') {
       res.status(404).json({
         code: 'not-found',
@@ -41,7 +41,7 @@ export class RecycleBinController {
       })
       return
     }
-    await this.recycleBinModel.moveToRecycleBin(req.session.user?.uuid || '', result, path)
+    await this.recycleBinModel.moveToRecycleBin(req.session.user?.name || '', result, path)
     res.json(true)
   }
   @On(PUT, '/:id')
@@ -53,20 +53,20 @@ export class RecycleBinController {
       res.json(true)
       return
     }
-    const path = this.fsModel.resolvePath(req.session.user?.uuid || '', result.path, false) as string
-    await this.recycleBinModel.restore(req.session.user?.uuid || '', result.id, path)
+    const path = this.fsModel.resolvePath(req.session.user?.name || '', result.path, false) as string
+    await this.recycleBinModel.restore(req.session.user?.name || '', result.id, path)
     res.json(true)
   }
   @On(DELETE, '/:id')
   @BeforeMiddleware([verifyPermission(RECYCLE_BIN.DELETE)])
   public async delete(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response) {
-    await this.recycleBinModel.delete(req.session.user?.uuid || '', req.params.id)
+    await this.recycleBinModel.delete(req.session.user?.name || '', req.params.id)
     res.json(true)
   }
   @On(DELETE, '/')
   @BeforeMiddleware([verifyPermission(RECYCLE_BIN.CLEAN)])
   public async clean(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response) {
-    await this.recycleBinModel.clean(req.session.user?.uuid || '')
+    await this.recycleBinModel.clean(req.session.user?.name || '')
     res.json(true)
   }
 }

@@ -1,5 +1,6 @@
 import fs from 'node:fs'
 import path from 'node:path'
+import child from 'node:child_process'
 
 declare const Library: PXIO.LibraryDecorator
 
@@ -35,8 +36,8 @@ export class FileSystemModel {
     const sharedPath = this.paths.resolveSharedPath({ segments: path })
     return this.resolveFileOrDirectory(sharedPath)
   }
-  public lsUserDirectory(uuid: string, path: string[]): boolean | FileSystem.ItemInfo[] | FileSystem.ItemInfo {
-    const userPath = this.paths.resolveUserPath({ segments: path, uuid })
+  public lsUserDirectory(name: string, path: string[]): boolean | FileSystem.ItemInfo[] | FileSystem.ItemInfo {
+    const userPath = this.paths.resolveUserPath({ segments: path, name })
     return this.resolveFileOrDirectory(userPath)
   }
   public resolveSharedFile(pathFile: string[]): string | boolean {
@@ -50,8 +51,8 @@ export class FileSystemModel {
     }
     return result
   }
-  public resolveUserFile(uuid: string, pathFile: string[]): string | boolean {
-    const result = this.paths.resolveUserPath({ uuid, segments: pathFile })
+  public resolveUserFile(name: string, pathFile: string[]): string | boolean {
+    const result = this.paths.resolveUserPath({ name, segments: pathFile })
     if (typeof result === 'boolean') {
       return false
     }
@@ -64,21 +65,25 @@ export class FileSystemModel {
   public writeToShared(segments: string[], data: Buffer) {
     const filePath = this.paths.resolveSharedPath({ segments, verify: false }) as string
     fs.writeFileSync(filePath, data, { encoding: 'utf-8' })
+    child.execSync(`chown lc ${filePath}`)
   }
-  public writeToUser(uuid: string, segments: string[], data: Buffer) {
-    const filePath = this.paths.resolveUserPath({ uuid, segments, verify: false }) as string
+  public writeToUser(name: string, segments: string[], data: Buffer) {
+    const filePath = this.paths.resolveUserPath({ name, segments, verify: false }) as string
     fs.writeFileSync(filePath, data, { encoding: 'utf-8' })
+    child.execSync(`chown ${name} ${filePath}`)
   }
   public mkdirToShared(segments: string[]) {
     const dirPath = this.paths.resolveSharedPath({ segments, verify: false }) as string
     if (!fs.existsSync(dirPath)) {
       fs.mkdirSync(dirPath, { recursive: true })
+      child.execSync(`chown -R lc ${dirPath}`)
     }
   }
-  public mkdirToUser(uuid: string, segments: string[]) {
-    const dirPath = this.paths.resolveUserPath({ uuid, segments, verify: false }) as string
+  public mkdirToUser(name: string, segments: string[]) {
+    const dirPath = this.paths.resolveUserPath({ name, segments, verify: false }) as string
     if (!fs.existsSync(dirPath)) {
       fs.mkdirSync(dirPath, { recursive: true })
+      child.execSync(`chown ${name} ${dirPath}`)
     }
   }
   public rmToShared(segments: string[]) {
@@ -87,32 +92,33 @@ export class FileSystemModel {
       fs.rmSync(dirPath, { force: true, recursive: true })
     }
   }
-  public rmToUser(uuid: string, segments: string[]) {
-    const dirPath = this.paths.resolveUserPath({ uuid, segments })
+  public rmToUser(name: string, segments: string[]) {
+    const dirPath = this.paths.resolveUserPath({ name, segments })
     if (typeof dirPath === 'string') {
       fs.rmSync(dirPath, { force: true, recursive: true })
     }
   }
-  public resolvePath(uuid: string, pth: string[], verify: boolean): string | boolean {
+  public resolvePath(name: string, pth: string[], verify: boolean): string | boolean {
     const segments = [...pth]
     const base = segments.shift()
     let result: string | boolean = ''
     if (base === 'shared') {
       result = this.paths.resolveSharedPath({ segments, verify })
     } else {
-      result = this.paths.resolveUserPath({ uuid, segments, verify })
+      result = this.paths.resolveUserPath({ name, segments, verify })
     }
     return result
   }
-  public copy(uuid: string, origin: string[], dest: string[], move: boolean = false) {
-    const originPath = this.resolvePath(uuid, origin, true)
+  public copy(name: string, origin: string[], dest: string[], move: boolean = false) {
+    const originPath = this.resolvePath(name, origin, true)
     if (typeof originPath === 'boolean') {
       return
     }
     const newDest = [...dest, origin[origin.length - 1]]
-    let destPath = this.resolvePath(uuid, newDest, false) as string
+    let destPath = this.resolvePath(name, newDest, false) as string
     const statOrigin = fs.statSync(originPath)
     const isFile = statOrigin.isFile()
+    let dp = ''
     if (isFile) {
       while (fs.existsSync(destPath)) {
         const segments = destPath.split('.')
@@ -120,11 +126,18 @@ export class FileSystemModel {
         destPath = `${segments.join('.')}-copia.${ext}`
       }
       fs.copyFileSync(originPath, destPath)
+      dp = destPath
     } else {
       while (fs.existsSync(destPath)) {
         destPath += '-copia'
       }
       fs.cpSync(originPath, destPath, { recursive: true })
+      dp = destPath
+    }
+    if (dp.split(this.paths.shared).length === 1) {
+      child.execSync(`chown ${name} ${dp}`)
+    } else {
+      child.execSync(`chown lc ${dp}`)
     }
     if (move) {
       fs.rmSync(originPath, { recursive: true, force: true })

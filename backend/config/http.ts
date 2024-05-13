@@ -15,13 +15,12 @@ const middlewares = [
   })
 ]
 
-if (devMode.isDevMode) {
-  middlewares.push(cors({
-    origin: devMode.cors
-  }))
+if (devMode.enable) {
+  middlewares.push(cors())
 }
 
 export const HTTP: PXIOHTTP.Config = {
+  /* port: 80, */
   optionsUrlencoded: { extended: true },
   engineTemplates: {
     name: 'liquid',

@@ -51,14 +51,15 @@ class Builder implements BuilderConnector.Class {
       define: {
         TOKEN: `"${token}"`,
         KEY: `"${key}"`,
-        IS_DEV: apis ? 'true' : 'false',
+        IS_DEV: !token || !key ? 'true' : 'false',
         ...modules
       },
       minify: Array.isArray(apis),
       format: 'esm',
       write: false,
       inject: [configs.get('builderConnector').apiPath],
-      treeShaking: true
+      treeShaking: true,
+      sourcemap: 'inline'
     })
     return content.outputFiles[0].text
   }

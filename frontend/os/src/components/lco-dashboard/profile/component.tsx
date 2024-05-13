@@ -18,12 +18,7 @@ export default () => (
       <ion-progress-bar type="indeterminate"></ion-progress-bar>
       <ion-list inset>
         <ion-item>
-          <ion-thumbnail>
-            <img alt="Photo profile" src="https://ionicframework.com/docs/img/demos/thumbnail.svg" />
-          </ion-thumbnail>
-        </ion-item>
-        <ion-item>
-          <ion-input label="Nombre de usuario:" label-placement="floating"></ion-input>
+          <ion-input label="Nombre de usuario:" label-placement="floating" disabled></ion-input>
         </ion-item>
         <ion-item>
           <ion-input label="Nombre completo:" label-placement="floating"></ion-input>
@@ -35,7 +30,7 @@ export default () => (
           <ion-input label="Teléfono:" label-placement="floating" type="tel"></ion-input>
         </ion-item>
         <ion-item>
-          <ion-button slot="end" name="save">Guardar</ion-button>
+          <ion-button slot="end" color="dark" fill='outline'>Guardar</ion-button>
         </ion-item>
       </ion-list>
       <ion-list inset>
@@ -49,14 +44,14 @@ export default () => (
           <ion-input label="Repite la contraseña:" label-placement="floating" type="password"></ion-input>
         </ion-item>
         <ion-item>
-          <ion-button slot="end" name="save">Cambiar contraseña</ion-button>
+          <ion-button slot="end" color="dark" fill='outline'>Cambiar contraseña</ion-button>
         </ion-item>
       </ion-list>
     </ion-content>
     <ion-footer>
       <ion-toolbar>
         <ion-buttons slot="end">
-          <ion-button name="logout">
+          <ion-button>
             <ion-icon slot="icon-only" name="log-out"></ion-icon>
           </ion-button>
         </ion-buttons>

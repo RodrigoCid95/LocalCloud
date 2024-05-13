@@ -39,3 +39,4 @@
 */
 
 @import './variables.css';
+@import '~@ionic/core/css/palettes/dark.system.css';

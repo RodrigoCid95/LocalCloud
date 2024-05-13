@@ -1,4 +1,3 @@
-import { v5 } from 'uuid'
 import { verifySession } from './middlewares/session'
 import { verifyPermission } from './middlewares/permissions'
 import { decryptRequest } from './middlewares/encrypt'
@@ -17,7 +16,6 @@ export class ProfileAPIController {
   @Model('DevModeModel') public devModeModel: Models<'DevModeModel'>
   @Model('AppsModel') private appsModel: Models<'AppsModel'>
   @Model('UsersModel') private usersModel: Models<'UsersModel'>
-  @Model('ProfileModel') private profileModel: Models<'ProfileModel'>
   @On(GET, '/')
   @BeforeMiddleware([verifyPermission(PROFILE.INDEX)])
   public index(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): void {
@@ -26,7 +24,7 @@ export class ProfileAPIController {
   @On(GET, '/apps')
   @BeforeMiddleware([verifyPermission(PROFILE.APPS)])
   public async apps(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
-    const results = await this.appsModel.getAppsByUUID(req.session.user?.uuid || '')
+    const results = await this.appsModel.getAppsByUUID(req.session.user?.name || '')
     const apps: Partial<Apps.App>[] = results.map(app => ({
       package_name: app.package_name,
       title: app.title,
@@ -37,11 +35,11 @@ export class ProfileAPIController {
   }
   @On(POST, '/')
   @BeforeMiddleware([verifyPermission(PROFILE.UPDATE), decryptRequest])
-  public async update(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
+  public update(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): void {
     if (req.session.user) {
       const { user_name, full_name, email, phone } = req.body
       if (user_name) {
-        const [result] = await this.usersModel.find({ user_name })
+        const result = this.usersModel.getUser(user_name)
         if (result) {
           res.json({
             code: 'user-already-exists',
@@ -50,13 +48,10 @@ export class ProfileAPIController {
           return
         }
       }
-      await this.profileModel.update(
-        { user_name, full_name, email, phone },
-        req.session.user.uuid
+      this.usersModel.updateUser(
+        req.session.user.name,
+        { full_name, email, phone },
       )
-      if (user_name) {
-        req.session.user.user_name = user_name
-      }
       if (full_name) {
         req.session.user.full_name = full_name
       }
@@ -71,13 +66,17 @@ export class ProfileAPIController {
   }
   @On(PUT, '/')
   @BeforeMiddleware([verifyPermission(PROFILE.UPDATE_PASSWORD), decryptRequest])
-  public async updatePassword(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
+  public updatePassword(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): void {
     const { current_password, new_password } = req.body
-    const [user] = await this.usersModel.find({ uuid: req.session.user?.uuid })
-    const current_hash = v5(current_password, user.uuid)
-    if (current_hash === user.password_hash) {
-      const new_hash = v5(new_password, user.uuid)
-      await this.profileModel.update({ password_hash: new_hash }, user.uuid)
+    if (!current_password || !new_password) {
+      res.status(400).json({
+        code: 'fields-required',
+        message: 'Faltan campos!'
+      })
+      return
+    }
+    if (this.usersModel.verifyPassword(req.session.user?.name || '', current_password)) {
+      this.usersModel.updatePassword(req.session.user?.name || '', new_password)
       res.json({ ok: true })
     } else {
       res.status(400).json({ ok: false, message: 'La contraseña es incorrecta!' })

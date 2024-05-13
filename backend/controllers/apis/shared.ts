@@ -19,7 +19,7 @@ export class SharedAPIController {
   @On(GET, '/')
   @BeforeMiddleware([verifyPermission(SHARED.INDEX)])
   public async index(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
-    const results = await this.sharedModel.find({ uuid: req.session.user?.uuid })
+    const results = await this.sharedModel.find({ uuid: req.session.user?.name })
     res.json(results)
   }
   @On(POST, '/')
@@ -33,7 +33,7 @@ export class SharedAPIController {
       })
       return
     }
-    const uuid = req.session.user?.uuid || ''
+    const uuid = req.session.user?.name || ''
     const [result] = await this.sharedModel.find({ uuid, path })
     if (result) {
       res.json(result)

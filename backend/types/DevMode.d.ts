@@ -1,9 +1,8 @@
 declare global {
   namespace DevMode {
     interface Config {
-      isDevMode: boolean
-      uuid: string
-      cors: string
+      enable: boolean
+      user: string
     }
     interface Class {
       readonly config: Config

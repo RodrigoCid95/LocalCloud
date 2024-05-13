@@ -50,7 +50,7 @@ export class LaunchController {
   @On(GET, '/user/*')
   @AfterMiddleware(['responseFile'])
   public userFile(req: PXIOHTTP.Request<LocalCloud.SessionData>, _: PXIOHTTP.Response, next: PXIOHTTP.Next): void {
-    req.body = this.fsModel.resolveUserFile(req.session.user?.uuid || '', req.params[0].split('/'))
+    req.body = this.fsModel.resolveUserFile(req.session.user?.name || '', req.params[0].split('/'))
     next()
   }
 }

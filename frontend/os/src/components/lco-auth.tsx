@@ -41,14 +41,14 @@ export class LCOAuth {
               <ion-col size="12" offset-sm="3" size-sm="6" offset-lg="4" size-lg="4">
                 <ion-list inset>
                   <ion-item>
-                    <ion-input label="Nombre de usuario" label-placement="floating" value={this.userName} onIonInput={({ target }) => this.userName = target.value}></ion-input>
+                    <ion-input label="Nombre de usuario" label-placement="floating" value={this.userName} onIonInput={({ target }) => this.userName = target.value.toString()}></ion-input>
                   </ion-item>
                   <ion-item>
-                    <ion-input label="Contraseña" label-placement="floating" type="password" value={this.password} onIonInput={({ target }) => this.password = target.value}></ion-input>
+                    <ion-input label="Contraseña" label-placement="floating" type="password" value={this.password} onIonInput={({ target }) => this.password = target.value.toString()}></ion-input>
                   </ion-item>
                 </ion-list>
                 <div class="ion-padding">
-                  <ion-button expand="block" class="ion-no-margin" onclick={this._handlerOnEnter.bind(this)}>Iniciar sesión</ion-button>
+                  <ion-button expand="block" color="dark" fill="outline" onClick={this._handlerOnEnter.bind(this)}>Iniciar sesión</ion-button>
                 </div>
               </ion-col>
             </ion-row>

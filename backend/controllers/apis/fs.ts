@@ -34,7 +34,7 @@ export class FileSystemAPIController {
   @BeforeMiddleware([verifyPermission(FS.USER_DRIVE)])
   public userDrive(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response) {
     const { path = [] } = req.body
-    const result = this.fsModel.lsUserDirectory(req.session.user?.uuid || '', path)
+    const result = this.fsModel.lsUserDirectory(req.session.user?.name || '', path)
     if (typeof result === 'boolean') {
       res.status(404).json({
         code: 'not-found',
@@ -55,7 +55,7 @@ export class FileSystemAPIController {
   @BeforeMiddleware([verifyPermission(FS.MKDIR_USER_DRIVE)])
   public mkdirUserDrive(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response) {
     const { path = [] } = req.body
-    this.fsModel.mkdirToUser(req.session.user?.uuid || '', path)
+    this.fsModel.mkdirToUser(req.session.user?.name || '', path)
     res.json(true)
   }
   @On(PUT, '/shared')
@@ -90,7 +90,7 @@ export class FileSystemAPIController {
     }
     const entries = Object.entries(files)
     for (const [name, value] of entries) {
-      this.fsModel.writeToUser(req.session.user?.uuid || '', [...path, name], (value as fileUpload.UploadedFile).data)
+      this.fsModel.writeToUser(req.session.user?.name || '', [...path, name], (value as fileUpload.UploadedFile).data)
     }
     res.json(true)
   }
@@ -105,7 +105,7 @@ export class FileSystemAPIController {
   @BeforeMiddleware([verifyPermission(FS.RM_USER_DRIVE)])
   public rmUserDrive(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response) {
     const { path = [] } = req.body
-    this.fsModel.rmToUser(req.session.user?.uuid || '', path)
+    this.fsModel.rmToUser(req.session.user?.name || '', path)
     res.json(true)
   }
   @On(POST, '/copy')
@@ -119,7 +119,7 @@ export class FileSystemAPIController {
       })
       return
     }
-    this.fsModel.copy(req.session.user?.uuid || '', origin, dest)
+    this.fsModel.copy(req.session.user?.name || '', origin, dest)
     res.json(true)
   }
   @On(POST, '/move')
@@ -133,7 +133,7 @@ export class FileSystemAPIController {
       })
       return
     }
-    this.fsModel.copy(req.session.user?.uuid || '', origin, dest, true)
+    this.fsModel.copy(req.session.user?.name || '', origin, dest, true)
     res.json(true)
   }
   @On(POST, '/rename')
@@ -147,7 +147,7 @@ export class FileSystemAPIController {
       })
       return
     }
-    this.fsModel.rename(req.session.user?.uuid || '', path, newName)
+    this.fsModel.rename(req.session.user?.name || '', path, newName)
     res.json(true)
   }
 }

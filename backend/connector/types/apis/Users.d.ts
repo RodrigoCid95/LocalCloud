@@ -1,20 +1,15 @@
 declare global {
   namespace Users {
     interface User {
-			uuid: string
+			id: number
+			name: string
 			full_name: string
-			user_name: string
-			photo: string
 			email: string
 			phone: string
 		}
 		type ListMethod = () => Promise<User[]>
-		type InfoMethod = (uuid: User['uuid']) => Promise<User | null>
-		interface NewUser {
-			email?: string
-			full_name: string
-			phone?: string
-			user_name: string
+		type InfoMethod = (uuid: User['name']) => Promise<User | null>
+		interface New extends Omit<User, 'id'> {
 			password: string
 		}
 		interface CreateMethodResult {
@@ -25,9 +20,9 @@ declare global {
 			code: 'user-already-exists'
 			message: string
 		}
-		type CreateMethod = (newUser: NewUser) => Promise<true | CreateMethodResult>
-		type UpdateMethod = (uuid: User['uuid'], data: Partial<Omit<User, 'uuid'>>) => Promise<true | UpdateMethodResult>
-		type DeleteMethod = (uuid: User['uuid']) => Promise<void>
+		type CreateMethod = (newUser: Users.New) => Promise<true | CreateMethodResult>
+		type UpdateMethod = (uuid: User['name'], data: Partial<Omit<User, 'uuid'>>) => Promise<true | UpdateMethodResult>
+		type DeleteMethod = (uuid: User['name']) => Promise<void>
 		interface AssignAppMethodResult {
 			code: 'user-not-exist',
       message: string
@@ -36,8 +31,8 @@ declare global {
 			code: 'user-not-exist',
       message: string
 		}
-		type AssignAppMethod = (uuid: User['uuid'], package_name: Apps.App['package_name']) => Promise<true | AssignAppMethodResult>
-		type UnassignAppMethod = (uuid: User['uuid'], package_name: Apps.App['package_name']) => Promise<true | UnassignAppMethodResult>
+		type AssignAppMethod = (uuid: User['name'], package_name: Apps.App['package_name']) => Promise<true | AssignAppMethodResult>
+		type UnassignAppMethod = (uuid: User['name'], package_name: Apps.App['package_name']) => Promise<true | UnassignAppMethodResult>
 		interface Connector {
 			list: ListMethod
 			info: InfoMethod
