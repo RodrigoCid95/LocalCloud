@@ -15,8 +15,9 @@ export default class EditUserElement extends LitElement implements HTMLEditUserE
   private fullNameRef = createRef<HTMLIonInputElement>()
   private emailRef = createRef<HTMLIonInputElement>()
   private phoneRef = createRef<HTMLIonInputElement>()
+  private uid: number = NaN
   setUser(user: Users.User): void {
-    this.id = user.id.toString();
+    this.uid = user.uid
     this.name = user.name;
     (this.fullNameRef.value as HTMLIonInputElement).value = user.full_name;
     (this.emailRef.value as HTMLIonInputElement).value = user.email;
@@ -35,7 +36,7 @@ export default class EditUserElement extends LitElement implements HTMLEditUserE
     const data = { full_name, email, phone }
     const loading = await window.loadingController.create({ message: 'Actualizando usuario ...' })
     await loading.present()
-    const response = await window.connectors.users.update(this.name, data)
+    const response = await window.connectors.users.update(this.uid, data)
     await loading.dismiss()
     if (typeof response === 'object' && response.code) {
       (await window.alertController.create({
@@ -49,6 +50,7 @@ export default class EditUserElement extends LitElement implements HTMLEditUserE
     this.dispatchEvent(new CustomEvent('save'))
   }
   reset() {
+    this.uid = NaN
     this.name = '';
     (this.fullNameRef.value as HTMLIonInputElement).value = '';
     (this.emailRef.value as HTMLIonInputElement).value = '';
@@ -65,7 +67,7 @@ export default class EditUserElement extends LitElement implements HTMLEditUserE
           <ion-toolbar>
             <ion-title>Editar usuario - ${this.name}</ion-title>
             <ion-buttons slot="end">
-              <ion-button @click=${() => this.modal.value?.dismiss().then(() => this.id = '')}>
+              <ion-button @click=${() => this.modal.value?.dismiss().then(() => this.uid = NaN)}>
                 <ion-icon slot="icon-only" name="close"></ion-icon>
               </ion-button>
             </ion-buttons>

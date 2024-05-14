@@ -40,7 +40,7 @@ export default class NewAppElement extends LitElement implements HTMLNewAppEleme
   render() {
     return html`
       <ion-fab slot="fixed" vertical="bottom" horizontal="end">
-        <ion-fab-button @click=${this.selectFile.bind(this)}>
+        <ion-fab-button color="light" @click=${this.selectFile.bind(this)}>
           <ion-icon name="bag-add-outline"></ion-icon>
         </ion-fab-button>
       </ion-fab>

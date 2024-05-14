@@ -7,13 +7,13 @@ import { createRef, ref } from 'lit/directives/ref.js'
 export default class AppsUserElement extends LitElement implements HTMLAppsUserElement {
   @state() private apps: AppItem[] = []
   private modal = createRef<HTMLIonModalElement>()
-  private name?: Users.User['name']
-  async setUser(name: Users.User['name']): Promise<void> {
+  private user?: Users.User
+  async setUser(user: Users.User): Promise<void> {
     this.apps = []
     const loading = await window.loadingController.create({ message: 'Cargando lista de apps ...' })
     await loading.present()
-    this.name = name
-    const userApps = await window.connectors.apps.listByUUID(name)
+    this.user = user
+    const userApps = await window.connectors.apps.listByUID(user.uid)
     this.apps = (await window.connectors.apps.list()).map(app => ({
       ...app,
       assign: userApps.findIndex(userApp => app.package_name === userApp.package_name) > -1
@@ -26,15 +26,15 @@ export default class AppsUserElement extends LitElement implements HTMLAppsUserE
     const loading = await window.loadingController.create({ message })
     await loading.present()
     if (value) {
-      await window.connectors.users.assignApp(this.name || '', package_name)
+      await window.connectors.users.assignApp(this.user?.uid || NaN, package_name)
     } else {
-      await window.connectors.users.unassignApp(this.name || '', package_name)
+      await window.connectors.users.unassignApp(this.user?.uid || NaN, package_name)
     }
     await loading.dismiss()
-    this.setUser(this.name || '')
+    this.setUser(this.user as Users.User)
   }
   handlerOnDismiss() {
-    this.name = undefined
+    this.user = undefined
     this.apps = []
   }
   render() {
@@ -42,7 +42,7 @@ export default class AppsUserElement extends LitElement implements HTMLAppsUserE
       <ion-modal ${ref(this.modal)} @ionModalWillDismiss=${this.handlerOnDismiss.bind(this)}>
         <ion-header>
           <ion-toolbar>
-            <ion-title>Apps</ion-title>
+            <ion-title>Apps - ${this.user?.name}</ion-title>
             <ion-buttons slot="end">
               <ion-button @click=${() => this.modal.value?.dismiss()}>
                 <ion-icon slot="icon-only" name="close"></ion-icon>
@@ -83,7 +83,7 @@ interface AppItem extends Apps.App {
 
 declare global {
   interface HTMLAppsUserElement extends LitElement {
-    setUser(name: Users.User['name']): void
+    setUser(user: Users.User): void
   }
   interface HTMLElementTagNameMap {
     'apps-user': HTMLAppsUserElement

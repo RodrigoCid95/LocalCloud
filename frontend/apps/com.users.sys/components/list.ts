@@ -14,10 +14,10 @@ export default class UserListElement extends LitElement implements HTMLUserListE
     this.userList = []
     const currentUser = await window.connectors.profile.info()
     const list = await window.connectors.users.list()
-    this.userList = list.filter(item => item.id !== currentUser.id)
+    this.userList = list.filter(item => item.uid !== currentUser.uid)
     await loading.dismiss()
   }
-  private delete(name: Users.User['name']) {
+  private delete(uid: Users.User['uid']) {
     const loadUsers = this.loadUsers.bind(this)
     window.alertController
       .create({
@@ -33,7 +33,7 @@ export default class UserListElement extends LitElement implements HTMLUserListE
             async handler() {
               const loading = await window.loadingController.create({ message: 'Eliminando ...' })
               await loading.present()
-              await window.connectors.users.delete(name)
+              await window.connectors.users.delete(uid)
               await loading.dismiss()
               await loadUsers()
             }
@@ -85,7 +85,7 @@ export default class UserListElement extends LitElement implements HTMLUserListE
                   <ion-button fill="clear" @click=${() => this.dispatchEvent(new CustomEvent('edit', { detail: user }))}>
                     <ion-icon slot="icon-only" name="create-outline"></ion-icon>
                   </ion-button>
-                  <ion-button fill="clear" color="danger" @click=${() => this.delete(user.name)}>
+                  <ion-button fill="clear" color="danger" @click=${() => this.delete(user.uid)}>
                     <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
                   </ion-button>
                 </div>

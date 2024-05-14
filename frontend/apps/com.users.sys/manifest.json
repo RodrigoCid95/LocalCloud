@@ -8,7 +8,7 @@
     "CREATE_USER": "Se usa para crear usuarios.",
     "UPDATE_USER_INFO": "Se usa para actualizar usuarios.",
     "APP_LIST": "Se usa para listar las apps y asignarlas a un usuario.",
-    "APP_LIST_BY_UUID": "Se usa para comparar las apps asignadas a un usuario con la lista de apps instaladas.",
+    "APP_LIST_BY_UID": "Se usa para comparar las apps asignadas a un usuario con la lista de apps instaladas.",
     "ASSIGN_APP_TO_USER": "Se usa para asignar apps a un usuario.",
     "UNASSIGN_APP_TO_USER": "Se usa para eliminar las asignaciones de apps a un usuario.",
     "DELETE_USER": "Se usa para eliminar usuarios."
