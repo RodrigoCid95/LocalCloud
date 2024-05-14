@@ -52,7 +52,7 @@ export class UsersAPIController {
       return
     }
     this.usersModel.createUser({
-      name: name,
+      name,
       full_name,
       email,
       phone,

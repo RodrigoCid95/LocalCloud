@@ -1,6 +1,7 @@
 declare global {
   namespace Paths {
     interface Config {
+      samba: string
       shadow: string
       passwd: string
       groups: string
@@ -33,6 +34,7 @@ declare global {
       name: string
     }
     interface Class {
+      readonly samba: string
       readonly shadow: string
       readonly passwd: string
       readonly groups: string

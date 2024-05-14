@@ -65,7 +65,7 @@ export class FileSystemModel {
   public writeToShared(segments: string[], data: Buffer) {
     const filePath = this.paths.resolveSharedPath({ segments, verify: false }) as string
     fs.writeFileSync(filePath, data, { encoding: 'utf-8' })
-    child.execSync(`chown lc ${filePath}`)
+    child.execSync(`chown :lc ${filePath}`)
   }
   public writeToUser(name: string, segments: string[], data: Buffer) {
     const filePath = this.paths.resolveUserPath({ name, segments, verify: false }) as string
@@ -137,7 +137,7 @@ export class FileSystemModel {
     if (dp.split(this.paths.shared).length === 1) {
       child.execSync(`chown ${name} ${dp}`)
     } else {
-      child.execSync(`chown lc ${dp}`)
+      child.execSync(`chown :lc ${dp}`)
     }
     if (move) {
       fs.rmSync(originPath, { recursive: true, force: true })

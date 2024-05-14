@@ -16,6 +16,7 @@ const systemApp: string = path.join(system, 'apps', ':packagename')
 const systemDatabases: string = path.join(systemApp, 'data')
 
 export const paths: Paths.Config = {
+  samba: '/etc/samba/smb.conf',
   shadow: '/etc/shadow',
   passwd: '/etc/passwd',
   groups: '/etc/group',
