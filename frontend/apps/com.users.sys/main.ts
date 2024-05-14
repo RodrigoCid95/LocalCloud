@@ -34,7 +34,7 @@ export default class AppRootElement extends LitElement {
           <user-list
             ${ref(this.userListElement)}
             @edit=${(e: CustomEvent) => this.editUserElement.value?.setUser(e.detail)}
-            @apps=${(e: CustomEvent) => this.appsUserElement.value?.setUser(e.detail)}
+            @apps=${(e: CustomEvent) => this.appsUserElement.value?.setUser(e.detail.name)}
           ></user-list>
           <new-user
             @save=${() => this.userListElement.value?.loadUsers()}

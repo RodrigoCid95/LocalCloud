@@ -69,7 +69,7 @@ export default class NewUserElement extends LitElement implements HTMLNewUserEle
   render() {
     return html`
       <ion-fab slot="fixed" vertical="bottom" horizontal="end">
-        <ion-fab-button @click=${() => this.modal.value?.present()}>
+        <ion-fab-button color="light" @click=${() => this.modal.value?.present()}>
           <ion-icon name="person-add"></ion-icon>
         </ion-fab-button>
       </ion-fab>

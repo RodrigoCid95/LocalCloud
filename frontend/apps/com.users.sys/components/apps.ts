@@ -7,12 +7,13 @@ import { createRef, ref } from 'lit/directives/ref.js'
 export default class AppsUserElement extends LitElement implements HTMLAppsUserElement {
   @state() private apps: AppItem[] = []
   private modal = createRef<HTMLIonModalElement>()
-  private uuid?: Users.User['id']
-  async setUser(user: Users.User): Promise<void> {
+  private name?: Users.User['name']
+  async setUser(name: Users.User['name']): Promise<void> {
+    this.apps = []
     const loading = await window.loadingController.create({ message: 'Cargando lista de apps ...' })
     await loading.present()
-    this.uuid = user.id
-    const userApps = await window.connectors.apps.listByUUID(this.id)
+    this.name = name
+    const userApps = await window.connectors.apps.listByUUID(name)
     this.apps = (await window.connectors.apps.list()).map(app => ({
       ...app,
       assign: userApps.findIndex(userApp => app.package_name === userApp.package_name) > -1
@@ -25,14 +26,15 @@ export default class AppsUserElement extends LitElement implements HTMLAppsUserE
     const loading = await window.loadingController.create({ message })
     await loading.present()
     if (value) {
-      await window.connectors.users.assignApp(this.uuid || 0, package_name)
+      await window.connectors.users.assignApp(this.name || '', package_name)
     } else {
-      await window.connectors.users.unassignApp(this.uuid || 0, package_name)
+      await window.connectors.users.unassignApp(this.name || '', package_name)
     }
     await loading.dismiss()
+    this.setUser(this.name || '')
   }
   handlerOnDismiss() {
-    this.uuid = undefined
+    this.name = undefined
     this.apps = []
   }
   render() {
@@ -81,7 +83,7 @@ interface AppItem extends Apps.App {
 
 declare global {
   interface HTMLAppsUserElement extends LitElement {
-    setUser(user: Users.User): void
+    setUser(name: Users.User['name']): void
   }
   interface HTMLElementTagNameMap {
     'apps-user': HTMLAppsUserElement
