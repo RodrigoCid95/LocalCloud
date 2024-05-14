@@ -18,8 +18,8 @@ export default class NewUserElement extends LitElement implements HTMLNewUserEle
   private async save() {
     const user_name = this.userNameRef.value?.value?.toString().trim()
     const full_name = this.fullNameRef.value?.value?.toString().trim()
-    const email = this.emailRef.value?.value?.toString().trim()
-    const phone = this.phoneRef.value?.value?.toString().trim()
+    const email = this.emailRef.value?.value?.toString().trim() || ''
+    const phone = this.phoneRef.value?.value?.toString().trim() || ''
     const password = this.passwordRef.value?.value?.toString().trim()
     if (!user_name) {
       this.userNameRef.value?.setAttribute('error-text', 'Campo requerido')
@@ -37,7 +37,7 @@ export default class NewUserElement extends LitElement implements HTMLNewUserEle
       this.passwordRef.value?.setFocus()
       return
     }
-    const data = { user_name, full_name, email, phone, password }
+    const data: Users.New = { name: user_name, full_name, email, phone, password }
     const loading = await window.loadingController.create({ message: 'Creando usuario ...' })
     await loading.present()
     const response = await window.connectors.users.create(data)

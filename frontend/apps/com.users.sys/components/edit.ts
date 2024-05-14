@@ -10,14 +10,13 @@ export default class EditUserElement extends LitElement implements HTMLEditUserE
     }
   `
   private modal = createRef<HTMLIonModalElement>()
-  private uuid: string
   private userNameRef = createRef<HTMLIonInputElement>()
   private fullNameRef = createRef<HTMLIonInputElement>()
   private emailRef = createRef<HTMLIonInputElement>()
   private phoneRef = createRef<HTMLIonInputElement>()
   setUser(user: Users.User): void {
-    this.uuid = user.uuid;
-    (this.userNameRef.value as HTMLIonInputElement).value = user.user_name;
+    this.id = user.id.toString();
+    (this.userNameRef.value as HTMLIonInputElement).value = user.name;
     (this.fullNameRef.value as HTMLIonInputElement).value = user.full_name;
     (this.emailRef.value as HTMLIonInputElement).value = user.email;
     (this.phoneRef.value as HTMLIonInputElement).value = user.phone
@@ -42,7 +41,7 @@ export default class EditUserElement extends LitElement implements HTMLEditUserE
     const data = { user_name, full_name, email, phone }
     const loading = await window.loadingController.create({ message: 'Actualizando usuario ...' })
     await loading.present()
-    const response = await window.connectors.users.update(this.uuid, data)
+    const response = await window.connectors.users.update(user_name, data)
     await loading.dismiss()
     if (typeof response === 'object' && response.code) {
       if (response.code === 'user-already-exists') {
@@ -78,7 +77,7 @@ export default class EditUserElement extends LitElement implements HTMLEditUserE
           <ion-toolbar>
             <ion-title>Editar usuario</ion-title>
             <ion-buttons slot="end">
-              <ion-button @click=${() => this.modal.value?.dismiss().then(() => this.uuid = '')}>
+              <ion-button @click=${() => this.modal.value?.dismiss().then(() => this.id = '')}>
                 <ion-icon slot="icon-only" name="close"></ion-icon>
               </ion-button>
             </ion-buttons>

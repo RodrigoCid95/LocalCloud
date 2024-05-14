@@ -14,10 +14,10 @@ export default class UserListElement extends LitElement implements HTMLUserListE
     this.userList = []
     const currentUser = await window.connectors.profile.info()
     const list = await window.connectors.users.list()
-    this.userList = list.filter(item => item.uuid !== currentUser.uuid)
+    this.userList = list.filter(item => item.id !== currentUser.id)
     await loading.dismiss()
   }
-  private delete(uuid: Users.User['uuid']) {
+  private delete(name: Users.User['name']) {
     const loadUsers = this.loadUsers.bind(this)
     window.alertController
       .create({
@@ -33,7 +33,7 @@ export default class UserListElement extends LitElement implements HTMLUserListE
             async handler() {
               const loading = await window.loadingController.create({ message: 'Eliminando ...' })
               await loading.present()
-              await window.connectors.users.delete(uuid)
+              await window.connectors.users.delete(name)
               await loading.dismiss()
               await loadUsers()
             }
@@ -75,7 +75,7 @@ export default class UserListElement extends LitElement implements HTMLUserListE
             >
               <ion-card class="user-item">
                 <ion-card-header>
-                  <ion-card-title>${user.user_name}</ion-card-title>
+                  <ion-card-title>${user.name}</ion-card-title>
                   <ion-card-subtitle>${user.full_name}</ion-card-subtitle>
                 </ion-card-header>
                 <div class="buttons">
@@ -85,7 +85,7 @@ export default class UserListElement extends LitElement implements HTMLUserListE
                   <ion-button fill="clear" @click=${() => this.dispatchEvent(new CustomEvent('edit', { detail: user }))}>
                     <ion-icon slot="icon-only" name="create-outline"></ion-icon>
                   </ion-button>
-                  <ion-button fill="clear" color="danger" @click=${() => this.delete(user.uuid)}>
+                  <ion-button fill="clear" color="danger" @click=${() => this.delete(user.name)}>
                     <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
                   </ion-button>
                 </div>
