@@ -24,8 +24,8 @@ const ADD_ITEMS_TO_RECYCLE_BIN = (server: ServerConector): RecycleBin.AddMethod 
 
 export { ADD_ITEMS_TO_RECYCLE_BIN }
 
-const APP_LIST_BY_UUID = (server: ServerConector): Apps.ListByUUIDMethod => uuid => server.send({
-  endpoint: `apps/${uuid}`,
+const APP_LIST_BY_UUID = (server: ServerConector): Apps.ListByUUIDMethod => name => server.send({
+  endpoint: `apps/${name}`,
   method: 'get'
 })
 
@@ -38,10 +38,10 @@ const APP_LIST = (server: ServerConector): Apps.ListMethod => () => server.send(
 
 export { APP_LIST }
 
-const ASSIGN_APP_TO_USER = (server: ServerConector): Users.AssignAppMethod => (uuid, package_name) => server.send({
+const ASSIGN_APP_TO_USER = (server: ServerConector): Users.AssignAppMethod => (name, package_name) => server.send({
   endpoint: 'users/assign-app',
   method: 'post',
-  data: { uuid, package_name }
+  data: { name, package_name }
 })
 
 export { ASSIGN_APP_TO_USER }
@@ -255,10 +255,10 @@ const SOURCE_LIST = (server: ServerConector): SecureSources.FindMethod => params
 
 export { SOURCE_LIST }
 
-const UNASSIGN_APP_TO_USER = (server: ServerConector): Users.UnassignAppMethod => (uuid, package_name) => server.send({
+const UNASSIGN_APP_TO_USER = (server: ServerConector): Users.UnassignAppMethod => (name, package_name) => server.send({
   endpoint: 'users/unassign-app',
   method: 'post',
-  data: { uuid, package_name }
+  data: { name, package_name }
 })
 
 export { UNASSIGN_APP_TO_USER }

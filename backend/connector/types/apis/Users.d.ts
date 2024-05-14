@@ -31,8 +31,8 @@ declare global {
 			code: 'user-not-exist',
       message: string
 		}
-		type AssignAppMethod = (uuid: User['name'], package_name: Apps.App['package_name']) => Promise<true | AssignAppMethodResult>
-		type UnassignAppMethod = (uuid: User['name'], package_name: Apps.App['package_name']) => Promise<true | UnassignAppMethodResult>
+		type AssignAppMethod = (name: User['name'], package_name: Apps.App['package_name']) => Promise<true | AssignAppMethodResult>
+		type UnassignAppMethod = (name: User['name'], package_name: Apps.App['package_name']) => Promise<true | UnassignAppMethodResult>
 		interface Connector {
 			list: ListMethod
 			info: InfoMethod

@@ -17,10 +17,10 @@ export class AppsModel {
     author: result.author,
     extensions: (result.extensions || '').split('|')
   }))
-  public getAppsByUUID(uuid: string): Promise<Apps.App[]> {
+  public getAppsByUUID(name: string): Promise<Apps.App[]> {
     return new Promise(resolve => this.database.all<Apps.Result>(
-      'SELECT apps.package_name, apps.title, apps.description, apps.author FROM users_to_apps INNER JOIN apps ON users_to_apps.package_name = apps.package_name WHERE users_to_apps.uuid = ?;',
-      [uuid],
+      'SELECT apps.package_name, apps.title, apps.description, apps.author FROM users_to_apps INNER JOIN apps ON users_to_apps.package_name = apps.package_name WHERE users_to_apps.user_name = ?;',
+      [name],
       (error, rows) => error ? resolve([]) : resolve(this.parse(rows))
     ))
   }

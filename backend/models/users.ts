@@ -155,40 +155,38 @@ export class UsersModel {
       child_process.stdin.end()
     })
   }
-  public deleteUser(userName: string) {
+  public async deleteUser(userName: string) {
     const USER_NAME = shellQuote.quote([userName])
-    const KILL_CMD = shellQuote.parse(
-      `pkill -u $USER_NAME`,
-      { USER_NAME }
-    ).join(' ')
-    try {
-      console.log(`(${KILL_CMD}):`, child.execSync(KILL_CMD).toString('utf8'))
-    } catch (_) {
-    }
-    const DELETE_CMD = shellQuote.parse(
-      `userdel -r $USER_NAME`,
-      { USER_NAME }
-    ).join(' ')
-    console.log(`(${DELETE_CMD}):`, child.execSync(DELETE_CMD).toString('utf8'))
-    const SAMBA_CMD = shellQuote.parse(
-      `smbpasswd -x $USER_NAME`,
-      { USER_NAME: shellQuote.quote([userName]) }
-    ).join(' ')
-    console.log(`(${SAMBA_CMD}):`, child.execSync(SAMBA_CMD).toString('utf8'))
+    console.log(USER_NAME)
+    await new Promise<void>(resolve => {
+      const child_process = child.spawn('smbpasswd', ['-x', USER_NAME])
+      child_process.stderr.on('error', (error) => console.trace(error))
+      child_process.on('close', resolve)
+    })
+    await new Promise<void>(resolve => {
+      const child_process = child.spawn('pkill', ['-u', USER_NAME])
+      child_process.stderr.on('error', (error) => console.trace(error))
+      child_process.on('close', resolve)
+    })
+    await new Promise<void>(resolve => {
+      const child_process = child.spawn('userdel', ['-r', USER_NAME])
+      child_process.stderr.on('error', (error) => console.trace(error))
+      child_process.on('close', resolve)
+    })
     const smbConfig = this.loadConfig()
     delete smbConfig[userName]
     this.writeConfig(smbConfig)
   }
   public async assignApp(name: string, package_name: string): Promise<void> {
     await new Promise(resolve => this.database.run(
-      'INSERT INTO users_to_apps (name, package_name) VALUES (?, ?);',
+      'INSERT INTO users_to_apps (user_name, package_name) VALUES (?, ?);',
       [name, package_name],
       resolve
     ))
   }
   public async unassignApp(name: string, package_name: string): Promise<void> {
     await new Promise(resolve => this.database.run(
-      'DELETE FROM users_to_apps WHERE name = ? AND package_name = ?;',
+      'DELETE FROM users_to_apps WHERE user_name = ? AND package_name = ?;',
       [name, package_name],
       resolve
     ))

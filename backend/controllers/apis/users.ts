@@ -79,8 +79,8 @@ export class UsersAPIController {
   }
   @On(DELETE, '/:name')
   @BeforeMiddleware([verifyPermission(USERS.DELETE)])
-  public delete(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): void {
-    this.usersModel.deleteUser(req.params.name)
+  public async delete(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
+    await this.usersModel.deleteUser(req.params.name)
     res.json(true)
   }
   @On(POST, '/assign-app')

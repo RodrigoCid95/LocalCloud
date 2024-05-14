@@ -21,10 +21,10 @@ export class AppsAPIController {
     const results = await this.appsModel.getApps()
     res.json(results)
   }
-  @On(GET, '/:uuid')
+  @On(GET, '/:name')
   @BeforeMiddleware([verifyPermission(APPS.APPS_BY_UUID)])
   public async appsByUUID(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
-    const results = await this.appsModel.getAppsByUUID(req.params.uuid)
+    const results = await this.appsModel.getAppsByUUID(req.params.name)
     res.json(results)
   }
   @On(PUT, '/')
