@@ -80,7 +80,7 @@ export class UsersAPIController {
   public async delete(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
     const user = this.usersModel.getUserByUID(Number(req.params.uid))
     if (user) {
-      await this.usersModel.deleteUser(req.params.name)
+      await this.usersModel.deleteUser(user.name)
     }
     res.json(true)
   }

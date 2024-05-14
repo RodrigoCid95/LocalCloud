@@ -162,7 +162,6 @@ export class UsersModel {
   }
   public async deleteUser(name: Users.User['name']) {
     const USER_NAME = shellQuote.quote([name])
-    console.log(USER_NAME)
     await new Promise<void>(resolve => {
       const child_process = child.spawn('smbpasswd', ['-x', USER_NAME])
       child_process.stderr.on('error', (error) => console.trace(error))

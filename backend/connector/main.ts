@@ -9,8 +9,8 @@ declare const $AUTH_STATUS: any
 declare const AUTH_STATUS: any
 declare const $APP_LIST: any
 declare const APP_LIST: any
-declare const $APP_LIST_BY_UUID: any
-declare const APP_LIST_BY_UUID: any
+declare const $APP_LIST_BY_UID: any
+declare const APP_LIST_BY_UID: any
 declare const $INSTALL_APP: any
 declare const INSTALL_APP: any
 declare const $UNINSTALL_APP: any
@@ -99,13 +99,13 @@ const defineAPI = (name: keyof Connectors, api: string, callback: any) => {
 }
 
 //#region Auth
-$AUTH_LOGIN && defineAPI('auth', 'login', AUTH_LOGIN)
+$AUTH_LOGIN && defineAPI('auth', 'logIn', AUTH_LOGIN)
 $AUTH_LOGOUT && defineAPI('auth', 'logOut', AUTH_LOGOUT)
 $AUTH_STATUS && defineAPI('auth', 'status', AUTH_STATUS)
 //#endregion
 //#region Apps
 $APP_LIST && defineAPI('apps', 'list', APP_LIST)
-$APP_LIST_BY_UUID && defineAPI('apps', 'listByUUID', APP_LIST_BY_UUID)
+$APP_LIST_BY_UID && defineAPI('apps', 'listByUID', APP_LIST_BY_UID)
 $INSTALL_APP && defineAPI('apps', 'install', INSTALL_APP)
 $UNINSTALL_APP && defineAPI('apps', 'uninstall', UNINSTALL_APP)
 //#endregion
@@ -166,6 +166,4 @@ Object.defineProperty(window, 'createURL', { value: server.createURL.bind(server
 Object.defineProperty(window, 'createDownloader', { value: server.createDownloader.bind(server), writable: false })
 Object.defineProperty(window, 'connectors', { value: connectors, writable: false })
 
-if ('alertController' in window) {
-  document.dispatchEvent(new CustomEvent('onReady'))
-}
+document.dispatchEvent(new CustomEvent('onConnectorReady'))
