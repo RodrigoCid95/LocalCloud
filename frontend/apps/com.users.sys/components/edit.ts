@@ -1,5 +1,6 @@
 import { LitElement, html, css } from 'lit'
 import { customElement } from 'lit/decorators.js'
+import { state } from 'lit/decorators/state.js'
 import { ref, createRef } from 'lit/directives/ref.js'
 
 @customElement('edit-user')
@@ -9,47 +10,34 @@ export default class EditUserElement extends LitElement implements HTMLEditUserE
       display: contents;
     }
   `
+  @state() private name: string = ''
   private modal = createRef<HTMLIonModalElement>()
-  private userNameRef = createRef<HTMLIonInputElement>()
   private fullNameRef = createRef<HTMLIonInputElement>()
   private emailRef = createRef<HTMLIonInputElement>()
   private phoneRef = createRef<HTMLIonInputElement>()
   setUser(user: Users.User): void {
     this.id = user.id.toString();
-    (this.userNameRef.value as HTMLIonInputElement).value = user.name;
+    this.name = user.name;
     (this.fullNameRef.value as HTMLIonInputElement).value = user.full_name;
     (this.emailRef.value as HTMLIonInputElement).value = user.email;
     (this.phoneRef.value as HTMLIonInputElement).value = user.phone
     this.modal.value?.present()
   }
   private async save() {
-    const user_name = this.userNameRef.value?.value?.toString().trim()
     const full_name = this.fullNameRef.value?.value?.toString().trim()
     const email = this.emailRef.value?.value?.toString().trim()
     const phone = this.phoneRef.value?.value?.toString().trim()
-    if (!user_name) {
-      this.userNameRef.value?.setAttribute('error-text', 'Campo requerido')
-      this.userNameRef.value?.classList.add('ion-invalid')
-      this.userNameRef.value?.setFocus()
-      return
-    }
     if (!full_name) {
       this.fullNameRef.value?.classList.add('ion-invalid')
       this.fullNameRef.value?.setFocus()
       return
     }
-    const data = { user_name, full_name, email, phone }
+    const data = { full_name, email, phone }
     const loading = await window.loadingController.create({ message: 'Actualizando usuario ...' })
     await loading.present()
-    const response = await window.connectors.users.update(user_name, data)
+    const response = await window.connectors.users.update(this.name, data)
     await loading.dismiss()
     if (typeof response === 'object' && response.code) {
-      if (response.code === 'user-already-exists') {
-        this.userNameRef.value?.setAttribute('error-text', 'Este usuario ya existe')
-        this.userNameRef.value?.classList.add('ion-invalid')
-        this.userNameRef.value?.setFocus()
-        return
-      }
       (await window.alertController.create({
         header: 'No se puede crear el usuario.',
         message: response.message,
@@ -61,7 +49,7 @@ export default class EditUserElement extends LitElement implements HTMLEditUserE
     this.dispatchEvent(new CustomEvent('save'))
   }
   reset() {
-    (this.userNameRef.value as HTMLIonInputElement).value = '';
+    this.name = '';
     (this.fullNameRef.value as HTMLIonInputElement).value = '';
     (this.emailRef.value as HTMLIonInputElement).value = '';
     (this.phoneRef.value as HTMLIonInputElement).value = ''
@@ -75,7 +63,7 @@ export default class EditUserElement extends LitElement implements HTMLEditUserE
       >
         <ion-header>
           <ion-toolbar>
-            <ion-title>Editar usuario</ion-title>
+            <ion-title>Editar usuario - ${this.name}</ion-title>
             <ion-buttons slot="end">
               <ion-button @click=${() => this.modal.value?.dismiss().then(() => this.id = '')}>
                 <ion-icon slot="icon-only" name="close"></ion-icon>
@@ -87,20 +75,10 @@ export default class EditUserElement extends LitElement implements HTMLEditUserE
           <ion-list inset>
             <ion-item>
               <ion-input
-                ${ref(this.userNameRef)}
-                class="ion-touched"
-                label="Nombre de usuario"
-                label-placement="floating"
-                @ionBlur=${() => this.userNameRef.value?.classList.remove('ion-invalid')}
-              ></ion-input>
-            </ion-item>
-            <ion-item>
-              <ion-input
                 ${ref(this.fullNameRef)}
                 class="ion-touched"
                 label="Nombre completo"
                 label-placement="floating"
-                error-text="Campo requerido"
                 @ionBlur=${() => this.fullNameRef.value?.classList.remove('ion-invalid')}
               ></ion-input>
             </ion-item>
@@ -120,7 +98,7 @@ export default class EditUserElement extends LitElement implements HTMLEditUserE
                 type="tel"
               ></ion-input>
             </ion-item>
-            <ion-button @click=${this.save.bind(this)} strong fill="clear" expand="full">Guardar</ion-button>
+            <ion-button @click=${this.save.bind(this)} color="dark" strong fill="clear" expand="full">Guardar</ion-button>
           </ion-list>
         </ion-content>
       </ion-modal>

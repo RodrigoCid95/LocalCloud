@@ -7,12 +7,12 @@ import { createRef, ref } from 'lit/directives/ref.js'
 export default class AppsUserElement extends LitElement implements HTMLAppsUserElement {
   @state() private apps: AppItem[] = []
   private modal = createRef<HTMLIonModalElement>()
-  private uuid?: Users.User['uuid']
+  private uuid?: Users.User['id']
   async setUser(user: Users.User): Promise<void> {
     const loading = await window.loadingController.create({ message: 'Cargando lista de apps ...' })
     await loading.present()
-    this.uuid = user.uuid
-    const userApps = await window.connectors.apps.listByUUID(this.uuid)
+    this.uuid = user.id
+    const userApps = await window.connectors.apps.listByUUID(this.id)
     this.apps = (await window.connectors.apps.list()).map(app => ({
       ...app,
       assign: userApps.findIndex(userApp => app.package_name === userApp.package_name) > -1
@@ -25,9 +25,9 @@ export default class AppsUserElement extends LitElement implements HTMLAppsUserE
     const loading = await window.loadingController.create({ message })
     await loading.present()
     if (value) {
-      await window.connectors.users.assignApp(this.uuid || '', package_name)
+      await window.connectors.users.assignApp(this.uuid || 0, package_name)
     } else {
-      await window.connectors.users.unassignApp(this.uuid || '', package_name)
+      await window.connectors.users.unassignApp(this.uuid || 0, package_name)
     }
     await loading.dismiss()
   }
@@ -55,6 +55,11 @@ export default class AppsUserElement extends LitElement implements HTMLAppsUserE
             }
           </style>
           <ion-list inset>
+            ${this.apps.length === 0 ? html`
+              <ion-item>
+                <ion-label class="ion-text-center">No hay apps instaladas.</ion-label>
+              </ion-item>
+            ` : ''}
             ${this.apps.map(app => html`
               <ion-item>
                 <ion-toggle ?checked=${app.assign} @ionChange=${() => this.changeAssign(app.package_name, !app.assign)}>

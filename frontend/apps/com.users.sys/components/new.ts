@@ -104,7 +104,6 @@ export default class NewUserElement extends LitElement implements HTMLNewUserEle
                 class="ion-touched"
                 label="Nombre completo"
                 label-placement="floating"
-                error-text="Campo requerido"
                 @ionBlur=${() => this.fullNameRef.value?.classList.remove('ion-invalid')}
               ></ion-input>
             </ion-item>
@@ -134,7 +133,7 @@ export default class NewUserElement extends LitElement implements HTMLNewUserEle
                 @ionBlur=${() => this.passwordRef.value?.classList.remove('ion-invalid')}
               ></ion-input>
             </ion-item>
-            <ion-button @click=${this.save.bind(this)} strong fill="clear" expand="full">Guardar</ion-button>
+            <ion-button @click=${this.save.bind(this)} color="dark" strong fill="clear" expand="full">Guardar</ion-button>
           </ion-list>
         </ion-content>
       </ion-modal>
