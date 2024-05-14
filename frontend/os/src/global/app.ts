@@ -17,5 +17,7 @@ export default async () => {
   Object.defineProperty(window, 'alertController', { value: alertController, writable: false })
   if ('connectors' in window) {
     document.dispatchEvent(new CustomEvent('onReady'))
+  } else {
+    document.addEventListener('onConnectorReady', () => document.dispatchEvent(new CustomEvent('onReady')))
   }
 }
