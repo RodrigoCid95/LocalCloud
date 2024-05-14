@@ -36,7 +36,7 @@ export class AuthAPIController {
         delete (user as any).password_hash
         req.session.user = user
         req.session.apps = {}
-        const apps = await this.appsModel.getAppsByUUID(user.name)
+        const apps = await this.appsModel.getAppsByUID(user.uid)
         for (const app of apps) {
           const { package_name } = app
           const secureSources = await this.sourcesModel.find({ package_name })

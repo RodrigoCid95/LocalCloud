@@ -15,7 +15,7 @@ declare global {
     type StatusMethod = () => Promise<Boolean>
     type LogOutMethod = () => Promise<void>
     interface Connector {
-      login?: LoginMethod
+      logIn?: LoginMethod
       status?: StatusMethod
       logOut?: LogOutMethod
     }

@@ -36,7 +36,7 @@ export class FileSystemModel {
     const sharedPath = this.paths.resolveSharedPath({ segments: path })
     return this.resolveFileOrDirectory(sharedPath)
   }
-  public lsUserDirectory(name: string, path: string[]): boolean | FileSystem.ItemInfo[] | FileSystem.ItemInfo {
+  public lsUserDirectory(name: Users.User['name'], path: string[]): boolean | FileSystem.ItemInfo[] | FileSystem.ItemInfo {
     const userPath = this.paths.resolveUserPath({ segments: path, name })
     return this.resolveFileOrDirectory(userPath)
   }
@@ -51,7 +51,7 @@ export class FileSystemModel {
     }
     return result
   }
-  public resolveUserFile(name: string, pathFile: string[]): string | boolean {
+  public resolveUserFile(name: Users.User['name'], pathFile: string[]): string | boolean {
     const result = this.paths.resolveUserPath({ name, segments: pathFile })
     if (typeof result === 'boolean') {
       return false
@@ -67,7 +67,7 @@ export class FileSystemModel {
     fs.writeFileSync(filePath, data, { encoding: 'utf-8' })
     child.execSync(`chown :lc ${filePath}`)
   }
-  public writeToUser(name: string, segments: string[], data: Buffer) {
+  public writeToUser(name: Users.User['name'], segments: string[], data: Buffer) {
     const filePath = this.paths.resolveUserPath({ name, segments, verify: false }) as string
     fs.writeFileSync(filePath, data, { encoding: 'utf-8' })
     child.execSync(`chown ${name} ${filePath}`)
@@ -79,7 +79,7 @@ export class FileSystemModel {
       child.execSync(`chown -R lc ${dirPath}`)
     }
   }
-  public mkdirToUser(name: string, segments: string[]) {
+  public mkdirToUser(name: Users.User['name'], segments: string[]) {
     const dirPath = this.paths.resolveUserPath({ name, segments, verify: false }) as string
     if (!fs.existsSync(dirPath)) {
       fs.mkdirSync(dirPath, { recursive: true })
@@ -92,13 +92,13 @@ export class FileSystemModel {
       fs.rmSync(dirPath, { force: true, recursive: true })
     }
   }
-  public rmToUser(name: string, segments: string[]) {
+  public rmToUser(name: Users.User['name'], segments: string[]) {
     const dirPath = this.paths.resolveUserPath({ name, segments })
     if (typeof dirPath === 'string') {
       fs.rmSync(dirPath, { force: true, recursive: true })
     }
   }
-  public resolvePath(name: string, pth: string[], verify: boolean): string | boolean {
+  public resolvePath(name: Users.User['name'], pth: string[], verify: boolean): string | boolean {
     const segments = [...pth]
     const base = segments.shift()
     let result: string | boolean = ''

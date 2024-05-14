@@ -27,14 +27,14 @@ export class SharedModel {
     ))
     return results.map(item => ({
       id: item.id,
-      uuid: item.uuid,
+      uid: item.uid,
       path: item.path.split('|')
     }))
   }
   public create(shared: Shared.Shared): Promise<void> {
     return new Promise(resolve => this.database.run(
-      'INSERT INTO shared ( id, uuid, path ) VALUES (?, ?, ?)',
-      [shared.id, shared.uuid, shared.path.join('|')],
+      'INSERT INTO shared ( id, uid, path ) VALUES (?, ?, ?)',
+      [shared.id, shared.uid, shared.path.join('|')],
       resolve
     ))
   }

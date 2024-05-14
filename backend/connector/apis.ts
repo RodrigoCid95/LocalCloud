@@ -24,12 +24,12 @@ const ADD_ITEMS_TO_RECYCLE_BIN = (server: ServerConector): RecycleBin.AddMethod 
 
 export { ADD_ITEMS_TO_RECYCLE_BIN }
 
-const APP_LIST_BY_UUID = (server: ServerConector): Apps.ListByUUIDMethod => name => server.send({
-  endpoint: `apps/${name}`,
+const APP_LIST_BY_UID = (server: ServerConector): Apps.ListByUIDMethod => uid => server.send({
+  endpoint: `apps/${uid}`,
   method: 'get'
 })
 
-export { APP_LIST_BY_UUID }
+export { APP_LIST_BY_UID }
 
 const APP_LIST = (server: ServerConector): Apps.ListMethod => () => server.send({
   endpoint: 'apps',
@@ -38,10 +38,10 @@ const APP_LIST = (server: ServerConector): Apps.ListMethod => () => server.send(
 
 export { APP_LIST }
 
-const ASSIGN_APP_TO_USER = (server: ServerConector): Users.AssignAppMethod => (name, package_name) => server.send({
+const ASSIGN_APP_TO_USER = (server: ServerConector): Users.AssignAppMethod => (uid, package_name) => server.send({
   endpoint: 'users/assign-app',
   method: 'post',
-  data: { name, package_name }
+  data: { uid, package_name }
 })
 
 export { ASSIGN_APP_TO_USER }
@@ -114,8 +114,8 @@ const DELETE_ITEMS_TO_RECYCLE_BIN = (server: ServerConector): RecycleBin.DeleteM
 
 export { DELETE_ITEMS_TO_RECYCLE_BIN }
 
-const DELETE_USER = (server: ServerConector): Users.DeleteMethod => uuid => server.send({
-  endpoint: `users/${uuid}`,
+const DELETE_USER = (server: ServerConector): Users.DeleteMethod => uid => server.send({
+  endpoint: `users/${uid}`,
   method: 'delete'
 })
 
@@ -255,10 +255,10 @@ const SOURCE_LIST = (server: ServerConector): SecureSources.FindMethod => params
 
 export { SOURCE_LIST }
 
-const UNASSIGN_APP_TO_USER = (server: ServerConector): Users.UnassignAppMethod => (name, package_name) => server.send({
+const UNASSIGN_APP_TO_USER = (server: ServerConector): Users.UnassignAppMethod => (uid, package_name) => server.send({
   endpoint: 'users/unassign-app',
   method: 'post',
-  data: { name, package_name }
+  data: { uid, package_name }
 })
 
 export { UNASSIGN_APP_TO_USER }
@@ -286,8 +286,8 @@ const UPDATE_PROFILE_INFO = (server: ServerConector): Profile.UpdateMethod => da
 
 export { UPDATE_PROFILE_INFO }
 
-const UPDATE_USER_INFO = (server: ServerConector): Users.UpdateMethod => (uuid, data) => server.send({
-  endpoint: `users/${uuid}`,
+const UPDATE_USER_INFO = (server: ServerConector): Users.UpdateMethod => (uid, data) => server.send({
+  endpoint: `users/${uid}`,
   method: 'put',
   data
 })
@@ -310,8 +310,8 @@ const UPLOAD_USER_FILE = (server: ServerConector): FS.UserUploadMethod => ({ pat
 
 export { UPLOAD_USER_FILE }
 
-const USER_INFO = (server: ServerConector): Users.InfoMethod => uuid => server.send({
-  endpoint: `users/${uuid}`,
+const USER_INFO = (server: ServerConector): Users.InfoMethod => uid => server.send({
+  endpoint: `users/${uid}`,
   method: 'get'
 })
 

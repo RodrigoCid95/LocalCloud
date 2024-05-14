@@ -8,29 +8,30 @@ export class DevModeModel {
   @Library('devMode') public devMode: DevMode.Class
   @Library('database') public database: Database
   @Library('paths') paths: Paths.Class
-  public async getUser(): Promise<Users.User | undefined> {
-    const PASSWD_CONTENT = fs.readFileSync(this.paths.passwd, 'utf8')
-    const PASSWD_LINES = PASSWD_CONTENT.split('\n').filter(line => line !== '')
-    const USER_LIST = PASSWD_LINES.map(line => line.split(':'))
-    const result = USER_LIST.find(us => us[0] === 'dev')
-    if (result) {
-      const name = result[0]
-      const [full_name = '', email = '', phone = ''] = result[4].split(',')
-      const user: Users.User = {
-        id: Number(result[2]),
-        name,
-        full_name,
-        email,
-        phone
+  public readonly user: Users.User | undefined
+  constructor() {
+    if (this.devMode.config.user) {
+      const PASSWD_CONTENT = fs.readFileSync(this.paths.passwd, 'utf8')
+      const PASSWD_LINES = PASSWD_CONTENT.split('\n').filter(line => line !== '')
+      const USER_LIST = PASSWD_LINES.map(line => line.split(':'))
+      const result = USER_LIST.find(us => us[0] === this.devMode.config.user)
+      if (result) {
+        const name = result[0]
+        const [full_name = '', email = '', phone = ''] = result[4].split(',')
+        this.user = {
+          uid: Number(result[2]),
+          name,
+          full_name,
+          email,
+          phone
+        }
       }
-      return user
     }
-    return
   }
   public async getApps(): Promise<LocalCloud.SessionData['apps']> {
     const apps: Apps.App[] = await new Promise(resolve => this.database.all<Apps.Result>(
-      'SELECT apps.package_name, apps.title, apps.description, apps.author FROM users_to_apps INNER JOIN apps ON users_to_apps.package_name = apps.package_name WHERE users_to_apps.uuid = ?;',
-      [this.devMode.config.user],
+      'SELECT apps.package_name, apps.title, apps.description, apps.author FROM users_to_apps INNER JOIN apps ON users_to_apps.package_name = apps.package_name WHERE users_to_apps.uid = ?;',
+      [this.user?.uid || ''],
       (error, rows) => error ? resolve([]) : resolve(rows.map(result => ({
         package_name: result.package_name,
         title: result.title,

@@ -19,7 +19,7 @@ export class RecycleBinController {
   @On(GET, '/')
   @BeforeMiddleware([verifyPermission(RECYCLE_BIN.LIST)])
   public async list(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response) {
-    const results = await this.recycleBinModel.findByUUID(req.session.user?.name || '')
+    const results = await this.recycleBinModel.findByUID(req.session.user?.uid || NaN)
     res.json(results)
   }
   @On(POST, '/')
@@ -41,7 +41,7 @@ export class RecycleBinController {
       })
       return
     }
-    await this.recycleBinModel.moveToRecycleBin(req.session.user?.name || '', result, path)
+    await this.recycleBinModel.moveToRecycleBin(req.session.user as Users.User, result, path)
     res.json(true)
   }
   @On(PUT, '/:id')
@@ -60,13 +60,13 @@ export class RecycleBinController {
   @On(DELETE, '/:id')
   @BeforeMiddleware([verifyPermission(RECYCLE_BIN.DELETE)])
   public async delete(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response) {
-    await this.recycleBinModel.delete(req.session.user?.name || '', req.params.id)
+    await this.recycleBinModel.delete(req.session.user as Users.User, req.params.id)
     res.json(true)
   }
   @On(DELETE, '/')
   @BeforeMiddleware([verifyPermission(RECYCLE_BIN.CLEAN)])
   public async clean(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response) {
-    await this.recycleBinModel.clean(req.session.user?.name || '')
+    await this.recycleBinModel.clean(req.session.user as Users.User)
     res.json(true)
   }
 }

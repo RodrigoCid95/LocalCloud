@@ -24,7 +24,7 @@ export class ProfileAPIController {
   @On(GET, '/apps')
   @BeforeMiddleware([verifyPermission(PROFILE.APPS)])
   public async apps(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
-    const results = await this.appsModel.getAppsByUUID(req.session.user?.name || '')
+    const results = await this.appsModel.getAppsByUID(req.session.user?.uid || NaN)
     const apps: Partial<Apps.App>[] = results.map(app => ({
       package_name: app.package_name,
       title: app.title,
@@ -50,7 +50,7 @@ export class ProfileAPIController {
       }
       this.usersModel.updateUser(
         req.session.user.name,
-        { full_name, email, phone },
+        { full_name, email, phone }
       )
       if (full_name) {
         req.session.user.full_name = full_name

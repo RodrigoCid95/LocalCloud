@@ -25,7 +25,7 @@ export class UsersModel {
       })
     }
   }
-  private loadConfig(name?: string) {
+  private loadConfig(name?: Users.User['name']) {
     const SMB_CONFIG = fs.readFileSync('/etc/samba/smb.conf', 'utf8')
     const smbConfig = ini.parse(SMB_CONFIG)
     if (name) {
@@ -33,12 +33,12 @@ export class UsersModel {
     }
     return smbConfig
   }
-  private writeConfig(config: any) {
+  private writeConfig(config: UserConfig): void {
     const smbStrConfig = ini.stringify(config)
     fs.writeFileSync(this.paths.samba, smbStrConfig, 'utf8')
     console.log(child.execSync('/etc/init.d/smbd restart').toString('utf8'))
   }
-  private setConfig(name: string, config: { [x: string]: any }) {
+  private setConfig(name: string, config: UserConfig): void {
     const smbConfig = this.loadConfig()
     smbConfig[name] = {}
     const entries = Object.entries(config)
@@ -67,7 +67,7 @@ export class UsersModel {
       const user = line.split(':')
       const [full_name = '', email = '', phone = ''] = user[4].split(',')
       return {
-        id: Number(user[2]),
+        uid: Number(user[2]),
         name: user[0],
         full_name,
         email,
@@ -79,15 +79,15 @@ export class UsersModel {
     }
     return USER_LIST
   }
-  private loadHash(userName: string): string {
+  private loadHash(name: Users.User['name']): string {
     const SHADOW_CONTENT = fs.readFileSync(this.paths.shadow, 'utf8')
     const SHADOW_LINES = SHADOW_CONTENT.split('\n').filter(line => line !== '')
     const [[_, hash]] = SHADOW_LINES
       .map(line => line.split(':'))
-      .filter(shadow => shadow[0] === userName)
+      .filter(shadow => shadow[0] === name)
     return hash
   }
-  public async createUser(user: Users.New) {
+  public async createUser(user: Users.New): Promise<void> {
     const { name, password, full_name = '', email = '', phone = '' } = user
     const PASSWORD = this.encrypt.createHash(password)
     const cmd = `useradd -p '${PASSWORD}' -m -G lc -s /bin/bash -c ${shellQuote.quote([[full_name, email, phone].join(',')]).replace(/\\/g, '')} ${name}`
@@ -110,32 +110,37 @@ export class UsersModel {
       'read only': 'yes'
     })
   }
-  public getUser(userName: string): Users.User {
+  public getUser(name: Users.User['name']): Users.User {
     const USER_LIST = this.loadUserList(true)
-    const [user] = USER_LIST.filter(user => user.name === userName)
+    const [user] = USER_LIST.filter(user => user.name === name)
+    return user
+  }
+  public getUserByUID(uid: Users.User['uid']): Users.User {
+    const USER_LIST = this.loadUserList(true)
+    const [user] = USER_LIST.filter(user => user.uid === uid)
     return user
   }
   public getUsers(): Users.User[] {
     const USER_LIST = this.loadUserList(true)
     return USER_LIST
   }
-  public verifyPassword(userName: string, password: string): boolean {
-    const hash = this.loadHash(userName)
+  public verifyPassword(name: Users.User['name'], password: string): boolean {
+    const hash = this.loadHash(name)
     return this.encrypt.verifyHash(password, hash)
   }
-  public updateUser(userName: string, user: Omit<Omit<Users.User, 'name'>, 'id'>) {
+  public updateUser(name: Users.User['name'], user: Omit<Omit<Users.User, 'name'>, 'uid'>) {
     const { full_name = '', email = '', phone = '' } = user
     const newValue = [full_name, email, phone].join(',')
     const cmd = shellQuote.parse(
       'usermod -c "$GECOS" $USER_NAME',
       {
         GECOS: shellQuote.quote([newValue]),
-        USER_NAME: userName
+        USER_NAME: name
       }
     ).join(' ')
     console.log(`(${cmd}):`, child.execSync(cmd).toString('utf8'))
   }
-  public async updatePassword(name: string, password: string) {
+  public async updatePassword(name: Users.User['name'], password: string) {
     const PASSWORD = this.encrypt.createHash(password)
     let cmd = shellQuote.parse(
       `usermod PASSWORD $USER_NAME`,
@@ -155,8 +160,8 @@ export class UsersModel {
       child_process.stdin.end()
     })
   }
-  public async deleteUser(userName: string) {
-    const USER_NAME = shellQuote.quote([userName])
+  public async deleteUser(name: Users.User['name']) {
+    const USER_NAME = shellQuote.quote([name])
     console.log(USER_NAME)
     await new Promise<void>(resolve => {
       const child_process = child.spawn('smbpasswd', ['-x', USER_NAME])
@@ -174,20 +179,20 @@ export class UsersModel {
       child_process.on('close', resolve)
     })
     const smbConfig = this.loadConfig()
-    delete smbConfig[userName]
+    delete smbConfig[name]
     this.writeConfig(smbConfig)
   }
-  public async assignApp(name: string, package_name: string): Promise<void> {
+  public async assignApp(uid: Users.User['uid'], package_name: string): Promise<void> {
     await new Promise(resolve => this.database.run(
-      'INSERT INTO users_to_apps (user_name, package_name) VALUES (?, ?);',
-      [name, package_name],
+      'INSERT INTO users_to_apps (uid, package_name) VALUES (?, ?);',
+      [uid, package_name],
       resolve
     ))
   }
-  public async unassignApp(name: string, package_name: string): Promise<void> {
+  public async unassignApp(uid: Users.User['uid'], package_name: string): Promise<void> {
     await new Promise(resolve => this.database.run(
-      'DELETE FROM users_to_apps WHERE user_name = ? AND package_name = ?;',
-      [name, package_name],
+      'DELETE FROM users_to_apps WHERE uid = ? AND package_name = ?;',
+      [uid, package_name],
       resolve
     ))
   }
@@ -197,4 +202,7 @@ interface Group {
   id: number
   name: string
   users: string[]
+}
+interface UserConfig {
+  [x: string]: any
 }

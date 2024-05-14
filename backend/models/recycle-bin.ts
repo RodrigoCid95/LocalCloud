@@ -7,9 +7,9 @@ declare const Library: PXIO.LibraryDecorator
 export class RecycleBinModel {
   @Library('database') private database: Database
   @Library('paths') private paths: Paths.Class
-  public async moveToRecycleBin(uuid: string, strPath: string, path: string[]) {
+  public async moveToRecycleBin(user: Users.User, strPath: string, path: string[]) {
     const id = v4()
-    const newPath = this.paths.getRecycleBinItem(uuid, id)
+    const newPath = this.paths.getRecycleBinItem(user.name, id)
     fs.cpSync(strPath, newPath, { recursive: true })
     fs.rmSync(strPath, { recursive: true, force: true })
     const date = new Date()
@@ -19,25 +19,25 @@ export class RecycleBinModel {
     const hours = date.getHours()
     const minutes = date.getMinutes()
     await new Promise<void>(resolve => this.database.run(
-      'INSERT INTO recycle_bin (id, uuid, path, date) VALUES (?, ?, ?, ?)',
-      [id, uuid, path.join('|'), `${year.toString()}/${month < 10 ? `0${month.toString()}` : month.toString()}/${day < 10 ? `0${day.toString()}` : day.toString()} ${hours < 10 ? `0${hours.toString()}` : hours.toString()}:${minutes < 10 ? `0${minutes.toString()}` : minutes.toString()}`],
+      'INSERT INTO recycle_bin (id, uid, path, date) VALUES (?, ?, ?, ?)',
+      [id, user.uid, path.join('|'), `${year.toString()}/${month < 10 ? `0${month.toString()}` : month.toString()}/${day < 10 ? `0${day.toString()}` : day.toString()} ${hours < 10 ? `0${hours.toString()}` : hours.toString()}:${minutes < 10 ? `0${minutes.toString()}` : minutes.toString()}`],
       resolve
     ))
   }
-  public async findByUUID(uuid: string): Promise<RecycleBin.Item[]> {
+  public async findByUID(uid: Users.User['uid']): Promise<RecycleBin.Item[]> {
     const results = await new Promise<RecycleBin.Result[]>(resolve => this.database.all<RecycleBin.Result>(
-      'SELECT * FROM recycle_bin WHERE uuid = ?',
-      [uuid],
+      'SELECT * FROM recycle_bin WHERE uid = ?',
+      [uid],
       (error, rows) => error ? resolve([]) : resolve(rows)
     ))
     return results.map(item => ({
       id: item.id,
-      uuid: item.uuid,
+      uid: item.uid,
       path: item.path.split('|'),
       date: item.date
     }))
   }
-  public async findByID(id: string): Promise<RecycleBin.Item | undefined> {
+  public async findByID(id: RecycleBin.Item['id']): Promise<RecycleBin.Item | undefined> {
     const item = await new Promise<RecycleBin.Result | undefined>(resolve => this.database.get<RecycleBin.Result>(
       'SELECT * FROM recycle_bin WHERE id = ?',
       [id],
@@ -47,16 +47,16 @@ export class RecycleBinModel {
     if (item) {
       result = {
         id: item.id,
-        uuid: item.uuid,
+        uuid: item.uid,
         path: item.path.split('|'),
         date: item.date
       }
     }
     return result
   }
-  public async restore(uuid: string, id: string, path: string) {
+  public async restore(name: Users.User['name'], id: RecycleBin.Item['id'], path: string) {
     let newPath = path
-    const oldPath = this.paths.getRecycleBinItem(uuid, id)
+    const oldPath = this.paths.getRecycleBinItem(name, id)
     const stat = fs.statSync(oldPath)
     const isFile = stat.isFile()
     if (isFile) {
@@ -78,9 +78,9 @@ export class RecycleBinModel {
       resolve
     ))
   }
-  private deleteFromDB(uuid: string, id?: string): Promise<void> {
-    let strQuery = 'DELETE FROM recycle_bin WHERE uuid = ?'
-    const opts = [uuid]
+  private deleteFromDB(uid: Users.User['uid'], id?: RecycleBin.Item['id']): Promise<void> {
+    let strQuery = 'DELETE FROM recycle_bin WHERE uid = ?'
+    const opts: any[] = [uid]
     if (id) {
       strQuery += ' AND id = ?'
       opts.push(id)
@@ -91,14 +91,14 @@ export class RecycleBinModel {
       resolve
     ))
   }
-  public async delete(uuid: string, id: string) {
-    const path = this.paths.getRecycleBinItem(uuid, id)
+  public async delete(user: Users.User, id: RecycleBin.Item['id']) {
+    const path = this.paths.getRecycleBinItem(user.name, id)
     fs.rmSync(path, { recursive: true, force: true })
-    await this.deleteFromDB(uuid, id)
+    await this.deleteFromDB(user.uid, id)
   }
-  public async clean(uuid: string) {
-    const path = this.paths.getRecycleBin(uuid)
+  public async clean(user: Users.User) {
+    const path = this.paths.getRecycleBin(user.name)
     fs.rmSync(path, { recursive: true, force: true })
-    await this.deleteFromDB(uuid)
+    await this.deleteFromDB(user.uid)
   }
 }

@@ -2,7 +2,7 @@ declare global {
   namespace Shared {
     interface Shared {
       id: string
-      uuid: string
+      uid: string
       path: string[]
     }
     type ListMethod = () => Promise<Shared[]>

@@ -16,7 +16,7 @@ export class SharedController {
     const { id } = req.params
     const [result] = await this.sharedModel.find({ id })
     if (result) {
-      const { path, uuid } = result
+      const { path, uid: uuid } = result
       const base = path.shift()
       let p: string | boolean = ''
       let file: boolean | FileSystem.ItemInfo | FileSystem.ItemInfo[]

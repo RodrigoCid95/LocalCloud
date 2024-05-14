@@ -22,10 +22,10 @@ export class UsersAPIController {
     const results = this.usersModel.getUsers()
     res.json(results)
   }
-  @On(GET, '/:name')
+  @On(GET, '/:uid')
   @BeforeMiddleware([verifyPermission(USERS.USER)])
   public user(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): void {
-    const user = this.usersModel.getUser(req.params.name)
+    const user = this.usersModel.getUserByUID(Number(req.params.uid))
     if (user) {
       res.json(user)
     } else {
@@ -60,71 +60,72 @@ export class UsersAPIController {
     })
     res.json(true)
   }
-  @On(PUT, '/:name')
+  @On(PUT, '/:uid')
   @BeforeMiddleware([verifyPermission(USERS.UPDATE), decryptRequest])
   public update(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): void {
-    const { user_name, full_name, email, phone } = req.body
-    if (user_name) {
-      const result = this.usersModel.getUser(user_name)
-      if (result) {
-        res.json({
-          code: 'user-already-exists',
-          message: `El usuario ${user_name} ya existe!`
-        })
-        return
-      }
+    const { full_name, email, phone } = req.body
+    const result = this.usersModel.getUserByUID(Number(req.params.uid))
+    if (!result) {
+      res.status(400).json({
+        code: 'user-not-exist',
+        message: 'El usuario no existe.'
+      })
+      return
     }
-    this.usersModel.updateUser(user_name, { full_name, email, phone })
+    this.usersModel.updateUser(result.name, { full_name, email, phone })
     res.json(true)
   }
-  @On(DELETE, '/:name')
+  @On(DELETE, '/:uid')
   @BeforeMiddleware([verifyPermission(USERS.DELETE)])
   public async delete(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
-    await this.usersModel.deleteUser(req.params.name)
+    const user = this.usersModel.getUserByUID(Number(req.params.uid))
+    if (user) {
+      await this.usersModel.deleteUser(req.params.name)
+    }
     res.json(true)
   }
   @On(POST, '/assign-app')
   @BeforeMiddleware([verifyPermission(USERS.ASSIGN_APP), decryptRequest])
   public async assignApp(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
-    const { name, package_name } = req.body
-    if (name && package_name) {
-      const result = this.usersModel.getUser(name)
-      if (result) {
-        await this.usersModel.assignApp(name, package_name)
-        res.json(true)
-      } else {
-        res.status(400).json({
-          code: 'user-not-exist',
-          message: 'El usuario no existe.'
-        })
-      }
-    } else {
+    const { uid, package_name } = req.body
+    if (!uid || !package_name) {
       res.status(400).json({
         code: 'fields-required',
         message: 'Faltan campos!'
       })
+      return
     }
+    const result = this.usersModel.getUserByUID(Number(uid))
+    if (!result) {
+      res.status(400).json({
+        code: 'user-not-exist',
+        message: 'El usuario no existe.'
+      })
+      return
+    }
+    await this.usersModel.assignApp(result.uid, package_name)
+    res.json(true)
   }
   @On(POST, '/unassign-app')
   @BeforeMiddleware([verifyPermission(USERS.UNASSIGN_APP), decryptRequest])
   public async unassignApp(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
-    const { name, package_name } = req.body
-    if (name && package_name) {
-      const result = this.usersModel.getUser(name)
-      if (result) {
-        await this.usersModel.unassignApp(name, package_name)
-        res.json(true)
-      } else {
-        res.status(400).json({
-          code: 'user-not-exist',
-          message: 'El usuario no existe.'
-        })
-      }
-    } else {
+    const { uid, package_name } = req.body
+    if (!uid || !package_name) {
       res.status(400).json({
         code: 'fields-required',
         message: 'Faltan campos!'
       })
+      return
     }
+    const result = this.usersModel.getUserByUID(Number(uid))
+    if (!result) {
+      res.status(400).json({
+        code: 'user-not-exist',
+        message: 'El usuario no existe.'
+      })
+      return
+    }
+    await this.usersModel.unassignApp(result.uid, package_name)
+    res.json(true)
   }
 }

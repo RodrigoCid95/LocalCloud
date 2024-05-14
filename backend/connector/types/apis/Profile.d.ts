@@ -2,7 +2,7 @@ declare global {
   namespace Profile {
     type InfoMethod = () => Promise<Users.User>
     type ListAppsMethod = () => Promise<Apps.App[]>
-    type UpdateMethod = (data: Partial<Omit<Omit<Users.User, 'uuid'>, 'photo'>>) => Promise<void>
+    type UpdateMethod = (data: Partial<Omit<Users.User, 'uid'>>) => Promise<void>
     interface UpdatePasswordSuccess {
       ok: true
     }

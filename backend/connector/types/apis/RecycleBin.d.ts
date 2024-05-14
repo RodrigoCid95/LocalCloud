@@ -2,7 +2,7 @@ declare global {
   namespace RecycleBin {
     interface Item {
       id: string
-      uuid: string
+      uid: string
       path: string[]
       date: string
     }

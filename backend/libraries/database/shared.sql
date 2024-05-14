@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS shared (
   id TEXT PRIMARY KEY,
-  user_name TEXT,
+  uid INTEGER,
   path TEXT
 );

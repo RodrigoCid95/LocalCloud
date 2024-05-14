@@ -14,6 +14,7 @@ const { GET, PUT, DELETE } = METHODS
 @Namespace('api/apps', { before: [verifySession, decryptRequest] })
 export class AppsAPIController {
   @Model('DevModeModel') public devModeModel: Models<'DevModeModel'>
+  @Model('UsersModel') public usersModel: Models<'UsersModel'>
   @Model('AppsModel') private appsModel: Models<'AppsModel'>
   @On(GET, '/')
   @BeforeMiddleware([verifyPermission(APPS.APPS)])
@@ -21,10 +22,18 @@ export class AppsAPIController {
     const results = await this.appsModel.getApps()
     res.json(results)
   }
-  @On(GET, '/:name')
+  @On(GET, '/:uid')
   @BeforeMiddleware([verifyPermission(APPS.APPS_BY_UUID)])
-  public async appsByUUID(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
-    const results = await this.appsModel.getAppsByUUID(req.params.name)
+  public async appsByUID(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
+    const user = this.usersModel.getUserByUID(Number(req.params.uid || 'NaN'))
+    if (!user) {
+      res.status(400).json({
+        code: 'user-not-exist',
+        message: 'El usuario no existe.'
+      })
+      return
+    }
+    const results = await this.appsModel.getAppsByUID(user.uid)
     res.json(results)
   }
   @On(PUT, '/')

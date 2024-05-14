@@ -7,12 +7,12 @@ declare global {
       author: string
     }
     type ListMethod = () => Promise<App[]>
-    type ListByUUIDMethod = (name: Users.User['name']) => Promise<App[]>
+    type ListByUIDMethod = (uid: Users.User['uid']) => Promise<App[]>
     type InstallMethod = (file: File) => FileTransfer
     type UninstallMethod = (package_name: App['package_name']) => Promise<void>
     interface Connector {
       list: ListMethod
-      listByUUID: ListByUUIDMethod
+      listByUID: ListByUIDMethod
       install: InstallMethod
       uninstall: UninstallMethod
     }
