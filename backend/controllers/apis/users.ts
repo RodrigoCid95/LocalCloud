@@ -34,7 +34,7 @@ export class UsersAPIController {
   }
   @On(POST, '/')
   @BeforeMiddleware([verifyPermission(USERS.CREATE), decryptRequest])
-  public create(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): void {
+  public async create(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
     const { email, full_name, phone, name, password } = req.body
     if (!full_name || !name || !password) {
       res.status(400).json({
@@ -51,7 +51,7 @@ export class UsersAPIController {
       })
       return
     }
-    this.usersModel.createUser({
+    await this.usersModel.createUser({
       name,
       full_name,
       email,

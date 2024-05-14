@@ -66,7 +66,7 @@ export class ProfileAPIController {
   }
   @On(PUT, '/')
   @BeforeMiddleware([verifyPermission(PROFILE.UPDATE_PASSWORD), decryptRequest])
-  public updatePassword(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): void {
+  public async updatePassword(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
     const { current_password, new_password } = req.body
     if (!current_password || !new_password) {
       res.status(400).json({
@@ -76,7 +76,7 @@ export class ProfileAPIController {
       return
     }
     if (this.usersModel.verifyPassword(req.session.user?.name || '', current_password)) {
-      this.usersModel.updatePassword(req.session.user?.name || '', new_password)
+      await this.usersModel.updatePassword(req.session.user?.name || '', new_password)
       res.json({ ok: true })
     } else {
       res.status(400).json({ ok: false, message: 'La contraseña es incorrecta!' })

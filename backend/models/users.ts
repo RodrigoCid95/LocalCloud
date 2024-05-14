@@ -36,7 +36,7 @@ export class UsersModel {
   private writeConfig(config: any) {
     const smbStrConfig = ini.stringify(config)
     fs.writeFileSync(this.paths.samba, smbStrConfig, 'utf8')
-    console.log('(/etc/init.d/smbd restart):', child.execSync('/etc/init.d/smbd restart').toString('utf8'))
+    console.log(child.execSync('/etc/init.d/smbd restart').toString('utf8'))
   }
   private setConfig(name: string, config: { [x: string]: any }) {
     const smbConfig = this.loadConfig()
@@ -87,21 +87,18 @@ export class UsersModel {
       .filter(shadow => shadow[0] === userName)
     return hash
   }
-  public createUser(user: Users.New) {
+  public async createUser(user: Users.New) {
     const { name, password, full_name = '', email = '', phone = '' } = user
     const PASSWORD = this.encrypt.createHash(password)
-    let cmd: any = shellQuote.parse(
-      `useradd PASSWORD -m -G $GROUP -s "$BASH" -c $GECOS $USER_NAME`,
-      {
-        GROUP: 'lc',
-        BASH: '/bin/bash',
-        GECOS: shellQuote.quote([[full_name, email, phone].join(',')]).replace(/\\/g, ''),
-        USER_NAME: shellQuote.quote([name])
-      }
-    ).join(' ').replace('PASSWORD', `-p '${PASSWORD}'`)
-    console.log('\n', child.execSync(cmd).toString('utf8'))
-    cmd = `echo -e "${password}\\n${password}" | smbpasswd -a ${name}`
-    console.log('\n', child.execSync(cmd).toString('utf8'))
+    const cmd = `useradd -p '${PASSWORD}' -m -G lc -s /bin/bash -c ${shellQuote.quote([[full_name, email, phone].join(',')]).replace(/\\/g, '')} ${name}`
+    await new Promise<void>(resolve => child.exec(cmd, () => resolve()))
+    await new Promise<void>(resolve => {
+      const child_process = child.spawn('smbpasswd', ['-a', name])
+      child_process.on('close', resolve)
+      child_process.stdin.write(`${password}\n`)
+      child_process.stdin.write(`${password}\n`)
+      child_process.stdin.end()
+    })
     this.setConfig(name, {
       comment: `Directorio ${name}`,
       path: `/home/${name}`,
@@ -138,7 +135,7 @@ export class UsersModel {
     ).join(' ')
     console.log(`(${cmd}):`, child.execSync(cmd).toString('utf8'))
   }
-  public updatePassword(name: string, password: string) {
+  public async updatePassword(name: string, password: string) {
     const PASSWORD = this.encrypt.createHash(password)
     let cmd = shellQuote.parse(
       `usermod PASSWORD $USER_NAME`,
@@ -150,11 +147,13 @@ export class UsersModel {
       { USER_NAME: shellQuote.quote([name]) }
     ).join(' ')
     console.log(`(${cmd}):`, child.execSync(cmd).toString('utf8'))
-    cmd = shellQuote.parse(
-      `smbpasswd -a $USER_NAME -s $PASSWORD`,
-      { USER_NAME: shellQuote.quote([name]), PASSWORD: password }
-    ).join(' ')
-    console.log(`(${cmd}):`, child.execSync(cmd).toString('utf8'))
+    await new Promise<void>(resolve => {
+      const child_process = child.spawn('smbpasswd', [name])
+      child_process.on('close', resolve)
+      child_process.stdin.write(`${password}\n`)
+      child_process.stdin.write(`${password}\n`)
+      child_process.stdin.end()
+    })
   }
   public deleteUser(userName: string) {
     const USER_NAME = shellQuote.quote([userName])
