@@ -23,7 +23,7 @@ export class AppsAPIController {
     res.json(results)
   }
   @On(GET, '/:uid')
-  @BeforeMiddleware([verifyPermission(APPS.APPS_BY_UUID)])
+  @BeforeMiddleware([verifyPermission(APPS.APPS_BY_UID)])
   public async appsByUID(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
     const user = this.usersModel.getUserByUID(Number(req.params.uid || 'NaN'))
     if (!user) {
