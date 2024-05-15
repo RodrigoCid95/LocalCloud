@@ -11,9 +11,6 @@ export class UsersModel {
   @Library('encrypt') encrypt: Encrypting.Class
   @Library('database') private database: Database
   constructor() {
-    if (!this.loadGroup()) {
-      console.log('(groupadd lc):', child.execSync('groupadd lc').toString('utf8'))
-    }
     if (!this.loadConfig('Carpeta Compartida')) {
       this.setConfig('Carpeta Compartida', {
         comment: 'Carpeta Compartida',

@@ -1,3 +1,4 @@
+import { spawn } from 'node:child_process'
 import fs from 'node:fs'
 import path from 'node:path'
 
@@ -76,7 +77,7 @@ class Paths implements Paths.Class {
   }
 }
 
-export const paths = () => {
+export const paths = async () => {
   const paths = new Paths(configs.get('paths'))
   if (!fs.existsSync(paths.system)) {
     fs.mkdirSync(paths.system)
@@ -85,8 +86,29 @@ export const paths = () => {
     fs.mkdirSync(paths.apps)
   }
   if (!fs.existsSync(paths.shared)) {
-    console.error(`Shared Dir Error: El directorio "${paths.shared}" no existe.`)
-    process.exit(1)
+    const GROUP_CONTENT = fs.readFileSync(paths.groups, 'utf8')
+    const GROUP_LINES = GROUP_CONTENT.split('\n').filter(line => line !== '')
+    const [GROUP] = GROUP_LINES
+      .map(line => line.split(':'))
+      .map(line => ({
+        id: Number(line[2]),
+        name: line[0],
+        users: (line[3]).split(',')
+      }))
+      .filter(group => group.name === 'lc')
+    if (GROUP) {
+      await new Promise<void>(resolve => {
+        const child_process = spawn('groupadd', ['lc'])
+        child_process.on('close', resolve)
+        child_process.stdin.end()
+      })
+    }
+    fs.mkdirSync(paths.shared, { recursive: true })
+    await new Promise<void>(resolve => {
+      const child_process = spawn('chown', ['lc', paths.shared])
+      child_process.on('close', resolve)
+      child_process.stdin.end()
+    })
   }
   moduleEmitters.emit('Paths:ready')
   return paths
