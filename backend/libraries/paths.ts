@@ -1,6 +1,7 @@
 import { spawn } from 'node:child_process'
 import fs from 'node:fs'
 import path from 'node:path'
+import ini from 'ini'
 
 declare const configs: PXIO.Configs
 declare const moduleEmitters: PXIO.Emitters
@@ -106,6 +107,25 @@ export const paths = async () => {
     fs.mkdirSync(paths.shared, { recursive: true })
     await new Promise<void>(resolve => {
       const child_process = spawn('chown', ['lc', paths.shared])
+      child_process.on('close', resolve)
+      child_process.stdin.end()
+    })
+  }
+  const SMB_CONFIG = fs.readFileSync(paths.samba, 'utf8')
+  const smbConfig = ini.parse(SMB_CONFIG)
+  if (!smbConfig['Carpeta Compartida']) {
+    smbConfig['Carpeta Compartida'] = {
+      comment: 'Carpeta Compartida',
+      path: paths.shared,
+      browsable: 'yes',
+      writable: 'yes',
+      'guest ok': 'no',
+      'valid users': '@lc'
+    }
+    const smbStrConfig = ini.stringify(smbConfig)
+    fs.writeFileSync(paths.samba, smbStrConfig, 'utf8')
+    await new Promise<void>(resolve => {
+      const child_process = spawn('/etc/init.d/smbd', ['restart'])
       child_process.on('close', resolve)
       child_process.stdin.end()
     })

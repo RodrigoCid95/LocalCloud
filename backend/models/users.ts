@@ -10,20 +10,8 @@ export class UsersModel {
   @Library('paths') paths: Paths.Class
   @Library('encrypt') encrypt: Encrypting.Class
   @Library('database') private database: Database
-  constructor() {
-    if (!this.loadConfig('Carpeta Compartida')) {
-      this.setConfig('Carpeta Compartida', {
-        comment: 'Carpeta Compartida',
-        path: '/shared',
-        browsable: 'yes',
-        writable: 'yes',
-        'guest ok': 'no',
-        'valid users': '@lc'
-      })
-    }
-  }
   private loadConfig(name?: Users.User['name']) {
-    const SMB_CONFIG = fs.readFileSync('/etc/samba/smb.conf', 'utf8')
+    const SMB_CONFIG = fs.readFileSync(this.paths.samba, 'utf8')
     const smbConfig = ini.parse(SMB_CONFIG)
     if (name) {
       return smbConfig[name]
