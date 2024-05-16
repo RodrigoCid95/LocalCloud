@@ -61,7 +61,7 @@ export class UsersAPIController {
   }
   @On(PUT, '/:uid')
   @BeforeMiddleware([verifyPermission(USERS.UPDATE), decryptRequest])
-  public update(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): void {
+  public async update(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
     const { full_name, email, phone } = req.body
     const result = this.usersModel.getUserByUID(Number(req.params.uid))
     if (!result) {
@@ -71,7 +71,7 @@ export class UsersAPIController {
       })
       return
     }
-    this.usersModel.updateUser(result.name, { full_name, email, phone })
+    await this.usersModel.updateUser(result.name, { full_name, email, phone })
     res.json(true)
   }
   @On(DELETE, '/:uid')

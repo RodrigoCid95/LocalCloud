@@ -51,7 +51,6 @@
 		],
 		"loader": {
 			".sql": "text"
-		},
-		"releaseDir": "release/local-cloud"
+		}
 	}
 }

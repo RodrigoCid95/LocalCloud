@@ -13,7 +13,11 @@ export class IndexController {
   @On(GET, '/')
   @BeforeMiddleware([devMode, tokens, verifySession])
   public dashboard(_: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): void {
-    res.render('dashboard', { title: 'LocalCloud - Dashboard', description: 'LocalCloud - Dashboard' })
+    if (this.devModeModel.devMode.config.enable) {
+      res.render('dev', { title: 'LocalCloud - Dev Mode', description: 'LocalCloud - Modo de desarrollo' })
+    } else {
+      res.render('dashboard', { title: 'LocalCloud - Dashboard', description: 'LocalCloud - Dashboard' })
+    }
   }
   @On(GET, '/login')
   @BeforeMiddleware([devMode, tokens, verifyNotSession])

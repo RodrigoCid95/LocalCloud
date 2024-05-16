@@ -2,7 +2,12 @@ import path from 'node:path'
 
 declare const isRelease: boolean
 
-const system: string = path.resolve(isRelease ? '/' : '.', 'lc')
+let system: string
+if (isRelease) {
+  system = path.resolve('/', 'var', 'lc')
+} else {
+  system = path.resolve('.', 'lc')
+}
 const systemApps: string = path.join(system, 'apps')
 const systemApp: string = path.join(system, 'apps', ':packagename')
 const systemDatabases: string = path.join(systemApp, 'data')

@@ -35,7 +35,7 @@ export class ProfileAPIController {
   }
   @On(POST, '/')
   @BeforeMiddleware([verifyPermission(PROFILE.UPDATE), decryptRequest])
-  public update(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): void {
+  public async update(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
     if (req.session.user) {
       const { user_name, full_name, email, phone } = req.body
       if (user_name) {
@@ -48,7 +48,7 @@ export class ProfileAPIController {
           return
         }
       }
-      this.usersModel.updateUser(
+      await this.usersModel.updateUser(
         req.session.user.name,
         { full_name, email, phone }
       )
