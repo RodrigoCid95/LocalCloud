@@ -85,7 +85,7 @@ export class UsersModel {
       child_process.stdin.end()
     })
     this.setConfig(name, {
-      comment: `Directorio ${name}`,
+      comment: `Directorio de ${name}`,
       path: `/home/${name}`,
       browsable: 'yes',
       writable: 'yes',

@@ -1,4 +1,3 @@
-import { v4, v5 } from 'uuid'
 import { verifySession } from './middlewares/session'
 import { verifyPermission } from './middlewares/permissions'
 import { decryptRequest } from './middlewares/encrypt'
@@ -36,7 +35,7 @@ export class UsersAPIController {
   @BeforeMiddleware([verifyPermission(USERS.CREATE), decryptRequest])
   public async create(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
     const { email, full_name, phone, name, password } = req.body
-    if (!full_name || !name || !password) {
+    if (!name || !password) {
       res.status(400).json({
         code: 'fields-required',
         message: 'Faltan campos!'

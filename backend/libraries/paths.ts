@@ -86,31 +86,6 @@ export const paths = async () => {
   if (!fs.existsSync(paths.apps)) {
     fs.mkdirSync(paths.apps)
   }
-  if (!fs.existsSync(paths.shared)) {
-    const GROUP_CONTENT = fs.readFileSync(paths.groups, 'utf8')
-    const GROUP_LINES = GROUP_CONTENT.split('\n').filter(line => line !== '')
-    const [GROUP] = GROUP_LINES
-      .map(line => line.split(':'))
-      .map(line => ({
-        id: Number(line[2]),
-        name: line[0],
-        users: (line[3]).split(',')
-      }))
-      .filter(group => group.name === 'lc')
-    if (GROUP) {
-      await new Promise<void>(resolve => {
-        const child_process = spawn('groupadd', ['lc'])
-        child_process.on('close', resolve)
-        child_process.stdin.end()
-      })
-    }
-    fs.mkdirSync(paths.shared, { recursive: true })
-    await new Promise<void>(resolve => {
-      const child_process = spawn('chown', ['lc', paths.shared])
-      child_process.on('close', resolve)
-      child_process.stdin.end()
-    })
-  }
   const SMB_CONFIG = fs.readFileSync(paths.samba, 'utf8')
   const smbConfig = ini.parse(SMB_CONFIG)
   if (!smbConfig['Carpeta Compartida']) {

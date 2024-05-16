@@ -1,16 +1,8 @@
 import path from 'node:path'
 
-declare const flags: PXIO.Flags
+declare const isRelease: boolean
 
-let systemDir = flags.get('system-dir') as string
-
-if (systemDir) {
-  systemDir = path.resolve(systemDir)
-} else {
-  systemDir = path.resolve(__dirname, '..')
-}
-
-const system: string = path.join(systemDir, '.lc')
+const system: string = path.resolve(isRelease ? '/' : '.', 'lc')
 const systemApps: string = path.join(system, 'apps')
 const systemApp: string = path.join(system, 'apps', ':packagename')
 const systemDatabases: string = path.join(systemApp, 'data')
