@@ -1,7 +1,7 @@
-backend/.release
+backend/release/local-cloud
+backend/release/apps
 backend/.debugger
-backend/.lc
-backend/.users
+backend/lc
 backend/node_modules
 backend/package-lock.json
 backend/public

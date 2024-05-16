@@ -46,14 +46,14 @@
 		"resources": [
 			"views",
 			"public",
-			".lc",
-			".users",
 			"connector.ts",
 			"ecosystem.json",
-			"connector"
+			"connector",
+			"run.sh"
 		],
 		"loader": {
 			".sql": "text"
-		}
+		},
+		"releaseDir": "release/local-cloud"
 	}
 }
