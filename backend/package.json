@@ -46,8 +46,6 @@
 		"resources": [
 			"views",
 			"public",
-			"connector.ts",
-			"ecosystem.json",
 			"connector",
 			"run.sh"
 		],

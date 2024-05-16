@@ -1,9 +1,0 @@
-{
-  "apps": [
-    {
-      "name": "LocalCloud",
-      "script": "npm",
-      "args": "start -- --system-dir .."
-    }
-  ]
-}
