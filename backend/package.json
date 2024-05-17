@@ -46,8 +46,7 @@
 		"resources": [
 			"views",
 			"public",
-			"connector",
-			"run.sh"
+			"connector"
 		],
 		"loader": {
 			".sql": "text"
