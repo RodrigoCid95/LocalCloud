@@ -100,7 +100,7 @@ export class UsersModel {
     console.log(`---------------------------- Create User: ${name} ----------------------------`)
     await run({
       title: 'Create User',
-      command: 'useradd',
+      command: '/usr/sbin/useradd',
       args: ['-m', '-G', 'lc', '-s', '/bin/bash', '-c', shellQuote.quote([[full_name, email, phone].join(',')]).replace(/\\/g, ''), name]
     })
     await run({
@@ -157,7 +157,7 @@ export class UsersModel {
     const { full_name = '', email = '', phone = '' } = user
     await run({
       title: `Update User ${name}`,
-      command: 'usermod',
+      command: '/usr/sbin/usermod',
       args: ['-c', shellQuote.quote([[full_name, email, phone].join(',')]), name]
     })
   }
@@ -173,11 +173,6 @@ export class UsersModel {
         stdin.write(`${password}\n`)
         stdin.end()
       }
-    })
-    await run({
-      title: `Delete ${name} In Samba`,
-      command: 'smbpasswd',
-      args: ['-x', USER_NAME]
     })
     await run({
       title: `Delete ${name} In Samba`,
@@ -211,7 +206,7 @@ export class UsersModel {
     })
     await run({
       title: `Delete User ${name}`,
-      command: 'userdel',
+      command: '/usr/sbin/userdel',
       args: ['-r', USER_NAME]
     })
     const smbConfig = this.loadConfig()
