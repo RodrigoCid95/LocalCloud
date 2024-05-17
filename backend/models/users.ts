@@ -20,6 +20,7 @@ const run = ({ title, command, args, proc }: RunOptions): Promise<void> => new P
   child_process.on('close', resolve)
   child_process.stdout.on('data', (data) => console.log(TITLE, data.toString('utf8')))
   child_process.stderr.on('data', (data) => console.error(TITLE, data.toString('utf8')))
+  child_process.on('error', (error) => console.log(TITLE, error.message))
   if (proc) {
     proc(child_process.stdin)
   }
@@ -98,10 +99,11 @@ export class UsersModel {
   public async createUser(user: Users.New): Promise<void> {
     const { name, password, full_name = '', email = '', phone = '' } = user
     console.log(`---------------------------- Create User: ${name} ----------------------------`)
+    const PASSWORD = this.encrypt.createHash(password)
     await run({
       title: 'Create User',
       command: '/usr/sbin/useradd',
-      args: ['-m', '-G', 'lc', '-s', '/bin/bash', '-c', shellQuote.quote([[full_name, email, phone].join(',')]).replace(/\\/g, ''), name]
+      args: ['-p', PASSWORD, '-m', '-G', 'lc', '-s', '/bin/bash', '-c', shellQuote.quote([[full_name, email, phone].join(',')]).replace(/\\/g, ''), name]
     })
     await run({
       title: 'Set Password To New User',
