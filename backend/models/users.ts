@@ -1,35 +1,15 @@
-import type internal from 'node:stream'
 import type { Database } from 'sqlite3'
 import fs from 'node:fs'
-import child from 'node:child_process'
 import shellQuote from 'shell-quote'
 import ini from 'ini'
 
 declare const Library: PXIO.LibraryDecorator
 
-interface RunOptions {
-  title: string
-  command: string
-  args: string[]
-  proc?: (stdin: internal.Writable) => void
-}
-
-const run = ({ title, command, args, proc }: RunOptions): Promise<void> => new Promise(resolve => {
-  const TITLE = `[${title}]:`
-  const child_process = child.spawn(command, args)
-  child_process.on('close', resolve)
-  child_process.stdout.on('data', (data) => console.log(TITLE, data.toString('utf8')))
-  child_process.stderr.on('data', (data) => console.error(TITLE, data.toString('utf8')))
-  child_process.on('error', (error) => console.log(TITLE, error.message))
-  if (proc) {
-    proc(child_process.stdin)
-  }
-})
-
 export class UsersModel {
   @Library('paths') paths: Paths.Class
   @Library('encrypt') encrypt: Encrypting.Class
   @Library('database') private database: Database
+  @Library('process') private run: Process.Run
   private loadConfig(name?: Users.User['name']) {
     const SMB_CONFIG = fs.readFileSync(this.paths.samba, 'utf8')
     const smbConfig = ini.parse(SMB_CONFIG)
@@ -38,23 +18,23 @@ export class UsersModel {
     }
     return smbConfig
   }
-  private writeConfig(config: UserConfig): void {
+  private async writeConfig(config: UserConfig): Promise<void> {
     const smbStrConfig = ini.stringify(config)
     fs.writeFileSync(this.paths.samba, smbStrConfig, 'utf8')
-    run({
+    await this.run({
       title: 'Restart Samba',
       command: '/etc/init.d/smbd',
       args: ['restart']
     })
   }
-  private setConfig(name: string, config: UserConfig): void {
+  private async setConfig(name: string, config: UserConfig): Promise<void> {
     const smbConfig = this.loadConfig()
     smbConfig[name] = {}
     const entries = Object.entries(config)
     for (const [key, value] of entries) {
       smbConfig[name][key] = value
     }
-    this.writeConfig(smbConfig)
+    await this.writeConfig(smbConfig)
   }
   private loadGroup(): Group | undefined {
     const GROUP_CONTENT = fs.readFileSync(this.paths.groups, 'utf8')
@@ -100,22 +80,12 @@ export class UsersModel {
     const { name, password, full_name = '', email = '', phone = '' } = user
     console.log(`---------------------------- Create User: ${name} ----------------------------`)
     const PASSWORD = this.encrypt.createHash(password)
-    await run({
+    await this.run({
       title: 'Create User',
       command: '/usr/sbin/useradd',
       args: ['-p', PASSWORD, '-m', '-G', 'lc', '-s', '/bin/bash', '-c', shellQuote.quote([[full_name, email, phone].join(',')]).replace(/\\/g, ''), name]
     })
-    await run({
-      title: 'Set Password To New User',
-      command: 'passwd',
-      args: [name],
-      proc(stdin) {
-        stdin.write(`${password}\n`)
-        stdin.write(`${password}\n`)
-        stdin.end()
-      }
-    })
-    await run({
+    await this.run({
       title: 'Set New User In Samba',
       command: 'smbpasswd',
       args: ['-a', name],
@@ -125,7 +95,7 @@ export class UsersModel {
         stdin.end()
       }
     })
-    this.setConfig(name, {
+    await this.setConfig(name, {
       comment: `Directorio de ${name}`,
       path: `/home/${name}`,
       browsable: 'yes',
@@ -157,7 +127,7 @@ export class UsersModel {
   }
   public async updateUser(name: Users.User['name'], user: Omit<Omit<Users.User, 'name'>, 'uid'>): Promise<void> {
     const { full_name = '', email = '', phone = '' } = user
-    await run({
+    await this.run({
       title: `Update User ${name}`,
       command: '/usr/sbin/usermod',
       args: ['-c', shellQuote.quote([[full_name, email, phone].join(',')]), name]
@@ -166,7 +136,7 @@ export class UsersModel {
   public async updatePassword(name: Users.User['name'], password: string): Promise<void> {
     console.log(`----------------------------Update password: ${name}----------------------------`)
     const USER_NAME = shellQuote.quote([name])
-    await run({
+    await this.run({
       title: `Update Password To User ${name}`,
       command: 'passwd',
       args: [USER_NAME],
@@ -176,12 +146,12 @@ export class UsersModel {
         stdin.end()
       }
     })
-    await run({
+    await this.run({
       title: `Delete ${name} In Samba`,
       command: 'smbpasswd',
       args: ['-x', USER_NAME]
     })
-    await run({
+    await this.run({
       title: `Set User ${name} In Samba`,
       command: 'smbpasswd',
       args: ['-a', USER_NAME],
@@ -196,24 +166,24 @@ export class UsersModel {
   public async deleteUser(name: Users.User['name']) {
     console.log(`---------------------------- Delete User: ${name} ----------------------------`)
     const USER_NAME = shellQuote.quote([name])
-    await run({
+    await this.run({
       title: `Delete User ${name} In Samba`,
       command: 'smbpasswd',
       args: ['-x', USER_NAME]
     })
-    await run({
+    await this.run({
       title: `Kill proccess Of ${name}`,
       command: 'pkill',
       args: ['-u', USER_NAME]
     })
-    await run({
+    await this.run({
       title: `Delete User ${name}`,
       command: '/usr/sbin/userdel',
       args: ['-r', USER_NAME]
     })
     const smbConfig = this.loadConfig()
     delete smbConfig[name]
-    this.writeConfig(smbConfig)
+    await this.writeConfig(smbConfig)
     console.log('------------------------------ End Delete User ----------------------------------')
   }
   public async assignApp(uid: Users.User['uid'], package_name: string): Promise<void> {

@@ -1,11 +1,11 @@
 import fs from 'node:fs'
 import path from 'node:path'
-import child from 'node:child_process'
 
 declare const Library: PXIO.LibraryDecorator
 
 export class FileSystemModel {
   @Library('paths') private paths: Paths.Class
+  @Library('process') private run: Process.Run
   public resolveFileOrDirectory(result: string | boolean): boolean | FileSystem.ItemInfo[] | FileSystem.ItemInfo {
     if (typeof result === 'boolean') {
       return false
@@ -62,28 +62,44 @@ export class FileSystemModel {
     }
     return result
   }
-  public writeToShared(segments: string[], data: Buffer) {
+  public async writeToShared(segments: string[], data: Buffer): Promise<void> {
     const filePath = this.paths.resolveSharedPath({ segments, verify: false }) as string
     fs.writeFileSync(filePath, data, { encoding: 'utf-8' })
-    child.execSync(`chown :lc ${filePath}`)
+    await this.run({
+      title: 'Set Permission To Shared Item',
+      command: 'chown',
+      args: [':lc', filePath]
+    })
   }
-  public writeToUser(name: Users.User['name'], segments: string[], data: Buffer) {
+  public async writeToUser(name: Users.User['name'], segments: string[], data: Buffer): Promise<void> {
     const filePath = this.paths.resolveUserPath({ name, segments, verify: false }) as string
     fs.writeFileSync(filePath, data, { encoding: 'utf-8' })
-    child.execSync(`chown ${name} ${filePath}`)
+    await this.run({
+      title: 'Set Owner To User',
+      command: 'chown',
+      args: [name, filePath]
+    })
   }
-  public mkdirToShared(segments: string[]) {
+  public async mkdirToShared(segments: string[]): Promise<void> {
     const dirPath = this.paths.resolveSharedPath({ segments, verify: false }) as string
     if (!fs.existsSync(dirPath)) {
       fs.mkdirSync(dirPath, { recursive: true })
-      child.execSync(`chown -R lc ${dirPath}`)
+      await this.run({
+        title: 'Set Permission To Shared Dir',
+        command: 'chown',
+        args: ['-R', 'lc', dirPath]
+      })
     }
   }
-  public mkdirToUser(name: Users.User['name'], segments: string[]) {
+  public async mkdirToUser(name: Users.User['name'], segments: string[]): Promise<void> {
     const dirPath = this.paths.resolveUserPath({ name, segments, verify: false }) as string
     if (!fs.existsSync(dirPath)) {
       fs.mkdirSync(dirPath, { recursive: true })
-      child.execSync(`chown ${name} ${dirPath}`)
+      await this.run({
+        title: 'Set Permission To User Dir',
+        command: 'chown',
+        args: [name, dirPath]
+      })
     }
   }
   public rmToShared(segments: string[]) {
@@ -109,7 +125,7 @@ export class FileSystemModel {
     }
     return result
   }
-  public copy(name: string, origin: string[], dest: string[], move: boolean = false) {
+  public async copy(name: string, origin: string[], dest: string[], move: boolean = false): Promise<void> {
     const originPath = this.resolvePath(name, origin, true)
     if (typeof originPath === 'boolean') {
       return
@@ -129,15 +145,23 @@ export class FileSystemModel {
       dp = destPath
     } else {
       while (fs.existsSync(destPath)) {
-        destPath += '-copia'
+        destPath += ' - copia'
       }
       fs.cpSync(originPath, destPath, { recursive: true })
       dp = destPath
     }
     if (dp.split(this.paths.shared).length === 1) {
-      child.execSync(`chown ${name} ${dp}`)
+      await this.run({
+        title: 'Set Permission To User Dir',
+        command: 'chown',
+        args: [name, dp]
+      })
     } else {
-      child.execSync(`chown :lc ${dp}`)
+      await this.run({
+        title: 'Set Permission To Shared Item',
+        command: 'chown',
+        args: [':lc', dp]
+      })
     }
     if (move) {
       fs.rmSync(originPath, { recursive: true, force: true })
