@@ -11,8 +11,12 @@ declare global {
       code: 'not-found'
       message: string
     }
-    type SharedLsMethod = (path: string[]) => Promise<ItemInfo[] | PathNotFound>
-    type UserLsMethod = (path: string[]) => Promise<ItemInfo[] | PathNotFound>
+    interface Filter {
+      ext?: string[]
+      showHidden?: boolean
+    }
+    type SharedLsMethod = (path: string[], filter?: Filter) => Promise<ItemInfo[] | PathNotFound>
+    type UserLsMethod = (path: string[], filter?: Filter) => Promise<ItemInfo[] | PathNotFound>
     type SharedMkdirMethod = (path: string[]) => Promise<void>
     type UserMkdirMethod = (path: string[]) => Promise<void>
     interface UploadFileOptions {

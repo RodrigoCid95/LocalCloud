@@ -18,8 +18,24 @@ export class FileSystemAPIController {
   @Model('DevModeModel') public devModeModel: Models<'DevModeModel'>
   @Model('FileSystemModel') private fsModel: Models<'FileSystemModel'>
   public filter(req: PXIOHTTP.Request, res: PXIOHTTP.Response): void {
-    const items: FileSystem.ItemInfo[] = (req as any).result
-    res.json(items.filter(item => !/^\./.test(item.name)))
+    let items: FileSystem.ItemInfo[] = (req as any).result
+    if (!req.query.showHidden) {
+      items = items.filter(item => !/^\./.test(item.name))
+    }
+    if (req.query.ext) {
+      const exts = (req.query.ext as string).split(',')
+      items = items.filter(item => {
+        let pass = false
+        for (const ext of exts) {
+          if (item.name.endsWith(`.${ext}`)) {
+            pass = true
+            break
+          }
+        }
+        return pass
+      })
+    }
+    res.json(items)
   }
   @On(POST, '/shared/list')
   @BeforeMiddleware([verifyPermission(FS.SHARED_DRIVE)])

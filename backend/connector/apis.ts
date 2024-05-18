@@ -1,18 +1,42 @@
 import type { ServerConector } from 'connector/Server'
 
-const ACCESS_SHARED_FILE_LIST = (server: ServerConector): FS.SharedLsMethod => path => server.send({
-  endpoint: 'fs/shared/list',
-  method: 'post',
-  data: { path }
-})
+const ACCESS_SHARED_FILE_LIST = (server: ServerConector): FS.SharedLsMethod => (path, filter) => {
+  const params = {}
+  if (filter) {
+    if (filter.ext) {
+      params['ext'] = filter.ext.join(',')
+    }
+    if (filter.showHidden) {
+      params['showHidden'] = true
+    }
+  }
+  return server.send({
+    endpoint: 'fs/shared/list',
+    method: 'post',
+    data: { path },
+    params
+  })
+}
 
 export { ACCESS_SHARED_FILE_LIST }
 
-const ACCESS_USER_FILE_LIST = (server: ServerConector): FS.UserLsMethod => path => server.send({
-  endpoint: 'fs/user/list',
-  method: 'post',
-  data: { path }
-})
+const ACCESS_USER_FILE_LIST = (server: ServerConector): FS.UserLsMethod => (path, filter) => {
+  const params = {}
+  if (filter) {
+    if (filter.ext) {
+      params['ext'] = filter.ext.join(',')
+    }
+    if (filter.showHidden) {
+      params['showHidden'] = true
+    }
+  }
+  return server.send({
+    endpoint: 'fs/user/list',
+    method: 'post',
+    data: { path },
+    params
+  })
+}
 
 export { ACCESS_USER_FILE_LIST }
 
