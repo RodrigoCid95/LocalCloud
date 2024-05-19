@@ -79,7 +79,7 @@ const callbacks = {
   async build(src) {
     const basedir = path.resolve(src, '..')
     const package_name = path.basename(basedir)
-    const distDir = path.join(basedir, '..', '..', '..', 'backend', 'release', 'apps', package_name)
+    const distDir = path.join(basedir, '..', 'dist', package_name)
     const codePath = path.join(distDir, 'code')
     if (!fs.existsSync(distDir)) {
       fs.mkdirSync(distDir, { recursive: true })
