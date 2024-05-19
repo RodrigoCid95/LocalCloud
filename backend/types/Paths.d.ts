@@ -7,17 +7,8 @@ declare global {
       groups: string
       system: {
         path: string
-        apps: {
-          path: string
-          app: {
-            path: string
-            public: string
-            databases: {
-              path: string
-              database: string
-            }
-          }
-        }
+        apps: string
+        storages: string
         database: string
       }
       users: {
@@ -33,6 +24,17 @@ declare global {
     interface ResolveUsersPathArgs extends ResolveSharedPathArgs {
       name: string
     }
+    interface GetAppGlobalStorageItemOptions {
+      packageName: string
+      item: string
+    }
+    interface GetAppUserStorageOptions {
+      packageName: string
+      user: string
+    }
+    interface GetAppUserStorageItemOptions extends GetAppUserStorageOptions {
+      item: string
+    }
     interface Class {
       readonly samba: string
       readonly shadow: string
@@ -41,13 +43,16 @@ declare global {
       readonly system: string
       readonly database: string
       readonly apps: string
+      readonly storages: string
       readonly users: string
       readonly shared: string
       readonly recycleBin: string
-      getApp(packagename: string): string
-      getAppPublic(packagename: string): string
-      getAppDatabases(packagename: string): string
-      getAppDatabase(packagename: string, name: string): string
+      getApp(packageName: string): string
+      getAppStorage(packageName: string): string
+      getAppGlobalStorage(packageName: string): string
+      getAppGlobalStorageItem(opts: GetAppGlobalStorageItemOptions): string
+      getAppUserStorage(opts: GetAppUserStorageOptions): string
+      getAppUserStorageItem(opts: GetAppUserStorageItemOptions): string
       getUser(name: string): string
       getRecycleBin(name: string): string
       getRecycleBinItem(name: string, id: string): string

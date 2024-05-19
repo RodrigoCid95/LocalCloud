@@ -347,3 +347,30 @@ const USER_LIST = (server: ServerConector): Users.ListMethod => () => server.sen
 })
 
 export { USER_LIST }
+
+const STORAGE = (server: ServerConector): Storage.Connector => ({
+  global: {
+    set: (name, data) => server.send({
+      endpoint: `storage/${name}`,
+      method: 'put',
+      data: { content: data }
+    }),
+    get: (name) => server.send({
+      endpoint: `storage/${name}`,
+      method: 'get'
+    })
+  },
+  user: {
+    set: (name, data) => server.send({
+      endpoint: `storage/user/${name}`,
+      method: 'put',
+      data: { content: data }
+    }),
+    get: (name) => server.send({
+      endpoint: `storage/user/${name}`,
+      method: 'get'
+    })
+  }
+})
+
+export { STORAGE }

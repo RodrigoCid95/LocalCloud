@@ -5,6 +5,8 @@ declare global {
       title: string
       description: string
       author: string
+      extensions?: string[]
+      useStorage?: boolean
     }
     type ListMethod = () => Promise<App[]>
     type ListByUIDMethod = (uid: Users.User['uid']) => Promise<App[]>

@@ -6,6 +6,7 @@ import './Profile'
 import './RecycleBin'
 import './Shared'
 import './SecureSources'
+import './Storage'
 import './Users'
 
 declare global {
@@ -19,6 +20,7 @@ declare global {
     shared: Shared.Connector
     sources: SecureSources.Connector
     users: Users.Connector
+    storage: Storage.Connector
   }
 }
 

@@ -31,12 +31,12 @@ export class LaunchController {
     const possibleApps: string[] = []
     for (const package_name of keys) {
       const app = apps[package_name]
-      if (app.extensions.includes(ext) || package_name === queryApp) {
+      if (app?.extensions?.includes(ext) || package_name === queryApp) {
         possibleApps.push(package_name)
       }
     }
     if (possibleApps.length > 0) {
-      res.redirect(`/app/${possibleApps[0]}?file=${req.url}`)
+      res.redirect(`/app/${possibleApps[0]}?open=${req.url}`)
       return
     }
     res.redirect(`/file${req.url.split('?')[0]}`)

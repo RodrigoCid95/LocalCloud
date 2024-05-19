@@ -25,6 +25,9 @@ export class APIController {
         const apis = req.session.apps[origin].permissions
           .filter(permission => permission.active)
           .map(permission => permission.api)
+        if (req.session.apps[origin].useStorage) {
+          apis.push('STORAGE')
+        }
         res.send(this.builderModel.build({ token, key, apis }))
       } else {
         if (origin === 0) {
@@ -48,4 +51,5 @@ export * from './profile'
 export * from './recycle-bin'
 export * from './shared'
 export * from './sources'
+export * from './storages'
 export * from './users'

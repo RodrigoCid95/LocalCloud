@@ -8,9 +8,6 @@ if (isRelease) {
 } else {
   system = path.resolve('.', 'lc')
 }
-const systemApps: string = path.join(system, 'apps')
-const systemApp: string = path.join(system, 'apps', ':packagename')
-const systemDatabases: string = path.join(systemApp, 'data')
 
 export const paths: Paths.Config = {
   samba: '/etc/samba/smb.conf',
@@ -19,17 +16,8 @@ export const paths: Paths.Config = {
   groups: '/etc/group',
   system: {
     path: system,
-    apps: {
-      path: systemApps,
-      app: {
-        path: systemApp,
-        public: path.join(systemApp, 'public'),
-        databases: {
-          path: systemDatabases,
-          database: path.join(systemDatabases, ':name.db')
-        }
-      }
-    },
+    apps: path.join(system, 'apps'),
+    storages: path.join(system, 'storages'),
     database: path.join(system, 'system.db')
   },
   users: {

@@ -26,7 +26,10 @@ class Paths implements Paths.Class {
     return this.config.system.database
   }
   get apps() {
-    return this.config.system.apps.path
+    return this.config.system.apps
+  }
+  get storages() {
+    return this.config.system.storages
   }
   get users() {
     return this.config.users.path
@@ -38,17 +41,23 @@ class Paths implements Paths.Class {
     return this.config.users.recycleBin
   }
   constructor(private config: Paths.Config) { }
-  getApp(packagename: string): string {
-    return this.config.system.apps.app.path.replace(/:packagename/, packagename)
+  getApp(packageName: string): string {
+    return path.join(this.apps, packageName)
   }
-  getAppPublic(packagename: string): string {
-    return this.config.system.apps.app.public.replace(/:packagename/, packagename)
+  getAppStorage(packageName: string): string {
+    return path.join(this.storages, packageName)
   }
-  getAppDatabases(packagename: string): string {
-    return this.config.system.apps.app.databases.path.replace(/:packagename/, packagename)
+  getAppGlobalStorage(packageName: string): string {
+    return path.join(this.storages, packageName, '.global')
   }
-  getAppDatabase(packagename: string, name: string): string {
-    return this.config.system.apps.app.databases.database.replace(/:packagename/, packagename).replace(/:name/, name)
+  getAppGlobalStorageItem({ packageName, item }: Paths.GetAppGlobalStorageItemOptions): string {
+    return path.join(this.storages, packageName, '.global', `${item}.json`)
+  }
+  getAppUserStorage({ packageName, user }: Paths.GetAppUserStorageOptions): string {
+    return path.join(this.storages, packageName, user)
+  }
+  getAppUserStorageItem({ packageName, user, item }: Paths.GetAppUserStorageItemOptions): string {
+    return path.join(this.storages, packageName, user, `${item}.json`)
   }
   getUser(name: string): string {
     return path.join(this.config.users.path, name)

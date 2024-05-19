@@ -3,5 +3,6 @@ CREATE TABLE IF NOT EXISTS apps (
     title TEXT NOT NULL,
     description TEXT,
     author TEXT NOT NULL,
-    extensions TEXT
+    extensions TEXT,
+    use_storage INTEGER
 );

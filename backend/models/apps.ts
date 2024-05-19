@@ -15,11 +15,12 @@ export class AppsModel {
     title: result.title,
     description: result.description,
     author: result.author,
-    extensions: (result.extensions || '').split('|')
+    extensions: (result.extensions || '').split('|'),
+    useStorage: result.use_storage === 1 ? true : false
   }))
   public getAppsByUID(uid: Users.User['uid']): Promise<Apps.App[]> {
     return new Promise(resolve => this.database.all<Apps.Result>(
-      'SELECT apps.package_name, apps.title, apps.description, apps.author FROM users_to_apps INNER JOIN apps ON users_to_apps.package_name = apps.package_name WHERE users_to_apps.uid = ?;',
+      'SELECT apps.package_name, apps.title, apps.description, apps.author, apps.use_storage FROM users_to_apps INNER JOIN apps ON users_to_apps.package_name = apps.package_name WHERE users_to_apps.uid = ?;',
       [uid],
       (error, rows) => error ? resolve([]) : resolve(this.parse(rows))
     ))
@@ -76,14 +77,14 @@ export class AppsModel {
         message: 'El archivo manifest.json no contiene un autor.'
       }
     }
-    const { title, description = 'Sin descripción', author, permissions: permissionList = {}, sources = [], extensions = [] } = manifestContent as any
+    const { title, description = 'Sin descripción', author, permissions: permissionList = {}, sources = [], extensions = [], 'use-storage': useStorage = false } = manifestContent as any
     const permissions: Apps.New['permissions'] = Object.keys(permissionList).map(api => ({
       api,
       justification: permissionList[api]
     }))
     await new Promise(resolve => this.database.run(
-      'INSERT INTO apps (package_name, title, description, author, extensions) VALUES (?, ?, ?, ?, ?);',
-      [package_name, title, description, author, extensions.join('|')],
+      'INSERT INTO apps (package_name, title, description, author, extensions, use_storage) VALUES (?, ?, ?, ?, ?, ?);',
+      [package_name, title, description, author, extensions.join('|'), useStorage ? 1 : 0],
       resolve
     ))
     for (const permission of permissions) {
@@ -100,8 +101,10 @@ export class AppsModel {
         resolve
       ))
     }
-    fs.cpSync(path.join(tempDir, 'code'), this.paths.getAppPublic(package_name), { recursive: true })
-    fs.mkdirSync(this.paths.getAppDatabases(package_name), { recursive: true })
+    fs.cpSync(path.join(tempDir, 'code'), this.paths.getApp(package_name), { recursive: true })
+    if (useStorage) {
+      fs.mkdirSync(this.paths.getAppGlobalStorage(package_name), { recursive: true })
+    }
     fs.rmSync(tempDir, { recursive: true, force: true })
     return true
   }
@@ -126,6 +129,10 @@ export class AppsModel {
       [package_name],
       resolve
     ))
+    const appStorage = this.paths.getAppStorage(package_name)
+    if (fs.existsSync(appStorage)) {
+      fs.rmSync(appStorage, { force: true, recursive: true })
+    }
     const appPath = this.paths.getApp(package_name)
     fs.rmSync(appPath, { recursive: true, force: true })
   }

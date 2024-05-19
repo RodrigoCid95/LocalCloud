@@ -37,7 +37,7 @@ export class AppController {
   }
   @On(METHODS.GET, '/:packagename/*')
   public source(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response) {
-    const appPath = this.appsModel.paths.getAppPublic(req.params.packagename)
+    const appPath = this.appsModel.paths.getApp(req.params.packagename)
     const pathSource = path.join(appPath, ...req.params[0].split('/'))
     res.sendFile(pathSource, error => {
       if (error) {

@@ -87,3 +87,6 @@ export const USERS = {
   ASSIGN_APP: 'ASSIGN_APP_TO_USER',
   UNASSIGN_APP: 'UNASSIGN_APP_TO_USER'
 }
+export const STORE = {
+  STORAGE: 'STORAGE'
+}

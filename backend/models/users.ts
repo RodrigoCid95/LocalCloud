@@ -1,5 +1,6 @@
 import type { Database } from 'sqlite3'
 import fs from 'node:fs'
+import path from 'node:path'
 import shellQuote from 'shell-quote'
 import ini from 'ini'
 
@@ -184,6 +185,13 @@ export class UsersModel {
     const smbConfig = this.loadConfig()
     delete smbConfig[name]
     await this.writeConfig(smbConfig)
+    const items = fs.readdirSync(this.paths.storages)
+    for (const item of items) {
+      const userStorage = path.join(item, name)
+      if (fs.existsSync(userStorage)) {
+        fs.rmSync(userStorage, { recursive: true, force: true })
+      }
+    }
     console.log('------------------------------ End Delete User ----------------------------------')
   }
   public async assignApp(uid: Users.User['uid'], package_name: string): Promise<void> {

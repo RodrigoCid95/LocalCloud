@@ -87,15 +87,23 @@ declare const $ASSIGN_APP_TO_USER: any
 declare const ASSIGN_APP_TO_USER: any
 declare const $UNASSIGN_APP_TO_USER: any
 declare const UNASSIGN_APP_TO_USER: any
+declare const $STORAGE: any
+declare const STORAGE: any
 //#endregion
 
 const server = new ServerConector()
 const connectors: Partial<Connectors> = {}
-const defineAPI = (name: keyof Connectors, api: string, callback: any) => {
-  if (!Object.prototype.hasOwnProperty.call(connectors, name)) {
-    Object.defineProperty(connectors, name, { value: {}, writable: false })
+const defineAPI = (name: keyof Connectors, api: string | boolean, callback: any) => {
+  if (typeof api === 'string') {
+    if (!Object.prototype.hasOwnProperty.call(connectors, name)) {
+      Object.defineProperty(connectors, name, { value: {}, writable: false })
+    }
+    Object.defineProperty(connectors[name], api, { value: callback(server), writable: false })
+  } else {
+    if (!Object.prototype.hasOwnProperty.call(connectors, name)) {
+      Object.defineProperty(connectors, name, { value: callback(server), writable: false })
+    }
   }
-  Object.defineProperty(connectors[name], api, { value: callback(server), writable: false })
 }
 
 //#region Auth
@@ -158,6 +166,9 @@ $UPDATE_USER_INFO && defineAPI('users', 'update', UPDATE_USER_INFO)
 $DELETE_USER && defineAPI('users', 'delete', DELETE_USER)
 $ASSIGN_APP_TO_USER && defineAPI('users', 'assignApp', ASSIGN_APP_TO_USER)
 $UNASSIGN_APP_TO_USER && defineAPI('users', 'unassignApp', UNASSIGN_APP_TO_USER)
+//#endregion
+//#region Store
+$STORAGE && defineAPI('storage', false, STORAGE)
 //#endregion
 
 Object.defineProperty(window, 'launchFile', { value: server.launchFile.bind(server), writable: false })
