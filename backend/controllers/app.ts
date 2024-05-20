@@ -12,11 +12,62 @@ export const verifyApp = (req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PX
   if (req.session?.apps && req.session?.apps[packagename]) {
     const app = req.session.apps[packagename]
     if (app) {
-      const font = app.secureSources.filter(item => item.type === 'font').join(' ')
-      const img = app.secureSources.filter(item => item.type === 'img').join(' ')
-      const connect = app.secureSources.filter(item => item.type === 'connect').join(' ')
-      const script = app.secureSources.filter(item => item.type === 'script').join(' ')
-      res.setHeader('Content-Security-Policy', `frame-ancestors 'self';font-src 'self'${font ? ` ${font}` : ''};img-src 'self' data:${img ? ` ${img}` : ''};connect-src 'self'${connect ? ` ${connect}` : ''};script-src-elem 'self'${script ? ` ${script}` : ''};`)
+      const directives = {
+        'default-src': ["'self'"],
+        'script-src': ["'self'", 'unsafe-inline'],
+        'style-src-elem': ["'self'", 'unsafe-inline'],
+        'image-src': ["'self'", 'data:'],
+        'font-src': ["'self'", 'data:']
+      }
+      const setDirective = (directive: string, value: string) => {
+        if (!directives[directive]) {
+          directives[directive] = ["'self'"]
+        }
+        if (!directives[directive].includes(value)) {
+          directives[directive].push(value)
+        }
+      }
+      const secureSources = app.secureSources.filter(item => item.active)
+      for (const item of secureSources) {
+        if (item.type === 'image') {
+          setDirective('image-src', item.source)
+          continue
+        }
+        if (item.type === 'media') {
+          setDirective('media-src', item.source)
+          continue
+        }
+        if (item.type === 'object') {
+          setDirective('object-src', item.source)
+          continue
+        }
+        if (item.type === 'script') {
+          setDirective('script-src', item.source)
+          continue
+        }
+        if (item.type === 'style') {
+          setDirective('style-src', item.source)
+          continue
+        }
+        if (item.type === 'worker') {
+          setDirective('worker-src', item.source)
+          continue
+        }
+        if (item.type === 'font') {
+          setDirective('font-src', item.source)
+          continue
+        }
+        if (item.type === 'connect') {
+          setDirective('connect-src', item.source)
+          continue
+        }
+      }
+      res.setHeader(
+        'Content-Security-Policy',
+        Object.entries(directives)
+          .map(([directive, value]) => `${directive} ${value.join(' ')}`)
+          .join('; ')
+      )
       next()
     } else {
       res.redirect('/')

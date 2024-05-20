@@ -1,5 +1,6 @@
 import { verifySession } from './middlewares/session'
 import { responseFile } from './middlewares/file'
+import { CSP } from './middlewares/csp'
 
 declare const Namespace: PXIOHTTP.NamespaceDecorator
 declare const Model: PXIO.ModelDecorator
@@ -9,7 +10,7 @@ declare const METHODS: PXIOHTTP.METHODS
 
 const { GET } = METHODS
 
-@Namespace('/file', { before: [verifySession] })
+@Namespace('/file', { before: [verifySession, CSP] })
 export class FileController {
   @Model('DevModeModel') public devModeModel: Models<'DevModeModel'>
   @Model('FileSystemModel') private fsModel: Models<'FileSystemModel'>

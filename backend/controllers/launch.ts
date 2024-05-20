@@ -1,3 +1,4 @@
+import { CSP } from './middlewares/csp'
 import { verifySession } from './middlewares/session'
 
 declare const Namespace: PXIOHTTP.NamespaceDecorator
@@ -8,7 +9,7 @@ declare const METHODS: PXIOHTTP.METHODS
 
 const { GET } = METHODS
 
-@Namespace('/launch', { before: [verifySession] })
+@Namespace('/launch', { before: [verifySession, CSP] })
 export class LaunchController {
   @Model('DevModeModel') public devModeModel: Models<'DevModeModel'>
   @Model('FileSystemModel') private fsModel: Models<'FileSystemModel'>

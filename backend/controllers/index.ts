@@ -1,6 +1,7 @@
 import { devMode } from './middlewares/dev-mode'
 import { verifySession, verifyNotSession } from './middlewares/session'
 import { tokens } from './middlewares/tokens'
+import { CSP } from './middlewares/csp'
 
 declare const Model: PXIO.ModelDecorator
 declare const On: PXIOHTTP.OnDecorator
@@ -11,7 +12,7 @@ const { GET } = METHODS
 export class IndexController {
   @Model('DevModeModel') public devModeModel: Models<'DevModeModel'>
   @On(GET, '/')
-  @BeforeMiddleware([devMode, tokens, verifySession])
+  @BeforeMiddleware([devMode, CSP, tokens, verifySession])
   public dashboard(_: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): void {
     if (this.devModeModel.devMode.config.enable) {
       res.render('dev', { title: 'LocalCloud - Dev Mode', description: 'LocalCloud - Modo de desarrollo' })
@@ -20,7 +21,7 @@ export class IndexController {
     }
   }
   @On(GET, '/login')
-  @BeforeMiddleware([devMode, tokens, verifyNotSession])
+  @BeforeMiddleware([devMode, CSP, tokens, verifyNotSession])
   public login(_: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): void {
     res.render('login', { title: 'LocalCloud - Iniciar sesión', description: 'LocalCloud - Iniciar sesión' })
   }

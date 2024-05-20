@@ -77,7 +77,7 @@ export class AppsModel {
         message: 'El archivo manifest.json no contiene un autor.'
       }
     }
-    const { title, description = 'Sin descripción', author, permissions: permissionList = {}, sources = [], extensions = [], 'use-storage': useStorage = false } = manifestContent as any
+    const { title, description = 'Sin descripción', author, permissions: permissionList = {}, sources = {}, extensions = [], 'use-storage': useStorage = false } = manifestContent as any
     const permissions: Apps.New['permissions'] = Object.keys(permissionList).map(api => ({
       api,
       justification: permissionList[api]
@@ -94,12 +94,16 @@ export class AppsModel {
         resolve
       ))
     }
-    for (const source of sources) {
-      await new Promise(resolve => this.database.run(
-        'INSERT INTO secure_sources (package_name, type, source, justification, active) VALUES (?, ?, ?, ?, ?)',
-        [package_name, source.type, source.source, source.justification || 'Sin justificación.', true],
-        resolve
-      ))
+    for (const [name, srcs] of Object.entries(sources)) {
+      if (['image', 'media', 'object', 'script', 'style', 'worker', 'font', 'connect'].includes(name)) {
+        for (const src of srcs as any[]) {
+          await new Promise(resolve => this.database.run(
+            'INSERT INTO secure_sources (package_name, type, source, justification, active) VALUES (?, ?, ?, ?, ?)',
+            [package_name, name, src.source, src.justification || 'Sin justificación.', true],
+            resolve
+          ))
+        }
+      }
     }
     fs.cpSync(path.join(tempDir, 'code'), this.paths.getApp(package_name), { recursive: true })
     if (useStorage) {

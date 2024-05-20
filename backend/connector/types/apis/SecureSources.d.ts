@@ -3,7 +3,7 @@ declare global {
     interface Source {
       id: number
       package_name: string
-      type: string
+      type: 'image' | 'media' | 'object' | 'script' | 'style' | 'worker' | 'font' | 'connect'
       source: string
       justification: string
       active: boolean
