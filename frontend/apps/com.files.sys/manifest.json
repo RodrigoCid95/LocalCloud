@@ -23,5 +23,5 @@
     "DELETE_ITEMS_TO_RECYCLE_BIN": "Permite eliminar de forma permanente elementos de la papelera de reciclaje.",
     "CLEAN_RECYCLE_BIN": "Permite vaciar la papelera de reciclaje."
   },
-  "sources": []
+  "use-storage": true
 }
