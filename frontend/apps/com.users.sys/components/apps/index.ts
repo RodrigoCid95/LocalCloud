@@ -3,35 +3,26 @@ import { customElement } from 'lit/decorators/custom-element.js'
 import { state } from 'lit/decorators/state.js'
 import { createRef, ref } from 'lit/directives/ref.js'
 
+import './item'
+
 @customElement('apps-user')
 export default class AppsUserElement extends LitElement implements HTMLAppsUserElement {
   @state() private apps: AppItem[] = []
+  @state() private loading: boolean = false
   private modal = createRef<HTMLIonModalElement>()
   private user?: Users.User
   async setUser(user: Users.User): Promise<void> {
+    await this.modal.value?.present()
+    this.loading = true
     this.apps = []
-    const loading = await window.loadingController.create({ message: 'Cargando lista de apps ...' })
-    await loading.present()
     this.user = user
     const userApps = await window.connectors.apps.listByUID(user.uid)
-    this.apps = (await window.connectors.apps.list()).map(app => ({
+    const appList = await window.connectors.apps.list()
+    this.apps = appList.map(app => ({
       ...app,
       assign: userApps.findIndex(userApp => app.package_name === userApp.package_name) > -1
     }))
-    await loading.dismiss()
-    await this.modal.value?.present()
-  }
-  async changeAssign(package_name: Apps.App['package_name'], value: boolean) {
-    const message = value ? 'Asignando ...' : 'Quitando asignación ...'
-    const loading = await window.loadingController.create({ message })
-    await loading.present()
-    if (value) {
-      await window.connectors.users.assignApp(this.user?.uid || NaN, package_name)
-    } else {
-      await window.connectors.users.unassignApp(this.user?.uid || NaN, package_name)
-    }
-    await loading.dismiss()
-    this.setUser(this.user as Users.User)
+    this.loading = false
   }
   handlerOnDismiss() {
     this.user = undefined
@@ -48,6 +39,7 @@ export default class AppsUserElement extends LitElement implements HTMLAppsUserE
                 <ion-icon slot="icon-only" name="close"></ion-icon>
               </ion-button>
             </ion-buttons>
+            ${this.loading ? html`<ion-progress-bar type="indeterminate"></ion-progress-bar>` : ''}
           </ion-toolbar>
         </ion-header>
         <ion-content class="ion-padding">
@@ -62,14 +54,7 @@ export default class AppsUserElement extends LitElement implements HTMLAppsUserE
                 <ion-label class="ion-text-center">No hay apps instaladas.</ion-label>
               </ion-item>
             ` : ''}
-            ${this.apps.map(app => html`
-              <ion-item>
-                <ion-toggle ?checked=${app.assign} @ionChange=${() => this.changeAssign(app.package_name, !app.assign)}>
-                  <ion-label>${app.title}</ion-label>
-                  <ion-note color="medium">${app.package_name}</ion-note>
-                </ion-toggle>
-              </ion-item>
-            `)}
+            ${this.apps.map(app => html`<apps-user-item .uid=${this.user?.uid} .app=${app} ?assign=${app.assign}></apps-user-item>`)}
           </ion-list>
         </ion-content>
       </ion-modal>
