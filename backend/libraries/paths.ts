@@ -28,6 +28,9 @@ class Paths implements Paths.Class {
   get apps() {
     return this.config.system.apps
   }
+  get appsTemplates() {
+    return this.config.system.appsTemplates
+  }
   get storages() {
     return this.config.system.storages
   }

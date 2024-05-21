@@ -15,6 +15,7 @@ declare global {
       token: string
       secureSources: SecureSources.Source[]
       permissions: Permissions.Permission[]
+      useTemplate: boolean
     }
     interface SessionApps {
       [package_name: string]: SessionApp

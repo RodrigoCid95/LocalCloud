@@ -20,7 +20,6 @@ if (devMode.enable) {
 }
 
 export const HTTP: PXIOHTTP.Config = {
-  /* port: 80, */
   optionsUrlencoded: { extended: true },
   engineTemplates: {
     name: 'liquid',

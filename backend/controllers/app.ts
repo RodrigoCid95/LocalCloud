@@ -84,7 +84,25 @@ export class AppController {
   @On(METHODS.GET, '/:packagename')
   public app(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response) {
     const app = (req.session as LocalCloud.SessionData).apps[req.params.packagename]
-    res.render('app', { title: app.title, description: app.description, package_name: req.params.packagename })
+    if (app.useTemplate) {
+      res.render(
+        `apps/${req.params.packagename.replace(/\./g, '-')}`,
+        {
+          title: app.title,
+          description: app.description,
+          package_name: req.params.packagename
+        }
+      )
+    } else {
+      res.render(
+        'app',
+        {
+          title: app.title,
+          description: app.description,
+          package_name: req.params.packagename
+        }
+      )
+    }
   }
   @On(METHODS.GET, '/:packagename/*')
   public source(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response) {

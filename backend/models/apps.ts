@@ -16,11 +16,12 @@ export class AppsModel {
     description: result.description,
     author: result.author,
     extensions: (result.extensions || '').split('|'),
-    useStorage: result.use_storage === 1 ? true : false
+    useStorage: result.use_storage === 1 ? true : false,
+    useTemplate: (result as any).use_template === 1 ? true : false
   }))
   public getAppsByUID(uid: Users.User['uid']): Promise<Apps.App[]> {
     return new Promise(resolve => this.database.all<Apps.Result>(
-      'SELECT apps.package_name, apps.title, apps.description, apps.author, apps.use_storage FROM users_to_apps INNER JOIN apps ON users_to_apps.package_name = apps.package_name WHERE users_to_apps.uid = ?;',
+      'SELECT apps.package_name, apps.title, apps.description, apps.author, apps.use_storage, apps.use_template FROM users_to_apps INNER JOIN apps ON users_to_apps.package_name = apps.package_name WHERE users_to_apps.uid = ?;',
       [uid],
       (error, rows) => error ? resolve([]) : resolve(this.parse(rows))
     ))
@@ -44,6 +45,20 @@ export class AppsModel {
     await unzipper.Open
       .buffer(data)
       .then(d => d.extract({ path: tempDir }))
+    let useTemplate = false
+    let template = '{% layout "layout.liquid" %}'
+    const headPath = path.join(tempDir, 'head.html')
+    if (fs.existsSync(headPath)) {
+      useTemplate = true
+      const headContent = fs.readFileSync(headPath, 'utf8')
+      template += `{% block head %}${headContent}{% endblock %}`
+    }
+    const bodyPath = path.join(tempDir, 'body.html')
+    if (fs.existsSync(bodyPath)) {
+      useTemplate = true
+      const bodyContent = fs.readFileSync(bodyPath, 'utf8')
+      template += `{% block body %}${bodyContent}{% endblock %}`
+    }
     const manifestPath = path.join(tempDir, 'manifest.json')
     if (!fs.existsSync(manifestPath)) {
       fs.rmSync(tempDir, { recursive: true, force: true })
@@ -83,8 +98,8 @@ export class AppsModel {
       justification: permissionList[api]
     }))
     await new Promise(resolve => this.database.run(
-      'INSERT INTO apps (package_name, title, description, author, extensions, use_storage) VALUES (?, ?, ?, ?, ?, ?);',
-      [package_name, title, description, author, extensions.join('|'), useStorage ? 1 : 0],
+      'INSERT INTO apps (package_name, title, description, author, extensions, use_storage, use_template) VALUES (?, ?, ?, ?, ?, ?, ?);',
+      [package_name, title, description, author, extensions.join('|'), useStorage ? 1 : 0, useTemplate ? 1 : 0],
       resolve
     ))
     for (const permission of permissions) {
@@ -108,6 +123,12 @@ export class AppsModel {
     fs.cpSync(path.join(tempDir, 'code'), this.paths.getApp(package_name), { recursive: true })
     if (useStorage) {
       fs.mkdirSync(this.paths.getAppGlobalStorage(package_name), { recursive: true })
+    }
+    if (useTemplate) {
+      if (!fs.existsSync(this.paths.appsTemplates)) {
+        fs.mkdirSync(this.paths.appsTemplates, { recursive: true })
+      }
+      fs.writeFileSync(path.join(this.paths.appsTemplates, `${package_name.replace(/\./g, '-')}.liquid`), template, 'utf8')
     }
     fs.rmSync(tempDir, { recursive: true, force: true })
     return true
@@ -139,6 +160,10 @@ export class AppsModel {
     }
     const appPath = this.paths.getApp(package_name)
     fs.rmSync(appPath, { recursive: true, force: true })
+    const templatePath = path.join(this.paths.appsTemplates, `${package_name.replace(/\./g, '-')}.liquid`)
+    if (fs.existsSync(templatePath)) {
+      fs.rmSync(templatePath, { recursive: true, force: true })
+    }
   }
 }
 

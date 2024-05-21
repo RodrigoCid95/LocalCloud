@@ -46,6 +46,7 @@ export class AuthAPIController {
             secureSources,
             permissions,
             token: v4(),
+            useTemplate: (app as any).useTemplate
           }
           req.session.apps[app.package_name] = sessionApp
         }

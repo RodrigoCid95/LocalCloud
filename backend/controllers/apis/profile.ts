@@ -31,7 +31,7 @@ export class ProfileAPIController {
       description: app.description,
       author: app.author
     }))
-    res.json(apps)
+    res.json(apps.map(({ package_name, title, description, author, extensions, useStorage }) => ({ package_name, title, description, author, extensions, useStorage })))
   }
   @On(POST, '/')
   @BeforeMiddleware([verifyPermission(PROFILE.UPDATE), decryptRequest])

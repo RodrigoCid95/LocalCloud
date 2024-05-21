@@ -8,6 +8,7 @@ declare global {
       system: {
         path: string
         apps: string
+        appsTemplates: string
         storages: string
         database: string
       }
@@ -43,6 +44,7 @@ declare global {
       readonly system: string
       readonly database: string
       readonly apps: string
+      readonly appsTemplates: string
       readonly storages: string
       readonly users: string
       readonly shared: string

@@ -17,6 +17,7 @@ export const paths: Paths.Config = {
   system: {
     path: system,
     apps: path.join(system, 'apps'),
+    appsTemplates: path.resolve(__dirname, '..', 'views', 'apps'),
     storages: path.join(system, 'storages'),
     database: path.join(system, 'system.db')
   },

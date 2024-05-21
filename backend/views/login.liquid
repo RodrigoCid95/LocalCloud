@@ -1,5 +1,5 @@
 {% layout "layout.liquid" %}
-{% block content %}
+{% block body %}
   <lco-auth></lco-auth>
   <script>
     document.addEventListener('onReady', () => document.querySelector('lco-auth').addEventListener('logged-in', ({ detail }) => {
