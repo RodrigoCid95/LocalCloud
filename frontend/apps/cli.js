@@ -108,6 +108,14 @@ const callbacks = {
     })
     archive.pipe(output)
     archive.file(manifestPath, { name: 'manifest.json' })
+    const headLayut = path.join(basedir, 'head.html')
+    if (fs.existsSync(headLayut)) {
+      archive.file(headLayut, { name: 'head.html' })
+    }
+    const bodyLayut = path.join(basedir, 'body.html')
+    if (fs.existsSync(bodyLayut)) {
+      archive.file(bodyLayut, { name: 'body.html' })
+    }
     archive.directory(codePath, 'code')
     archive.finalize()
   }
