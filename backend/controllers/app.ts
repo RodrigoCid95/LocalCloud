@@ -14,9 +14,9 @@ export const verifyApp = (req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PX
     if (app) {
       const directives = {
         'default-src': ["'self'"],
-        'script-src': ["'self'", 'unsafe-inline'],
-        'style-src-elem': ["'self'", 'unsafe-inline'],
-        'image-src': ["'self'", 'data:'],
+        'script-src': ["'self'", "'unsafe-inline'"],
+        'style-src-elem': ["'self'", "'unsafe-inline'"],
+        'img-src': ["'self'", 'data:'],
         'font-src': ["'self'", 'data:']
       }
       const setDirective = (directive: string, value: string) => {
@@ -30,7 +30,7 @@ export const verifyApp = (req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PX
       const secureSources = app.secureSources.filter(item => item.active)
       for (const item of secureSources) {
         if (item.type === 'image') {
-          setDirective('image-src', item.source)
+          setDirective('img-src', item.source)
           continue
         }
         if (item.type === 'media') {
