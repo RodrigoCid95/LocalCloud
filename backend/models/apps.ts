@@ -39,7 +39,10 @@ export class AppsModel {
       (error, rows) => error ? resolve(null) : resolve(rows[0])
     ))
   }
-  public async install(package_name: string, data: Buffer): Promise<InstallError | true> {
+  public async install(package_name: string, data: Buffer, update: boolean = false): Promise<InstallError | true> {
+    if (update) {
+      await this.uninstall(package_name, true)
+    }
     const tempDir = path.join(this.paths.apps, 'temp', v4())
     fs.mkdirSync(tempDir, { recursive: true })
     await unzipper.Open
@@ -121,19 +124,29 @@ export class AppsModel {
       }
     }
     fs.cpSync(path.join(tempDir, 'code'), this.paths.getApp(package_name), { recursive: true })
+    const storagePath = this.paths.getAppGlobalStorage(package_name)
     if (useStorage) {
-      fs.mkdirSync(this.paths.getAppGlobalStorage(package_name), { recursive: true })
+      fs.mkdirSync(storagePath, { recursive: true })
+    } else {
+      if (fs.existsSync(storagePath)) {
+        fs.rmSync(storagePath, { recursive: true })
+      }
     }
+    const templatePath = path.join(this.paths.appsTemplates, `${package_name.replace(/\./g, '-')}.liquid`)
     if (useTemplate) {
       if (!fs.existsSync(this.paths.appsTemplates)) {
         fs.mkdirSync(this.paths.appsTemplates, { recursive: true })
       }
-      fs.writeFileSync(path.join(this.paths.appsTemplates, `${package_name.replace(/\./g, '-')}.liquid`), template, 'utf8')
+      fs.writeFileSync(templatePath, template, 'utf8')
+    } else {
+      if (fs.existsSync(templatePath)) {
+        fs.rmSync(templatePath, { recursive: true })
+      }
     }
     fs.rmSync(tempDir, { recursive: true, force: true })
     return true
   }
-  public async uninstall(package_name: string): Promise<void> {
+  public async uninstall(package_name: string, skipAssignments: boolean = false): Promise<void> {
     await new Promise(resolve => this.database.run(
       'DELETE FROM secure_sources WHERE package_name = ?',
       [package_name],
@@ -144,19 +157,23 @@ export class AppsModel {
       [package_name],
       resolve
     ))
-    await new Promise(resolve => this.database.run(
-      'DELETE FROM users_to_apps WHERE package_name = ?',
-      [package_name],
-      resolve
-    ))
+    if (!skipAssignments) {
+      await new Promise(resolve => this.database.run(
+        'DELETE FROM users_to_apps WHERE package_name = ?',
+        [package_name],
+        resolve
+      ))
+    }
     await new Promise(resolve => this.database.run(
       'DELETE FROM apps WHERE package_name = ?',
       [package_name],
       resolve
     ))
-    const appStorage = this.paths.getAppStorage(package_name)
-    if (fs.existsSync(appStorage)) {
-      fs.rmSync(appStorage, { force: true, recursive: true })
+    if (!skipAssignments) {
+      const appStorage = this.paths.getAppStorage(package_name)
+      if (fs.existsSync(appStorage)) {
+        fs.rmSync(appStorage, { force: true, recursive: true })
+      }
     }
     const appPath = this.paths.getApp(package_name)
     fs.rmSync(appPath, { recursive: true, force: true })

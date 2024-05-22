@@ -10,7 +10,7 @@ declare global {
     }
     type ListMethod = () => Promise<App[]>
     type ListByUIDMethod = (uid: Users.User['uid']) => Promise<App[]>
-    type InstallMethod = (file: File) => FileTransfer
+    type InstallMethod = (file: File, update?: boolean) => FileTransfer
     type UninstallMethod = (package_name: App['package_name']) => Promise<void>
     interface Connector {
       list: ListMethod

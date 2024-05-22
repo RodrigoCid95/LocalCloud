@@ -15,7 +15,7 @@ const { GET, PUT, DELETE } = METHODS
 export class AppsAPIController {
   @Model('DevModeModel') public devModeModel: Models<'DevModeModel'>
   @Model('UsersModel') public usersModel: Models<'UsersModel'>
-  @Model('AppsModel') private appsModel: Models<'AppsModel'>
+  @Model('AppsModel') public appsModel: Models<'AppsModel'>
   @On(GET, '/')
   @BeforeMiddleware([verifyPermission(APPS.APPS)])
   public async apps(_: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
@@ -40,20 +40,29 @@ export class AppsAPIController {
   @BeforeMiddleware([verifyPermission(APPS.INSTALL), fileUpload()])
   public async install(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
     const package_zip: UploadedFile | undefined = req.files?.package_zip as any
+    const update = req.body.update !== undefined
     if (package_zip) {
       let package_name: string[] | string = package_zip.name.split('.')
       package_name.pop()
       package_name = package_name.join('.')
-      const result = await this.appsModel.getAppByPackageName(package_name)
-      if (!result) {
-        const result = await this.appsModel.install(package_name, package_zip.data)
-        res.json(result)
-      } else {
+      const { appsModel } = (this as AppsAPIController)
+      const result = await appsModel.getAppByPackageName(package_name)
+      if (update && !result) {
+        res.status(400).json({
+          code: 'app-not-exist',
+          message: `La aplicación ${package_name} no está instalada.`
+        })
+        return
+      }
+      if (!update && result) {
         res.status(400).json({
           code: 'app-already-exist',
           message: `La aplicación ${package_name} ya está instalada.`
         })
+        return
       }
+      const reslt = await this.appsModel.install(package_name, package_zip.data, update)
+      res.json(reslt)
     } else {
       res.status(400).json({
         code: 'fields-required',

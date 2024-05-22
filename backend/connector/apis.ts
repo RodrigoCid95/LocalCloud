@@ -173,10 +173,11 @@ const ENABLE_SOURCE = (server: ServerConector): SecureSources.EnableMethod => id
 
 export { ENABLE_SOURCE }
 
-const INSTALL_APP = (server: ServerConector): Apps.InstallMethod => file => server.createUploader({
+const INSTALL_APP = (server: ServerConector): Apps.InstallMethod => (file, update) => server.createUploader({
   api: 'apps',
   path: [],
-  file: { name: 'package_zip', file }
+  file: { name: 'package_zip', file },
+  metadata: update ? { update: 'true' } : undefined
 })
 
 export { INSTALL_APP }
