@@ -36,6 +36,40 @@ export default class AppListElement extends LitElement implements HTMLAppListEle
       ]
     }).then(alert => alert.present())
   }
+  updateApp() {
+    const inputFile = document.createElement('input')
+    inputFile.type = 'file'
+    inputFile.multiple = false
+    inputFile.accept = 'application/zip'
+    inputFile.addEventListener('change', async () => {
+      const file: File = inputFile.files?.item(0) as File
+      const loading = await window.loadingController.create({ message: 'Comenzando Actualización ...' })
+      await loading.present()
+      const uploader = window.connectors.apps.install(file, true)
+      uploader.on('end', ({ message }: any) => {
+        loading
+          .dismiss()
+          .then(() => {
+            if (message) {
+              window.alertController
+                .create({
+                  header: 'La aplicación no se pudo instalar',
+                  message,
+                  buttons: ['Aceptar']
+                })
+                .then(alert => alert.present())
+            } else {
+              this.dispatchEvent(new CustomEvent('save'))
+            }
+          })
+      })
+      uploader.on('progress', (percent: number) => {
+        loading.message = `Subiendo ${percent}%`
+      })
+      uploader.start()
+    })
+    inputFile.click()
+  }
   render() {
     return html`
       <style>
@@ -75,6 +109,7 @@ export default class AppListElement extends LitElement implements HTMLAppListEle
                 </ion-button>
                 <ion-button class="ion-float-right" fill="outline" @click=${() => this.dispatchEvent(new CustomEvent('permissions', { detail: app }))}>Permisos</ion-button>
                 <ion-button class="ion-float-right" fill="outline" @click=${() => this.dispatchEvent(new CustomEvent('sources', { detail: app }))}>Fuentes</ion-button>
+                <ion-button class="ion-float-right" fill="outline" @click=${this.updateApp.bind(this)}>Actualizar</ion-button>
               </ion-card>
             </ion-col>
           `)}
