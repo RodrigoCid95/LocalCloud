@@ -20,7 +20,12 @@ export default class PageFiles extends LitElement {
   private breadcrumbs = createRef<HTMLIonBreadcrumbsElement>()
   private clipboardCopy: string[] | undefined
   private clipboardCut: string[] | undefined
+  private config: ExplorerConfig
   private async go(newPath: string[]) {
+    if (!this.config) {
+      this.config = (await window.connectors.storage.user.get<ExplorerConfig | null>('fs')) || { showHidden: false }
+    }
+    const { showHidden } = this.config
     this.path = newPath
     this.folders = []
     this.files = []
@@ -31,9 +36,9 @@ export default class PageFiles extends LitElement {
       await loading.present()
       let results: FS.ItemInfo[] | FS.PathNotFound
       if (base === 'shared') {
-        results = await window.connectors.fs.sharedLs(path)
+        results = await window.connectors.fs.sharedLs(path, { showHidden })
       } else {
-        results = await window.connectors.fs.userLs(path)
+        results = await window.connectors.fs.userLs(path, { showHidden })
       }
       if (!Array.isArray(results)) {
         results = []
@@ -192,7 +197,13 @@ export default class PageFiles extends LitElement {
       })
       .then(alert => alert.present())
   }
+  private async toggleShowHidden() {
+    this.config.showHidden = !this.config.showHidden
+    await window.connectors.storage.user.set('fs', this.config)
+    this.go(this.path)
+  }
   async handlerOptions() {
+    const { showHidden } = this.config
     const rename = this.rename.bind(this)
     const buttons: ActionSheetOptions['buttons'] = [
       {
@@ -206,6 +217,10 @@ export default class PageFiles extends LitElement {
       {
         text: 'Subir archivo',
         handler: this.selectFile.bind(this)
+      },
+      {
+        text: showHidden ? 'No mostrar archivos ocultos' : 'Mostrar archivos ocultos',
+        handler: this.toggleShowHidden.bind(this)
       }
     ]
     if (this.path.length > 1) {
@@ -327,4 +342,8 @@ export default class PageFiles extends LitElement {
     `
   }
   createRenderRoot = () => this
+}
+
+interface ExplorerConfig {
+  showHidden: boolean
 }
