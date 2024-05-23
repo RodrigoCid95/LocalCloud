@@ -33,6 +33,13 @@ export class ProfileAPIController {
     }))
     res.json(apps.map(({ package_name, title, description, author, extensions, useStorage }) => ({ package_name, title, description, author, extensions, useStorage })))
   }
+  @On(GET, '/config')
+  @BeforeMiddleware([verifyPermission(PROFILE.READ_CONFIG)])
+  public getConfig(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): void {
+    const { name } = req.session.user as Users.User
+    const config = this.usersModel.getUserConfig(name)
+    res.json(config)
+  }
   @On(POST, '/')
   @BeforeMiddleware([verifyPermission(PROFILE.UPDATE), decryptRequest])
   public async update(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
@@ -63,6 +70,21 @@ export class ProfileAPIController {
       }
     }
     res.json(true)
+  }
+  @On(POST, '/config')
+  @BeforeMiddleware([verifyPermission(PROFILE.WRITE_CONFIG), decryptRequest])
+  public async setConfig(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
+    const { name } = req.session.user as Users.User
+    const { config } = req.body
+    if (config) {
+      this.usersModel.setUserConfig(name, config)
+      res.json(true)
+    } else {
+      res.status(400).json({
+        code: 'fields-required',
+        message: 'Faltan campos!'
+      })
+    }
   }
   @On(PUT, '/')
   @BeforeMiddleware([verifyPermission(PROFILE.UPDATE_PASSWORD), decryptRequest])

@@ -89,6 +89,10 @@ declare const $UNASSIGN_APP_TO_USER: any
 declare const UNASSIGN_APP_TO_USER: any
 declare const $STORAGE: any
 declare const STORAGE: any
+declare const $PROFILE_READ_CONFIG: any
+declare const PROFILE_READ_CONFIG: any
+declare const $PROFILE_WRITE_CONFIG: any
+declare const PROFILE_WRITE_CONFIG: any
 //#endregion
 
 const server = new ServerConector()
@@ -140,6 +144,8 @@ $PROFILE_INFO && defineAPI('profile', 'info', PROFILE_INFO)
 $PROFILE_APP_LIST && defineAPI('profile', 'listApps', PROFILE_APP_LIST)
 $UPDATE_PROFILE_INFO && defineAPI('profile', 'update', UPDATE_PROFILE_INFO)
 $UPDATE_PASSWORD && defineAPI('profile', 'updatePassword', UPDATE_PASSWORD)
+$PROFILE_READ_CONFIG && defineAPI('profile', 'getConfig', PROFILE_READ_CONFIG)
+$PROFILE_WRITE_CONFIG && defineAPI('profile', 'setConfig', PROFILE_WRITE_CONFIG)
 //#endregion
 //#region Recycle Bin
 $LIST_RECYCLE_BIN && defineAPI('recycleBin', 'list', LIST_RECYCLE_BIN)

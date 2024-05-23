@@ -375,3 +375,18 @@ const STORAGE = (server: ServerConector): Storage.Connector => ({
 })
 
 export { STORAGE }
+
+const PROFILE_READ_CONFIG = (server: ServerConector): Profile.GetConfigMethod => () => server.send({
+  endpoint: 'profile/config',
+  method: 'get'
+})
+
+export { PROFILE_READ_CONFIG }
+
+const PROFILE_WRITE_CONFIG = (server: ServerConector): Profile.SetConfigMethod => (config) => server.send({
+  endpoint: 'profile/config',
+  method: 'post',
+  data: { config }
+})
+
+export { PROFILE_WRITE_CONFIG }
