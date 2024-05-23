@@ -6,11 +6,13 @@ export default (el: HTMLElement) => {
   const modeRef = selects.item(1)
   const backButtonTextRef = el.querySelector('ion-input')
   const buttonSaveRef = el.querySelectorAll('ion-button').item(1)
-  const { mode = '', backButtonText = '', animated = true }: any = JSON.parse(localStorage.getItem('ion-config') || '{}')
+  const mode = window.Ionic.config.get('mode') || ''
+  const backButtonText = window.Ionic.config.get('backButtonText') || ''
+  const animated = window.Ionic.config.get('animated') || true
   animatedRef.value = !animated ? 'false' : ''
   backButtonTextRef.value = backButtonText
   modeRef.value = mode
-  buttonSaveRef.addEventListener('click', () => {
+  buttonSaveRef.addEventListener('click', async () => {
     const config: Partial<Config> = {}
     if (animatedRef.value) {
       config['animated'] = false
@@ -21,7 +23,7 @@ export default (el: HTMLElement) => {
     if (backButtonTextRef.value) {
       config['backButtonText'] = backButtonTextRef.value
     }
-    localStorage.setItem('ion-config', JSON.stringify(config))
+    await window.connectors.profile.setConfig({ ionic: config })
     window.location.reload()
   })
 }

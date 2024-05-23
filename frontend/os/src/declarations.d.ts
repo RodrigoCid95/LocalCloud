@@ -1,4 +1,4 @@
-import type { alertController, loadingController, modalController, pickerController, toastController, menuController, actionSheetController } from '@ionic/core'
+import type { alertController, loadingController, modalController, pickerController, toastController, menuController, actionSheetController, Config } from '@ionic/core'
 import './../../../backend/connector/types'
 
 declare global {
@@ -10,5 +10,10 @@ declare global {
     toastController: typeof toastController
     menuController: typeof menuController
     actionSheetController: typeof actionSheetController
+    Ionic: {
+      config: Config
+      mode: 'md' | 'ios'
+      platforms: string[]
+    }
   }
 }

@@ -27,6 +27,12 @@ export class RecycleBinPage extends LitElement implements HTMLPageRecycleBinElem
       item.path[0] = NAME_DIRECTORIES[item.path[0]] || item.path[0]
       return item
     })
+    const icon = document.querySelector<HTMLIonIconElement>('ion-tab-button[tab="recycle-bin"] ion-icon') as HTMLIonIconElement
+    if (this.itemsList.length > 0) {
+      icon.name = 'file-tray-full-outline'
+    } else {
+      icon.name = 'file-tray-outline'
+    }
     this.loading = false
   }
   async clean() {
