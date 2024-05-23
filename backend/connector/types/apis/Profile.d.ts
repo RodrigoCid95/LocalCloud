@@ -16,7 +16,7 @@ declare global {
     }
     type UpdatePasswordMethod = (data: UpdatePasswordMethodArgs) => Promise<UpdatePasswordSuccess | UpdatePasswordFail>
     interface Config {
-      ionic: {}
+      ionic?: {}
     }
     type GetConfigMethod = () => Promise<Profile.Config>
     type SetConfigMethod = (config: Profile.Config) => Promise<void>

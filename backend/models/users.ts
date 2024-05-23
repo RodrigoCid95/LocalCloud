@@ -208,12 +208,15 @@ export class UsersModel {
       resolve
     ))
   }
-  public getUserConfig(name: Users.User['name']) {
+  public getUserConfig(name: Users.User['name']): Profile.Config {
     const userHomePath = path.join(this.paths.getUser(name), '.lc')
-    const configContent = fs.readFileSync(userHomePath, 'utf8')
-    return JSON.parse(configContent || '{}')
+    if (fs.existsSync(userHomePath)) {
+      const configContent = fs.readFileSync(userHomePath, 'utf8')
+      return JSON.parse(configContent || '{}')
+    }
+    return {}
   }
-  public setUserConfig(name: Users.User['name'], config: Profile.Config) {
+  public setUserConfig(name: Users.User['name'], config: Profile.Config): void {
     const userHomePath = path.join(this.paths.getUser(name), '.lc')
     const configContent = JSON.stringify(config)
     fs.writeFileSync(userHomePath, configContent, 'utf8')
