@@ -6,8 +6,16 @@
     <meta name="Description" content="{{ description }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=5.0">
     <meta name="theme-color" content="#16161d">
+    <meta name="color-scheme" content="light dark" />
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta http-equiv="x-ua-compatible" content="IE=Edge">
+    {% if config %}
+      <script>
+        window.Ionic = {
+          config: {% echo config | json %}
+        }
+      </script>
+    {% endif %}
     {% if package_name %}
       <script
         type="module"

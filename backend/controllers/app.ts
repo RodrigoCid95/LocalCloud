@@ -79,18 +79,21 @@ export const verifyApp = (req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PX
 
 @Namespace('/app', { before: [devMode, verifySession, verifyApp] })
 export class AppController {
+  @Model('UsersModel') public usersModel: Models<'UsersModel'>
   @Model('DevModeModel') public devModeModel: Models<'DevModeModel'>
   @Model('AppsModel') private appsModel: Models<'AppsModel'>
   @On(METHODS.GET, '/:packagename')
   public app(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response) {
     const app = (req.session as LocalCloud.SessionData).apps[req.params.packagename]
+    const config = this.usersModel.getUserConfig(req.session.user?.name || '')
     if (app.useTemplate) {
       res.render(
         `apps/${req.params.packagename.replace(/\./g, '-')}`,
         {
           title: app.title,
           description: app.description,
-          package_name: req.params.packagename
+          package_name: req.params.packagename,
+          config: config.ionic
         }
       )
     } else {
@@ -99,7 +102,8 @@ export class AppController {
         {
           title: app.title,
           description: app.description,
-          package_name: req.params.packagename
+          package_name: req.params.packagename,
+          config: config.ionic
         }
       )
     }

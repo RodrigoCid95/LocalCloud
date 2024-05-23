@@ -10,14 +10,16 @@ declare const METHODS: PXIOHTTP.METHODS
 const { GET } = METHODS
 
 export class IndexController {
+  @Model('UsersModel') public usersModel: Models<'UsersModel'>
   @Model('DevModeModel') public devModeModel: Models<'DevModeModel'>
   @On(GET, '/')
   @BeforeMiddleware([devMode, CSP, tokens, verifySession])
-  public dashboard(_: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): void {
+  public dashboard(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): void {
     if (this.devModeModel.devMode.config.enable) {
       res.render('dev', { title: 'LocalCloud - Dev Mode', description: 'LocalCloud - Modo de desarrollo' })
     } else {
-      res.render('dashboard', { title: 'LocalCloud - Dashboard', description: 'LocalCloud - Dashboard' })
+      const config = this.usersModel.getUserConfig(req.session.user?.name || '')
+      res.render('dashboard', { title: 'LocalCloud - Dashboard', description: 'LocalCloud - Dashboard', config: config.ionic })
     }
   }
   @On(GET, '/login')
