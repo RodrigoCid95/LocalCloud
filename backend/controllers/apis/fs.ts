@@ -22,17 +22,27 @@ export class FileSystemAPIController {
     if (!req.query.showHidden) {
       items = items.filter(item => !/^\./.test(item.name))
     }
-    if (req.query.ext) {
+    let containsFiles = true
+    if (req.query.onlyDirs) {
+      containsFiles = false
+      items = items.filter(item => !item.isFile)
+    }
+    if (req.query.onlyFiles) {
+      items = items.filter(item => item.isFile)
+    }
+    if (containsFiles && req.query.ext) {
       const exts = (req.query.ext as string).split(',')
       items = items.filter(item => {
         let pass = false
-        for (const ext of exts) {
-          if (item.name.endsWith(`.${ext}`)) {
-            pass = true
-            break
+        if (item.isFile) {
+          for (const ext of exts) {
+            if (item.name.endsWith(`.${ext}`)) {
+              pass = true
+              break
+            }
           }
         }
-        return pass
+        return pass || (req.query.includeDirs && !item.isFile)
       })
     }
     res.json(items)

@@ -12,8 +12,20 @@ declare global {
       message: string
     }
     interface Filter {
+      showHidden: true
+    }
+    interface Filter {
+      showHidden: true
       ext?: string[]
-      showHidden?: boolean
+      includeDirs?: true
+    }
+    interface Filter {
+      showHidden: true
+      onlyFiles?: true
+    }
+    interface Filter {
+      showHidden: true
+      onlyFiles?: true
     }
     type SharedLsMethod = (path: string[], filter?: Filter) => Promise<ItemInfo[] | PathNotFound>
     type UserLsMethod = (path: string[], filter?: Filter) => Promise<ItemInfo[] | PathNotFound>
