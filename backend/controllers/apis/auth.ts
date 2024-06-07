@@ -52,10 +52,10 @@ export class AuthAPIController {
         }
         res.json({ ok: true })
       } else {
-        res.status(400).json({ ok: false, message: 'La contraseña es incorrecta!' })
+        res.status(400).json({ ok: false, code: 'incorrect-password', message: 'La contraseña es incorrecta!' })
       }
     } else {
-      res.status(400).json({ ok: false, message: `El usuario "${userName}" no existe!` })
+      res.status(400).json({ ok: false, code: 'user-not-found', message: `El usuario "${userName}" no existe!` })
     }
   }
   @On(DELETE, '/')
