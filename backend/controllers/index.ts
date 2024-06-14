@@ -14,18 +14,17 @@ export class IndexController {
   @Model('DevModeModel') public devModeModel: Models<'DevModeModel'>
   @On(GET, '/')
   @BeforeMiddleware([devMode, CSP, tokens, verifySession])
-  public dashboard(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): void {
+  public dashboard(_: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): void {
     if (this.devModeModel.devMode.config.enable) {
-      res.render('dev', { title: 'LocalCloud - Dev Mode', description: 'LocalCloud - Modo de desarrollo' })
+      res.render('index', { title: 'LocalCloud - Dev Mode', description: 'LocalCloud - Modo de desarrollo', devMode: true })
     } else {
-      const config = this.usersModel.getUserConfig(req.session.user?.name || '')
-      res.render('dashboard', { title: 'LocalCloud - Dashboard', description: 'LocalCloud - Dashboard', config: config.ionic })
+      res.render('index', { title: 'LocalCloud - Dashboard', description: 'LocalCloud - Dashboard' })
     }
   }
   @On(GET, '/login')
   @BeforeMiddleware([devMode, CSP, tokens, verifyNotSession])
   public login(_: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): void {
-    res.render('login', { title: 'LocalCloud - Iniciar sesión', description: 'LocalCloud - Iniciar sesión' })
+    res.render('index', { title: 'LocalCloud - Iniciar sesión', description: 'LocalCloud - Iniciar sesión' })
   }
 }
 

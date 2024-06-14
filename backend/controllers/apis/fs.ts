@@ -96,7 +96,8 @@ export class FileSystemAPIController {
   @On(PUT, '/shared')
   @BeforeMiddleware([verifyPermission(FS.UPLOAD_SHARED_DRIVE)])
   public async uploadSharedDrive(req: PXIOHTTP.Request, res: PXIOHTTP.Response): Promise<void> {
-    const { path = [] } = req.body
+    let { path = '' } = req.body
+    path = path.split('|')
     const { files } = req
     if (!files) {
       res.status(400).json({
@@ -114,7 +115,8 @@ export class FileSystemAPIController {
   @On(PUT, '/user')
   @BeforeMiddleware([verifyPermission(FS.UPLOAD_USER_DRIVE)])
   public async uploadUserDrive(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
-    const { path = [] } = req.body
+    let { path = '' } = req.body
+    path = path.split('|')
     const { files } = req
     if (!files) {
       res.status(400).json({

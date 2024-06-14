@@ -6,6 +6,10 @@ export class FileDownloader implements FileTransfer {
     error: [],
     abort: []
   }
+  #progress: number = 0
+  public get progress() {
+    return this.#progress
+  }
   constructor(private endpoint: string, private filename: string) {
     this.#abortController = new AbortController()
     this.#abortController.signal.addEventListener('abort', () => {
@@ -37,7 +41,8 @@ export class FileDownloader implements FileTransfer {
             receivedLength += value.length
             const percent = (receivedLength / contentLength) * 100
             for (const listener of this.#listeners.progress) {
-              (listener as any)(percent.toFixed(2))
+              this.#progress = Number(percent.toFixed(2));
+              (listener as any)(this.#progress)
             }
           }
           const chunksAll = new Uint8Array(receivedLength)

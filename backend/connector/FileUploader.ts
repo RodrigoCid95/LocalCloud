@@ -4,6 +4,10 @@ export class FileUploader implements FileTransfer {
   #form: FormData
   #listenerLoadList: any[] = []
   #listenerProgressList: any[] = []
+  #progress: number = 0
+  public get progress() {
+    return this.#progress
+  }
   constructor(endpoint: string, files: FileOptions[] = [], metadata: MetaData = {}) {
     this.#xhr = new XMLHttpRequest()
     this.#form = new FormData()
@@ -20,12 +24,14 @@ export class FileUploader implements FileTransfer {
       for (const listener of this.#listenerLoadList) {
         listener(response)
       }
+      this.#progress = 100
     })
     this.#xhr.upload.addEventListener('progress', event => {
       if (event.lengthComputable) {
         const percentComplete = (event.loaded / event.total) * 100
         for (const listener of this.#listenerProgressList) {
-          listener(percentComplete.toFixed(2))
+          this.#progress = Number(percentComplete.toFixed(2))
+          listener(this.#progress)
         }
       }
     })
