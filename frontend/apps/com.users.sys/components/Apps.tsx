@@ -59,7 +59,11 @@ const List: FC<ListProps> = ({ user }) => {
   if (apps.length === 0) {
     return <Caption1>No hay aplicaciones instaladas.</Caption1>
   }
-  return apps.map((app, index) => <Item key={index} app={app} uid={user.uid} />)
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column' }}>
+      {apps.map((app, index) => <Item key={index} app={app} uid={user.uid} />)}
+    </div>
+  )
 }
 
 interface ListProps {
