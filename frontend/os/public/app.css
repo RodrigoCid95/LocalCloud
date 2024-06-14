@@ -1,0 +1,24 @@
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+body {
+  display: flex;
+  min-width: 100vw;
+  min-height: 100vh;
+  justify-content: center;
+  align-items: center;
+  background-color: #fff;
+}
+
+#root {
+  display: contents;
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: #292929;
+  }
+}
