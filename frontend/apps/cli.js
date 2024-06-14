@@ -1,63 +1,7 @@
 const path = require('node:path')
 const fs = require('node:fs')
-const assert = require('node:assert')
 const esbuild = require('esbuild')
-const sass = require('sass')
-const htmlMinifier = require('html-minifier-terser')
 const archiver = require('archiver')
-
-const plugins = [
-  {
-    name: 'css',
-    setup(build) {
-      build.onLoad({ filter: /\.scss$/ }, async ({ path }) => {
-        const opts = {}
-        if (build.initialOptions.minify) {
-          opts['style'] = 'compressed'
-        }
-        const { css } = await sass.compileAsync(path, opts)
-        let code = '`\n' + css + '\n`'
-        if (build.initialOptions.minify) {
-          code = `'${css}'`
-        }
-        return { contents: `const css = new CSSStyleSheet();css.replaceSync(${code});export default css;`, loader: 'js' }
-      })
-    }
-  },
-  {
-    name: 'html',
-    setup(build) {
-      build.onLoad({ filter: /\.html$/ }, async ({ path }) => {
-        let html = fs.readFileSync(path, { encoding: 'utf8' })
-        if (html !== '' && build.initialOptions.minify) {
-          assert(html)
-          html = await htmlMinifier.minify(html, {
-            removeComments: true,
-            removeCommentsFromCDATA: true,
-            removeCDATASectionsFromCDATA: true,
-            collapseWhitespace: true,
-            collapseBooleanAttributes: true,
-            removeAttributeQuotes: true,
-            removeRedundantAttributes: true,
-            useShortDoctype: true,
-            removeEmptyAttributes: true,
-            removeEmptyElements: false,
-            removeOptionalTags: true,
-            removeScriptTypeAttributes: true,
-            removeStyleLinkTypeAttributes: true,
-            minifyJS: true,
-            minifyCSS: true
-          })
-        }
-        let code = '`\n' + html + '\n`'
-        if (build.initialOptions.minify) {
-          code = `'${html}'`
-        }
-        return { contents: `export default ${code}`, loader: 'js' }
-      })
-    }
-  }
-]
 
 const callbacks = {
   async start(src) {
@@ -67,8 +11,7 @@ const callbacks = {
       bundle: true,
       splitting: true,
       format: 'esm',
-      loader: { '.webp': 'dataurl', '.svg': 'dataurl' },
-      plugins,
+      loader: { '.webp': 'dataurl', '.svg': 'dataurl', '.tsx': 'tsx', '.ts': 'ts' },
       sourcemap: true
     })
     const { port } = await ctx.serve({
@@ -87,7 +30,6 @@ const callbacks = {
     await esbuild.build({
       entryPoints: [src],
       outdir: codePath,
-      plugins,
       bundle: true,
       splitting: true,
       format: 'esm',
@@ -108,13 +50,13 @@ const callbacks = {
     })
     archive.pipe(output)
     archive.file(manifestPath, { name: 'manifest.json' })
-    const headLayut = path.join(basedir, 'head.html')
-    if (fs.existsSync(headLayut)) {
-      archive.file(headLayut, { name: 'head.html' })
+    const headLayout = path.join(basedir, 'head.html')
+    if (fs.existsSync(headLayout)) {
+      archive.file(headLayout, { name: 'head.html' })
     }
-    const bodyLayut = path.join(basedir, 'body.html')
-    if (fs.existsSync(bodyLayut)) {
-      archive.file(bodyLayut, { name: 'body.html' })
+    const bodyLayout = path.join(basedir, 'body.html')
+    if (fs.existsSync(bodyLayout)) {
+      archive.file(bodyLayout, { name: 'body.html' })
     }
     archive.directory(codePath, 'code')
     archive.finalize()
@@ -135,10 +77,11 @@ const callbacks = {
     console.error('No se definió una fuente.')
     return
   }
-  const srcPath = path.resolve(process.cwd(), src, 'main.ts')
+  const srcPath = path.resolve(process.cwd(), src, 'main.tsx')
   if (!fs.existsSync(src)) {
     console.error(`El directorio "${srcPath} no existe!"`)
     return
   }
+  fs.rmSync(path.join(__dirname, 'www', 'js'), { recursive: true, force: true })
   callback(srcPath)
 })(process.argv.slice(2))

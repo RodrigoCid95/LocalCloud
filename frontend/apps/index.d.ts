@@ -1,1 +1,3 @@
-import './../os/src/declarations'
+import './../../backend/connector/types'
+
+export { }
