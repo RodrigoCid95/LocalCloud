@@ -1,5 +1,3 @@
-backend/release/local-cloud
-backend/release/apps
 backend/.debugger
 backend/lc
 backend/node_modules
@@ -8,11 +6,9 @@ backend/public
 backend/views/apps
 
 frontend/os/package-lock.json
-frontend/os/dist
 frontend/os/node_modules
-frontend/os/.stencil
 
-frontend/apps/node_modules
 frontend/apps/package-lock.json
+frontend/apps/node_modules
 frontend/apps/dist
 frontend/apps/www/js
