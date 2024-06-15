@@ -1,7 +1,6 @@
 import type { Database } from 'sqlite3'
 import fs from 'node:fs'
 import path from 'node:path'
-import shellQuote from 'shell-quote'
 import ini from 'ini'
 
 declare const Library: PXIO.LibraryDecorator
@@ -84,7 +83,7 @@ export class UsersModel {
     await this.run({
       title: 'Create User',
       command: '/usr/sbin/useradd',
-      args: ['-p', PASSWORD, '-m', '-G', 'lc', '-s', '/bin/bash', '-c', shellQuote.quote([[full_name, email, phone].join(',')]).replace(/\\/g, ''), name]
+      args: ['-p', PASSWORD, '-m', '-G', 'lc', '-s', '/bin/bash', '-c', [full_name, email, phone].join(','), name]
     })
     await this.run({
       title: 'Set New User In Samba',
@@ -131,16 +130,15 @@ export class UsersModel {
     await this.run({
       title: `Update User ${name}`,
       command: '/usr/sbin/usermod',
-      args: ['-c', shellQuote.quote([[full_name, email, phone].join(',')]), name]
+      args: ['-c', [full_name, email, phone].join(','), name]
     })
   }
   public async updatePassword(name: Users.User['name'], password: string): Promise<void> {
     console.log(`----------------------------Update password: ${name}----------------------------`)
-    const USER_NAME = shellQuote.quote([name])
     await this.run({
       title: `Update Password To User ${name}`,
       command: 'passwd',
-      args: [USER_NAME],
+      args: [name],
       proc(stdin) {
         stdin.write(`${password}\n`)
         stdin.write(`${password}\n`)
@@ -150,12 +148,12 @@ export class UsersModel {
     await this.run({
       title: `Delete ${name} In Samba`,
       command: 'smbpasswd',
-      args: ['-x', USER_NAME]
+      args: ['-x', name]
     })
     await this.run({
       title: `Set User ${name} In Samba`,
       command: 'smbpasswd',
-      args: ['-a', USER_NAME],
+      args: ['-a', name],
       proc(stdin) {
         stdin.write(`${password}\n`)
         stdin.write(`${password}\n`)
@@ -166,21 +164,20 @@ export class UsersModel {
   }
   public async deleteUser(name: Users.User['name']) {
     console.log(`---------------------------- Delete User: ${name} ----------------------------`)
-    const USER_NAME = shellQuote.quote([name])
     await this.run({
       title: `Delete User ${name} In Samba`,
       command: 'smbpasswd',
-      args: ['-x', USER_NAME]
+      args: ['-x', name]
     })
     await this.run({
       title: `Kill proccess Of ${name}`,
       command: 'pkill',
-      args: ['-u', USER_NAME]
+      args: ['-u', name]
     })
     await this.run({
       title: `Delete User ${name}`,
       command: '/usr/sbin/userdel',
-      args: ['-r', USER_NAME]
+      args: ['-r', name]
     })
     const smbConfig = this.loadConfig()
     delete smbConfig[name]
