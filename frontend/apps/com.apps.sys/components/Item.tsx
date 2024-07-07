@@ -42,35 +42,39 @@ const Item: FC<ItemProps> = ({ app, onReload, onPermissions, onSecureSources }) 
     window.connectors.apps.uninstall(app.package_name).then(onReload)
   }, [setDeleting, app, onReload])
 
-  if (deleting) {
-    return (
-      <Field validationMessage={`Desinstalando "${app.title}".`} validationState="none">
-        <ProgressBar />
-      </Field>
-    )
-  }
-
   return (
     <Card className={styles.card} orientation="vertical">
-      <CardHeader
-        header={<Text weight="semibold">{app.title} ({app.package_name})</Text>}
-        description={<Caption1 className={styles.caption}>{app.author}</Caption1>}
-        action={(
-          <Options
-            onUpdate={handleOnUpdate}
-            onPermissions={onPermissions}
-            onSecureSources={onSecureSources}
-            onUninstall={handleDelete}
-          />
-        )}
-      />
-      <p style={{ margin: 0 }}>{app.description}</p>
-      {progressUpdate > 0 && (
-        <Field validationMessage={progressValidation.message} validationState={progressValidation.state}>
-          <ProgressBar max={100} value={progressUpdate} />
-        </Field>
-      )}
-    </Card>
+      {
+        deleting
+          ? (
+            <Field validationMessage={`Desinstalando "${app.title}".`} validationState="none">
+              <ProgressBar />
+            </Field>
+          )
+          : (
+            <>
+              <CardHeader
+                header={<Text weight="semibold">{app.title} ({app.package_name})</Text>}
+                description={< Caption1 className={styles.caption} > {app.author}</Caption1 >}
+                action={(
+                  <Options
+                    onUpdate={handleOnUpdate}
+                    onPermissions={onPermissions}
+                    onSecureSources={onSecureSources}
+                    onUninstall={handleDelete}
+                  />
+                )}
+              />
+              < p style={{ margin: 0 }}> {app.description}</p >
+              {progressUpdate > 0 && (
+                <Field validationMessage={progressValidation.message} validationState={progressValidation.state}>
+                  <ProgressBar max={100} value={progressUpdate} />
+                </Field>
+              )}
+            </>
+          )
+      }
+    </Card >
   )
 }
 

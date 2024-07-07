@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState, type FC } from "react"
-import { Button, Spinner, Title1 } from "@fluentui/react-components"
+import { Button, Spinner, Title1, Title3 } from "@fluentui/react-components"
 import Toolbar from './../Toolbar'
 import Item from "./Item"
 import './Explorer.css'
@@ -110,6 +110,9 @@ const Explorer: FC<ExplorerProps> = ({ path, onGo }) => {
           />
         )}
         <div className='explorer'>
+          {items.dirs.length === 0 && items.files.length === 0 && (
+            <Title3 style={{ textAlign: 'center', width: '100%' }}>No hay nada por acá.</Title3>
+          )}
           {items.dirs.map((item, index) => (
             <Item
               key={index}

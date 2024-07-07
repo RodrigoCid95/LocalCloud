@@ -26,6 +26,7 @@ const App = () => {
   const [appSecureSources, setAppSecureSources] = useState<Apps.App | undefined>(undefined)
 
   const handleLoadApps = useCallback(() => {
+    setLoading(true)
     window.connectors.apps.list().then((list) => {
       setApps(list)
       setLoading(false)

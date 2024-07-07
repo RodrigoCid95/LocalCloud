@@ -45,7 +45,14 @@ const callbacks = {
     const archive = archiver('zip', { zlib: { level: 9 } })
     output.on('close', () => {
       fs.rmSync(distDir, { force: true, recursive: true })
-      console.log(archive.pointer() + ' bytes en total!')
+      const format = bytes => {
+        if (bytes === 0) return '0 Bytes'
+        const k = 1024
+        const unidades = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
+        const i = Math.floor(Math.log(bytes) / Math.log(k))
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + unidades[i]
+      }
+      console.log(`${format(archive.pointer())} en total!`)
       console.log('El paquete de instalación está listo!')
     })
     archive.pipe(output)
