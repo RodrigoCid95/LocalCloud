@@ -12,7 +12,7 @@ export default defineConfig({
         entryFileNames: 'app.js'
       }
     },
-    outDir: './../../backend/public',
+    outDir: './../../backend/lc/client/public',
     emptyOutDir: true,
     minify: false,
     sourcemap: false
