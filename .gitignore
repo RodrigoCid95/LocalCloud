@@ -1,9 +1,10 @@
 backend/.debugger
-backend/lc
+backend/lc/system.db
+backend/lc/apps
+backend/lc/client/public
+backend/lc/client/views/apps
 backend/node_modules
 backend/package-lock.json
-backend/public
-backend/views/apps
 
 frontend/os/package-lock.json
 frontend/os/node_modules

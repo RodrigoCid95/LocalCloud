@@ -6,6 +6,7 @@ declare global {
     }
     interface Result extends Omit<Omit<App, 'extensions'>, 'useStorage'> {
       use_storage: 1 | 0
+      use_template: 1 | 0
       extensions?: string
     }
   }

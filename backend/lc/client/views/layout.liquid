@@ -6,13 +6,13 @@
     <meta name="Description" content="{{ description }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=5.0">
     <meta http-equiv="x-ua-compatible" content="IE=Edge">
-    {% if package_name %}
-      <script
-        type="module"
-        src="/app/{{ package_name }}/main.js"
-        defer></script>
-    {% endif %}
     {% block head %}
+      {% if package_name %}
+        <script
+          type="module"
+          src="/app/{{ package_name }}/main.js"
+          defer></script>
+      {% endif %}
     {% endblock %}
     <script type="module" src="/api/connector.js"></script>
   </head>

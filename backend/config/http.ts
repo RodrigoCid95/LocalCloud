@@ -1,10 +1,12 @@
-import path from 'node:path'
+import fs from 'node:fs'
 import session from 'express-session'
 import compression from 'compression'
 import { Liquid } from 'liquidjs'
 import { v4 } from 'uuid'
-import { devMode } from './dev-mode'
 import cors from 'cors'
+import { paths } from './paths'
+
+declare const isRelease: boolean
 
 const middlewares = [
   compression(),
@@ -15,7 +17,7 @@ const middlewares = [
   })
 ]
 
-if (devMode.enable) {
+if (!isRelease || !fs.existsSync(paths.system.path)) {
   middlewares.push(cors())
 }
 
@@ -25,10 +27,10 @@ export const HTTP: PXIOHTTP.Config = {
     name: 'liquid',
     ext: 'liquid',
     callback: (new Liquid({
-      layouts: path.resolve(__dirname, '..', 'views'),
+      layouts: paths.system.clientViews,
       extname: 'liquid'
     })).express(),
-    dirViews: path.resolve(__dirname, '..', 'views')
+    dirViews: paths.system.clientViews
   },
   middlewares,
   events: {
@@ -43,7 +45,7 @@ export const HTTP: PXIOHTTP.Config = {
   pathsPublic: [
     {
       route: '/',
-      dir: path.resolve(__dirname, '..', 'public')
+      dir: paths.system.clientPublic
     }
   ]
 }

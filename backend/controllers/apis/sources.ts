@@ -23,7 +23,10 @@ export class SecureSourcesAPIController {
       query['package_name'] = package_name.toString()
     }
     if (type) {
-      query['type'] = type.toString()
+      const t = type.toString() as string
+      if (['image', 'media', 'object', 'script', 'style', 'worker', 'font', 'connect'].includes(t)) {
+        query['type'] = (t as SecureSources.Source['type'])
+      }
     }
     if (active !== undefined) {
       query['active'] = active === 'true'

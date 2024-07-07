@@ -8,7 +8,9 @@ declare global {
       system: {
         path: string
         apps: string
-        appsTemplates: string
+        appsViews: string
+        clientPublic: string
+        clientViews: string
         storages: string
         database: string
       }

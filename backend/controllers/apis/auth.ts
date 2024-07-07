@@ -20,7 +20,7 @@ export class AuthAPIController {
   @On(GET, '/')
   @BeforeMiddleware([verifyPermission(AUTH.INDEX)])
   public async index(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
-    if (req.session.user || this.devModeModel.devMode.config.enable) {
+    if (req.session.user || this.devModeModel.devMode.enable) {
       res.json(true)
     } else {
       res.json(false)

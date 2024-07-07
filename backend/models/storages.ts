@@ -1,5 +1,5 @@
 import fs from 'node:fs'
-import path, { dirname } from 'node:path'
+import path from 'node:path'
 
 declare const Library: PXIO.LibraryDecorator
 

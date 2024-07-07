@@ -17,9 +17,11 @@ export const paths: Paths.Config = {
   system: {
     path: system,
     apps: path.join(system, 'apps'),
-    appsTemplates: path.resolve(__dirname, '..', 'views', 'apps'),
+    appsViews: path.resolve(system, 'client', 'views', 'apps'),
     storages: path.join(system, 'storages'),
-    database: path.join(system, 'system.db')
+    database: path.join(system, 'system.db'),
+    clientPublic: path.resolve(system, 'client', 'public'),
+    clientViews: path.resolve(system, 'client', 'views')
   },
   users: {
     shared: path.join('/', 'shared'),

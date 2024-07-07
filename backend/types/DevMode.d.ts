@@ -1,11 +1,11 @@
 declare global {
   namespace DevMode {
     interface Config {
-      enable: boolean
-      user: string
+      user?: string
     }
     interface Class {
-      readonly config: Config
+      readonly enable: boolean
+      readonly user: string
     }
   }
 }

@@ -11,7 +11,7 @@ const { GET, PUT } = METHODS
 
 function verifyPermission(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response, next: PXIOHTTP.Next) {
   const devModel: Models<'DevModeModel'> = (this as StoragesAPIController).devModeModel
-  if (devModel.devMode.config.enable) {
+  if (devModel.devMode.enable) {
     next()
   } else {
     const origin = getOrigin(req.headers.referer || '')
@@ -27,7 +27,7 @@ function verifyPermission(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PX
 const filterPath = (isGlobal: boolean) => function (req: PXIOHTTP.Request<LocalCloud.SessionData>, _: PXIOHTTP.Response, next: PXIOHTTP.Next) {
   const devModel: Models<'DevModeModel'> = (this as StoragesAPIController).devModeModel
   const storageModel: Models<'StorageModel'> = (this as StoragesAPIController).storageModel
-  if (devModel.devMode.config.enable) {
+  if (devModel.devMode.enable) {
     if (isGlobal) {
       (req as any).storagePath = storageModel.resolveTempGlobalItem(req.params.name)
     } else {

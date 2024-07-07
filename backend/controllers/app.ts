@@ -85,15 +85,13 @@ export class AppController {
   @On(METHODS.GET, '/:packagename')
   public app(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response) {
     const app = (req.session as LocalCloud.SessionData).apps[req.params.packagename]
-    const config = this.usersModel.getUserConfig(req.session.user?.name || '')
     if (app.useTemplate) {
       res.render(
         `apps/${req.params.packagename.replace(/\./g, '-')}`,
         {
           title: app.title,
           description: app.description,
-          package_name: req.params.packagename,
-          config: config.ionic
+          package_name: req.params.packagename
         }
       )
     } else {
@@ -102,8 +100,7 @@ export class AppController {
         {
           title: app.title,
           description: app.description,
-          package_name: req.params.packagename,
-          config: config.ionic
+          package_name: req.params.packagename
         }
       )
     }

@@ -15,7 +15,7 @@ export class IndexController {
   @On(GET, '/')
   @BeforeMiddleware([devMode, CSP, tokens, verifySession])
   public dashboard(_: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): void {
-    if (this.devModeModel.devMode.config.enable) {
+    if (this.devModeModel.devMode.enable) {
       res.render('index', { title: 'LocalCloud - Dev Mode', description: 'LocalCloud - Modo de desarrollo', devMode: true })
     } else {
       res.render('index', { title: 'LocalCloud - Dashboard', description: 'LocalCloud - Dashboard' })
