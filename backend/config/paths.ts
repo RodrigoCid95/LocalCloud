@@ -1,6 +1,6 @@
 import path from 'node:path'
 
-const system = path.resolve('.', 'lc')
+const system = path.resolve(process.cwd(), 'lc')
 
 export const paths: Paths.Config = {
   samba: '/etc/samba/smb.conf',
