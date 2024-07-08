@@ -16,15 +16,15 @@ export class IndexController {
   @BeforeMiddleware([devMode, CSP, tokens, verifySession])
   public dashboard(_: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): void {
     if (this.devModeModel.devMode.enable) {
-      res.render('index', { title: 'LocalCloud - Dev Mode', description: 'LocalCloud - Modo de desarrollo', devMode: true })
+      res.render('os/index', { title: 'LocalCloud - Dev Mode', description: 'LocalCloud - Modo de desarrollo', devMode: true })
     } else {
-      res.render('index', { title: 'LocalCloud - Dashboard', description: 'LocalCloud - Dashboard' })
+      res.render('os/index', { title: 'LocalCloud - Dashboard', description: 'LocalCloud - Dashboard' })
     }
   }
   @On(GET, '/login')
   @BeforeMiddleware([devMode, CSP, tokens, verifyNotSession])
   public login(_: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): void {
-    res.render('index', { title: 'LocalCloud - Iniciar sesión', description: 'LocalCloud - Iniciar sesión' })
+    res.render('os/index', { title: 'LocalCloud - Iniciar sesión', description: 'LocalCloud - Iniciar sesión' })
   }
 }
 

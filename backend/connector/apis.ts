@@ -1,4 +1,5 @@
-import type { ServerConector } from 'connector/Server'
+import type { ServerConector } from './Server'
+import './types'
 
 const ACCESS_SHARED_FILE_LIST = (server: ServerConector): FS.SharedLsMethod => (path, filter) => {
   const params = {}

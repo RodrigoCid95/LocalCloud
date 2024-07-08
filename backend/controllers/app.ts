@@ -96,7 +96,7 @@ export class AppController {
       )
     } else {
       res.render(
-        'app',
+        'os/app',
         {
           title: app.title,
           description: app.description,

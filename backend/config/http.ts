@@ -1,4 +1,3 @@
-import fs from 'node:fs'
 import session from 'express-session'
 import compression from 'compression'
 import { Liquid } from 'liquidjs'
@@ -7,6 +6,7 @@ import cors from 'cors'
 import { paths } from './paths'
 
 declare const isRelease: boolean
+declare const flags: PXIO.Flags
 
 const middlewares = [
   compression(),
@@ -17,7 +17,7 @@ const middlewares = [
   })
 ]
 
-if (!isRelease || !fs.existsSync(paths.system.path)) {
+if (!isRelease || flags.get('maintenance-mode')) {
   middlewares.push(cors())
 }
 

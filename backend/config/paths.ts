@@ -1,13 +1,6 @@
 import path from 'node:path'
 
-declare const isRelease: boolean
-
-let system: string
-if (isRelease) {
-  system = path.resolve('/', 'var', 'lc')
-} else {
-  system = path.resolve('.', 'lc')
-}
+const system = path.resolve('.', 'lc')
 
 export const paths: Paths.Config = {
   samba: '/etc/samba/smb.conf',
@@ -17,7 +10,7 @@ export const paths: Paths.Config = {
   system: {
     path: system,
     apps: path.join(system, 'apps'),
-    appsViews: path.resolve(system, 'client', 'views', 'apps'),
+    appsViews: path.join(system, 'client', 'views', 'apps'),
     storages: path.join(system, 'storages'),
     database: path.join(system, 'system.db'),
     clientPublic: path.resolve(system, 'client', 'public'),

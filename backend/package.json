@@ -42,9 +42,8 @@
 		"type": "http",
 		"boot": "auto",
 		"resources": [
-			"views",
-			"public",
-			"connector"
+			"connector",
+			"lc"
 		],
 		"loader": {
 			".sql": "text"
