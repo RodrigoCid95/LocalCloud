@@ -4,7 +4,7 @@
     {
       "previewLimit": 50,
       "driver": "SQLite",
-      "database": ".system/system.db",
+      "database": "backend/lc/system.db",
       "name": "LocalCloudDB"
     }
   ]
