@@ -12,14 +12,16 @@
 	"license": "ISC",
 	"dependencies": {
 		"compression": "^1.7.4",
+		"connect-redis": "^7.1.1",
 		"cors": "^2.8.5",
 		"esbuild": "^0.19.5",
 		"express": "^4.18.3",
 		"express-fileupload": "^1.5.0",
-		"express-session": "^1.17.3",
+		"express-session": "^1.18.0",
 		"ini": "^4.1.2",
 		"liquidjs": "^10.9.3",
 		"netjet": "^1.4.0",
+		"redis": "^4.7.0",
 		"spdy": "^4.0.2",
 		"sqlite3": "^5.1.6",
 		"unzipper": "^0.10.14",
@@ -40,7 +42,7 @@
 	},
 	"pxio": {
 		"type": "http",
-		"boot": "auto",
+		"boot": "manual",
 		"resources": [
 			"connector",
 			"lc"

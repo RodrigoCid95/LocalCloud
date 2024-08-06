@@ -1,19 +1,25 @@
+import crypto from 'node:crypto'
 import session from 'express-session'
+import RedisStore from 'connect-redis'
+import { createClient } from 'redis'
 import compression from 'compression'
 import { Liquid } from 'liquidjs'
-import { v4 } from 'uuid'
 import cors from 'cors'
 import { paths } from './paths'
 
 declare const isRelease: boolean
 declare const flags: PXIO.Flags
 
+const redisClient = createClient()
+
 const middlewares = [
   compression(),
   session({
-    saveUninitialized: false,
+    store: new RedisStore({ client: redisClient }),
+    secret: crypto.randomUUID(),
     resave: false,
-    secret: v4()
+    saveUninitialized: false,
+    cookie: { secure: false }
   })
 ]
 
@@ -34,7 +40,7 @@ export const HTTP: PXIOHTTP.Config = {
   },
   middlewares,
   events: {
-    onError(err, req, res, next) {
+    onError(err, _, res, next) {
       if (err) {
         res.status(500).json(err)
       } else {
