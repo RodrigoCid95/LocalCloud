@@ -35,14 +35,14 @@ export class PermissionsAPIController {
   @BeforeMiddleware([verifyPermission(PERMISSIONS.ENABLE)])
   public async enable(req: PXIOHTTP.Request, res: PXIOHTTP.Response): Promise<void> {
     const { id } = req.params
-    await this.permissionModel.setActive(id as unknown as number, true)
+    await this.permissionModel.setActive(id, true)
     res.json(true)
   }
   @On(DELETE, '/:id')
   @BeforeMiddleware([verifyPermission(PERMISSIONS.DISABLE)])
   public async disable(req: PXIOHTTP.Request, res: PXIOHTTP.Response): Promise<void> {
     const { id } = req.params
-    await this.permissionModel.setActive(id as unknown as number, false)
+    await this.permissionModel.setActive(id, false)
     res.json(true)
   }
 }

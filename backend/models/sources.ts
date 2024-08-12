@@ -1,28 +1,26 @@
-import type { Database } from 'sqlite3'
+import type { Db, Collection } from 'mongodb'
+import { ObjectId } from 'mongodb'
 
 declare const Library: PXIO.LibraryDecorator
 
 export class SourcesModel {
-  @Library('database') private database: Database
-  public async find(query?: Partial<SecureSources.Source>): Promise<SecureSources.Source[]> {
-    let strQuery = 'SELECT * FROM secure_sources'
-    const values: any[] = []
-    if (query) {
-      const where: string[] = []
-      const entries = Object.entries(query)
-      for (const [key, value] of entries) {
-        where.push(`${key} = ?`)
-        values.push(value)
+  @Library('mongo') private db: Db
+  private get collection(): Collection<Omit<SecureSources.Source, 'id'>> {
+    return this.db.collection<Omit<SecureSources.Source, 'id'>>('secure_sources')
+  }
+  public async find(query: Partial<SecureSources.Source> = {}): Promise<SecureSources.Source[]> {
+    const filter = {}
+    const keys = Object.keys(query)
+    for (const key of keys) {
+      if (key === 'id') {
+        filter['_id'] = new ObjectId(query[key])
+      } else {
+        filter[key] = query[key]
       }
-      strQuery += ` WHERE ${where.join(' AND ')}`
     }
-    const results = await new Promise<SecureSources.Result[]>(resolve => this.database.all<SecureSources.Result>(
-      strQuery,
-      values,
-      (error, rows) => error ? resolve([]) : resolve(rows)
-    ))
+    const results = await this.collection.find(filter).toArray()
     return results.map(result => ({
-      id: result.id_source,
+      id: result._id.toString(),
       package_name: result.package_name,
       type: result.type,
       source: result.source,
@@ -30,11 +28,7 @@ export class SourcesModel {
       active: result.active
     }))
   }
-  public async setActive(id: number, active: boolean): Promise<void> {
-    await new Promise(resolve => this.database.run(
-      'UPDATE secure_sources set active = ? WHERE id_source = ?',
-      [active ? 1 : 0, id],
-      resolve
-    ))
+  public async setActive(id: SecureSources.Source['id'], active: boolean): Promise<void> {
+    await this.collection.updateOne({ _id: new ObjectId(id) }, { $set: { active } })
   }
 }

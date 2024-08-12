@@ -9,7 +9,7 @@ const DENIED_ERROR = {
   message: 'No tienes permiso para hacer esto!'
 }
 
-export async function decryptRequest(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response, next: PXIOHTTP.Next): Promise<void> {
+export async function decryptRequest(req: PXIOHTTP.Request<LocalCloud.SessionData>, _: PXIOHTTP.Response, next: PXIOHTTP.Next): Promise<void> {
   if (verifyDevMode.bind(this)()) {
     next()
     return

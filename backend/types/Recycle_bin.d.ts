@@ -1,9 +1,9 @@
+import { WithId } from "mongodb"
+
 declare global {
   namespace RecycleBin {
     interface New extends Partial<Omit<Item, 'id'>> { }
-    interface Result extends Omit<Item, 'path'> {
-      path: string
-    }
+    type Result = WithId<Omit<Item, 'id'>>
   }
 }
 

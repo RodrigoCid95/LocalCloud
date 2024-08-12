@@ -1,4 +1,4 @@
-import type { Database } from 'sqlite3'
+import type { Db } from 'mongodb'
 import fs from 'node:fs'
 import path from 'node:path'
 import ini from 'ini'
@@ -8,8 +8,11 @@ declare const Library: PXIO.LibraryDecorator
 export class UsersModel {
   @Library('paths') paths: Paths.Class
   @Library('encrypt') encrypt: Encrypting.Class
-  @Library('database') private database: Database
+  @Library('mongo') private db: Db
   @Library('process') private run: Process.Run
+  private get u2aCollection() {
+    return this.db.collection('users_to_apps')
+  }
   private loadConfig(name?: Users.User['name']) {
     const SMB_CONFIG = fs.readFileSync(this.paths.samba, 'utf8')
     const smbConfig = ini.parse(SMB_CONFIG)
@@ -192,18 +195,10 @@ export class UsersModel {
     console.log('------------------------------ End Delete User ----------------------------------')
   }
   public async assignApp(uid: Users.User['uid'], package_name: string): Promise<void> {
-    await new Promise(resolve => this.database.run(
-      'INSERT INTO users_to_apps (uid, package_name) VALUES (?, ?);',
-      [uid, package_name],
-      resolve
-    ))
+    await this.u2aCollection.insertOne({ uid, package_name })
   }
   public async unassignApp(uid: Users.User['uid'], package_name: string): Promise<void> {
-    await new Promise(resolve => this.database.run(
-      'DELETE FROM users_to_apps WHERE uid = ? AND package_name = ?;',
-      [uid, package_name],
-      resolve
-    ))
+    await this.u2aCollection.deleteMany({ uid, package_name })
   }
   public getUserConfig(name: Users.User['name']): Profile.Config {
     const userHomePath = path.join(this.paths.getUser(name), '.lc')

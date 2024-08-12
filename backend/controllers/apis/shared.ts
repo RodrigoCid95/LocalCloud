@@ -1,4 +1,4 @@
-import { v4 } from 'uuid'
+import crypto from 'node:crypto'
 import { verifySession } from './middlewares/session'
 import { decryptRequest } from './middlewares/encrypt'
 import { verifyPermission } from './middlewares/permissions'
@@ -19,7 +19,7 @@ export class SharedAPIController {
   @On(GET, '/')
   @BeforeMiddleware([verifyPermission(SHARED.INDEX)])
   public async index(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
-    const results = await this.sharedModel.find({ uid: req.session.user?.name })
+    const results = await this.sharedModel.find({ uid: req.session.user?.uid })
     res.json(results)
   }
   @On(POST, '/')
@@ -33,12 +33,12 @@ export class SharedAPIController {
       })
       return
     }
-    const uuid = req.session.user?.name || ''
+    const uuid = req.session.user?.uid || NaN
     const [result] = await this.sharedModel.find({ uid: uuid, path })
     if (result) {
       res.json(result)
     } else {
-      const newShared: Shared.Shared = { id: v4(), uid: uuid, path }
+      const newShared: Shared.Shared = { id: crypto.randomUUID(), uid: uuid, path }
       await this.sharedModel.create(newShared)
       res.json(newShared)
     }

@@ -12,6 +12,8 @@ const { GET } = METHODS
 export class IndexController {
   @Model('UsersModel') public usersModel: Models<'UsersModel'>
   @Model('DevModeModel') public devModeModel: Models<'DevModeModel'>
+  @Model('AppsModel') public appsModel: Models<'AppsModel'>
+  @Model('PermissionsModel') public permissionsModel: Models<'PermissionsModel'>
   @On(GET, '/')
   @BeforeMiddleware([devMode, CSP, tokens, verifySession])
   public dashboard(_: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): void {
@@ -25,6 +27,11 @@ export class IndexController {
   @BeforeMiddleware([devMode, CSP, tokens, verifyNotSession])
   public login(_: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): void {
     res.render('os/index', { title: 'LocalCloud - Iniciar sesión', description: 'LocalCloud - Iniciar sesión' })
+  }
+  @On(GET, '/test')
+  public async test(_: PXIOHTTP.Request, res: PXIOHTTP.Response) {
+    await this.permissionsModel.setActive('66b470a0ee48dd54998cb716', true)
+    res.json(true)
   }
 }
 

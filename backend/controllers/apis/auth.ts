@@ -1,4 +1,4 @@
-import { v4 } from 'uuid'
+import crypto from 'node:crypto'
 import { decryptRequest } from './middlewares/encrypt'
 import { verifyPermission } from './middlewares/permissions'
 import { AUTH } from 'libraries/classes/APIList'
@@ -45,7 +45,7 @@ export class AuthAPIController {
             ...app,
             secureSources,
             permissions,
-            token: v4(),
+            token: crypto.randomUUID(),
             useTemplate: (app as any).useTemplate
           }
           req.session.apps[app.package_name] = sessionApp
