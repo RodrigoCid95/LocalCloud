@@ -1,8 +1,7 @@
 declare global {
   namespace Shared {
-    interface New {
-      path: string[]
-    }
+    
+    type New = Omit<Shared, 'id'>
     interface Result extends Omit<Shared, 'path'> {
       path: string
     }

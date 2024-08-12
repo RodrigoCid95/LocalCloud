@@ -38,14 +38,14 @@ export class SecureSourcesAPIController {
   @BeforeMiddleware([verifyPermission(SOURCES.ENABLE)])
   public async enable(req: PXIOHTTP.Request, res: PXIOHTTP.Response): Promise<void> {
     const { id } = req.params
-    await this.sourcesModel.setActive(id as unknown as number, true)
+    await this.sourcesModel.setActive(id, true)
     res.json(true)
   }
   @On(DELETE, '/:id')
   @BeforeMiddleware([verifyPermission(SOURCES.DISABLE)])
   public async disable(req: PXIOHTTP.Request, res: PXIOHTTP.Response): Promise<void> {
     const { id } = req.params
-    await this.sourcesModel.setActive(id as unknown as number, false)
+    await this.sourcesModel.setActive(id, false)
     res.json(true)
   }
 }

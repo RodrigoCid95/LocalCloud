@@ -20,7 +20,7 @@ export class AppsAPIController {
   @BeforeMiddleware([verifyPermission(APPS.APPS)])
   public async apps(_: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
     const results = await this.appsModel.getApps()
-    res.json(results.map(({ package_name, title, description, author, extensions, useStorage }) => ({ package_name, title, description, author, extensions, useStorage })))
+    res.json(results)
   }
   @On(GET, '/:uid')
   @BeforeMiddleware([verifyPermission(APPS.APPS_BY_UID)])
@@ -34,7 +34,7 @@ export class AppsAPIController {
       return
     }
     const results = await this.appsModel.getAppsByUID(user.uid)
-    res.json(results.map(({ package_name, title, description, author, extensions, useStorage }) => ({ package_name, title, description, author, extensions, useStorage })))
+    res.json(results)
   }
   @On(PUT, '/')
   @BeforeMiddleware([verifyPermission(APPS.INSTALL), fileUpload()])

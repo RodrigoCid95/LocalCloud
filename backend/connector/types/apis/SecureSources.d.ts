@@ -1,7 +1,7 @@
 declare global {
   namespace SecureSources {
     interface Source {
-      id: number
+      id: string
       package_name: string
       type: 'image' | 'media' | 'object' | 'script' | 'style' | 'worker' | 'font' | 'connect'
       source: string

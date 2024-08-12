@@ -1,39 +1,20 @@
-import type { Database } from 'sqlite3'
+import type { Collection, Db, Filter } from 'mongodb'
+import { ObjectId } from 'mongodb'
 
 declare const Library: PXIO.LibraryDecorator
 
 export class PermissionsModel {
-  @Library('database') private database: Database
-  public async find(query?: Partial<Permissions.Permission>): Promise<Permissions.Permission[]> {
-    let strQuery = 'SELECT * FROM permissions'
-    const values: any[] = []
-    if (query) {
-      const where: string[] = []
-      const entries = Object.entries(query)
-      for (const [key, value] of entries) {
-        where.push(`${key} = ?`)
-        values.push(value)
-      }
-      strQuery += ` WHERE ${where.join(' AND ')}`
-    }
-    const results = await new Promise<Permissions.Result[]>(resolve => this.database.all<Permissions.Result>(
-      strQuery,
-      values,
-      (error, rows) => error ? resolve([]) : resolve(rows)
-    ))
-    return results.map(result => ({
-      id: result.id_permission,
-      package_name: result.package_name,
-      api: result.api,
-      justification: result.justification,
-      active: result.active
-    }))
+  @Library('mongo') private db: Db
+  private get collection(): Collection<Permissions.Permission> {
+    return this.db.collection<Permissions.Permission>('permissions')
   }
-  public async setActive(id: number, active: boolean): Promise<void> {
-    await new Promise(resolve => this.database.run(
-      'UPDATE permissions set active = ? WHERE id_permission = ?',
-      [active, id],
-      resolve
-    ))
+  public async find(query: Filter<Permissions.Permission> = {}): Promise<Permissions.Permission[]> {
+    return this.collection
+      .find(query)
+      .toArray()
+      .then(results => results.map(({ _id, package_name, api, justification, active }) => ({ id: _id.toString(), package_name, api, justification, active })))
+  }
+  public async setActive(id: Permissions.Permission['id'], active: Permissions.Permission['active']): Promise<void> {
+    await this.collection.updateOne({ _id: new ObjectId(id) }, { $set: { active } })
   }
 }
