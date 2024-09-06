@@ -40,7 +40,7 @@
 	},
 	"pxio": {
 		"type": "http",
-		"boot": "auto",
+		"boot": "manual",
 		"resources": [
 			"connector",
 			"lc"

@@ -6,7 +6,7 @@ backend/lc/client/views/apps
 backend/node_modules
 backend/package-lock.json
 backend/key.pem
-backend/mongod
+backend/session-server.sock
 
 frontend/os/package-lock.json
 frontend/os/node_modules
