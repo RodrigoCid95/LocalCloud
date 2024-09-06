@@ -1,8 +1,6 @@
 import fs from 'node:fs'
 import path from 'node:path'
 
-declare const Library: PXIO.LibraryDecorator
-
 export class StorageModel {
   @Library('paths') private paths: Paths.Class
   resolveTempGlobalItem(item: string) {

@@ -1,52 +1,47 @@
-import type { Collection, Db } from 'mongodb'
+import type { Database } from 'sqlite3'
 import fs from 'node:fs'
 import path from 'node:path'
-import crypto from 'node:crypto'
+import { v4 } from 'uuid'
 import unzipper from 'unzipper'
 
-declare const Library: PXIO.LibraryDecorator
-
 export class AppsModel {
-  @Library('mongo') private db: Db
+  @Library('database') private database: Database
   @Library('paths') public paths: Paths.Class
-  private get appsCollection(): Collection<Apps.App> {
-    return this.db.collection<Apps.App>('apps')
-  }
-  private get u2aCollection() {
-    return this.db.collection('users_to_apps')
-  }
   private isJSON = (text: string): boolean => /^[\],:{}\s]*$/.test(text.replace(/\\["\\\/bfnrtu]/g, '@').replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']').replace(/(?:^|:|,)(?:\s*\[)+/g, ''))
-  public async getAppsByUID(uid: Users.User['uid']): Promise<Apps.App[]> {
-    const appList: Apps.App[] = []
-    const assignments = await this.u2aCollection.find({ uid }).toArray()
-    for (const assignment of assignments) {
-      const app = await this.appsCollection.findOne({ package_name: assignment.package_name })
-      if (app) {
-        appList.push({
-          package_name: app.package_name,
-          title: app.title,
-          description: app.description,
-          author: app.author,
-          useTemplate: app.useTemplate
-        })
-      }
-    }
-    return appList
+  private parse = (results: Apps.Result[]): Apps.App[] => results.map(result => ({
+    package_name: result.package_name,
+    title: result.title,
+    description: result.description,
+    author: result.author,
+    extensions: (result.extensions || '').split('|'),
+    useStorage: result.use_storage === 1 ? true : false,
+    useTemplate: (result as any).use_template === 1 ? true : false
+  }))
+  public getAppsByUID(uid: Users.User['uid']): Promise<Apps.App[]> {
+    return new Promise(resolve => this.database.all<Apps.Result>(
+      'SELECT apps.package_name, apps.title, apps.description, apps.author, apps.use_storage, apps.use_template FROM users_to_apps INNER JOIN apps ON users_to_apps.package_name = apps.package_name WHERE users_to_apps.uid = ?;',
+      [uid],
+      (error, rows) => error ? resolve([]) : resolve(this.parse(rows))
+    ))
   }
-  public async getApps(): Promise<Apps.App[]> {
-    const results = await this.appsCollection
-      .find({})
-      .toArray()
-    return results.map(({ package_name, title, description, author, useTemplate }) => ({ package_name, title, description, author, useTemplate }))
+  public getApps(): Promise<Apps.App[]> {
+    return new Promise(resolve => this.database.all<Apps.Result>(
+      'SELECT * FROM apps',
+      (error, rows) => error ? resolve([]) : resolve(this.parse(rows))
+    ))
   }
-  public getAppByPackageName(package_name: string): Promise<Apps.App | null> {
-    return this.appsCollection.findOne({ package_name })
+  public getAppByPackageName(package_name: string): Promise<Apps.Result | null> {
+    return new Promise(resolve => this.database.all<Apps.Result>(
+      'SELECT * FROM apps WHERE package_name = ?',
+      [package_name],
+      (error, rows) => error ? resolve(null) : resolve(rows[0])
+    ))
   }
   public async install(package_name: string, data: Buffer, update: boolean = false): Promise<InstallError | true> {
     if (update) {
       await this.uninstall(package_name, true)
     }
-    const tempDir = path.join(this.paths.apps, 'temp', crypto.randomUUID())
+    const tempDir = path.join(this.paths.apps, 'temp', v4())
     fs.mkdirSync(tempDir, { recursive: true })
     await unzipper.Open
       .buffer(data)
@@ -103,33 +98,26 @@ export class AppsModel {
       api,
       justification: permissionList[api]
     }))
-    await this.appsCollection.insertOne({
-      package_name,
-      title,
-      description,
-      author,
-      extensions: extensions.join('|'),
-      useStorage,
-      useTemplate
-    })
+    await new Promise(resolve => this.database.run(
+      'INSERT INTO apps (package_name, title, description, author, extensions, use_storage, use_template) VALUES (?, ?, ?, ?, ?, ?, ?);',
+      [package_name, title, description, author, extensions.join('|'), useStorage ? 1 : 0, useTemplate ? 1 : 0],
+      resolve
+    ))
     for (const permission of permissions) {
-      await this.db.collection('permissions').insertOne({
-        package_name,
-        api: permission.api,
-        justification: permission.justification || 'Sin justificación.',
-        active: true
-      })
+      await new Promise(resolve => this.database.run(
+        'INSERT INTO permissions (package_name, api, justification, active) VALUES (?, ?, ?, ?)',
+        [package_name, permission.api, permission.justification || 'Sin justificación.', true],
+        resolve
+      ))
     }
     for (const [name, srcs] of Object.entries(sources)) {
       if (['image', 'media', 'object', 'script', 'style', 'worker', 'font', 'connect'].includes(name)) {
         for (const src of srcs as any[]) {
-          await this.db.collection('secure_sources').insertOne({
-            package_name,
-            type: name,
-            source: src.source,
-            justification: src.justification || 'Sin justificación.',
-            active: true
-          })
+          await new Promise(resolve => this.database.run(
+            'INSERT INTO secure_sources (package_name, type, source, justification, active) VALUES (?, ?, ?, ?, ?)',
+            [package_name, name, src.source, src.justification || 'Sin justificación.', true],
+            resolve
+          ))
         }
       }
     }
@@ -157,12 +145,28 @@ export class AppsModel {
     return true
   }
   public async uninstall(package_name: string, skipAssignments: boolean = false): Promise<void> {
-    await this.db.collection('secure_sources').deleteMany({ package_name })
-    await this.db.collection('permissions').deleteMany({ package_name })
+    await new Promise(resolve => this.database.run(
+      'DELETE FROM secure_sources WHERE package_name = ?',
+      [package_name],
+      resolve
+    ))
+    await new Promise(resolve => this.database.run(
+      'DELETE FROM permissions WHERE package_name = ?',
+      [package_name],
+      resolve
+    ))
     if (!skipAssignments) {
-      await this.u2aCollection.deleteMany({ package_name })
+      await new Promise(resolve => this.database.run(
+        'DELETE FROM users_to_apps WHERE package_name = ?',
+        [package_name],
+        resolve
+      ))
     }
-    await this.appsCollection.deleteMany({ package_name })
+    await new Promise(resolve => this.database.run(
+      'DELETE FROM apps WHERE package_name = ?',
+      [package_name],
+      resolve
+    ))
     if (!skipAssignments) {
       const appStorage = this.paths.getAppStorage(package_name)
       if (fs.existsSync(appStorage)) {

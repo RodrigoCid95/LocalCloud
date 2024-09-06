@@ -3,9 +3,6 @@ import fs from 'node:fs'
 import path from 'node:path'
 import ini from 'ini'
 
-declare const configs: PXIO.Configs
-declare const moduleEmitters: PXIO.Emitters
-
 class Paths implements Paths.Class {
   get samba(): string {
     return this.config.samba

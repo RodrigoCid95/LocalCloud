@@ -1,0 +1,6 @@
+CREATE TABLE IF NOT EXISTS recycle_bin (
+  id TEXT PRIMARY KEY,
+  uid INTEGER,
+  path TEXT NOT NULL,
+  date TEXT NOT NULL
+);

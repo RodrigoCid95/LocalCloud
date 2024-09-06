@@ -5,7 +5,7 @@ const REQUIRED_LOGIN = {
   message: 'Inicio de sesión requerido.'
 }
 
-export async function verifySession(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response, next: PXIOHTTP.Next): Promise<void> {
+export async function verifySession(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response, next: Next): Promise<void> {
   if (req.session.user) {
     next()
   } else {

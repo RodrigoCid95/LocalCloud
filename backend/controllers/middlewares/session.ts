@@ -1,6 +1,6 @@
 import { verifyDevMode } from "controllers/apis/middlewares/dev-mode"
 
-export async function verifySession(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response, next: PXIOHTTP.Next): Promise<void> {
+export async function verifySession(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response, next: Next): Promise<void> {
   if (req.session.user) {
     next()
   } else {
@@ -18,7 +18,7 @@ export async function verifySession(req: PXIOHTTP.Request<LocalCloud.SessionData
     }
   }
 }
-export const verifyNotSession: PXIOHTTP.Middleware = (req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response, next: PXIOHTTP.Next): void => {
+export const verifyNotSession: PXIOHTTP.Middleware = (req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response, next: Next): void => {
   if (!req.session.user) {
     next()
   } else {

@@ -1,7 +1,7 @@
 declare global {
   namespace Permissions {
     interface Permission {
-      id: string
+      id: number
       package_name: string
       api: string
       justification: string

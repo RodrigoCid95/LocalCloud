@@ -1,15 +1,8 @@
 import { CSP } from './middlewares/csp'
 import { verifySession } from './middlewares/session'
 
-declare const Namespace: PXIOHTTP.NamespaceDecorator
-declare const Model: PXIO.ModelDecorator
-declare const On: PXIOHTTP.OnDecorator
-declare const AfterMiddleware: PXIOHTTP.AfterMiddlewareDecorator
-declare const METHODS: PXIOHTTP.METHODS
-
-const { GET } = METHODS
-
-@Namespace('/launch', { before: [verifySession, CSP] })
+@Namespace('/launch')
+@Middlewares({ before: [verifySession, CSP] })
 export class LaunchController {
   @Model('DevModeModel') public devModeModel: Models<'DevModeModel'>
   @Model('FileSystemModel') private fsModel: Models<'FileSystemModel'>
@@ -42,15 +35,15 @@ export class LaunchController {
     }
     res.redirect(`/file${req.url.split('?')[0]}`)
   }
-  @On(GET, '/shared/*')
-  @AfterMiddleware(['responseFile'])
-  public sharedFile(req: PXIOHTTP.Request, _: PXIOHTTP.Response, next: PXIOHTTP.Next): void {
+  @After(['responseFile'])
+  @Get('/shared/*')
+  public sharedFile(req: PXIOHTTP.Request, _: PXIOHTTP.Response, next: Next): void {
     req.body = this.fsModel.resolveSharedFile(req.params[0].split('/'))
     next()
   }
-  @On(GET, '/user/*')
-  @AfterMiddleware(['responseFile'])
-  public userFile(req: PXIOHTTP.Request<LocalCloud.SessionData>, _: PXIOHTTP.Response, next: PXIOHTTP.Next): void {
+  @After(['responseFile'])
+  @Get('/user/*')
+  public userFile(req: PXIOHTTP.Request<LocalCloud.SessionData>, _: PXIOHTTP.Response, next: Next): void {
     req.body = this.fsModel.resolveUserFile(req.session.user?.name || '', req.params[0].split('/'))
     next()
   }

@@ -1,24 +1,18 @@
+import session from 'express-session'
 import compression from 'compression'
 import { Liquid } from 'liquidjs'
+import { v4 } from 'uuid'
 import cors from 'cors'
 import { paths } from './paths'
-import session from "express-session"
-import MongoStore from "connect-mongo"
-import { keys } from './keys'
 
 declare const isRelease: boolean
-declare const flags: PXIO.Flags
 
 const middlewares = [
   compression(),
   session({
-    store: MongoStore.create({
-      mongoUrl: `mongodb://lc:${keys.password}@localhost:27017`,
-      dbName: '_lc'
-    }),
-    resave: false,
     saveUninitialized: false,
-    secret: keys.secret,
+    resave: false,
+    secret: v4()
   })
 ]
 
@@ -39,10 +33,7 @@ export const HTTP: PXIOHTTP.Config = {
   },
   middlewares,
   events: {
-    afterConfig(app) {
-      app.set('trust proxy', 1)
-    },
-    onError(err, _, res, next) {
+    onError(err, req, res, next) {
       if (err) {
         res.status(500).json(err)
       } else {

@@ -1,18 +1,12 @@
 import { responseFile } from "./middlewares/file"
 
-declare const Namespace: PXIOHTTP.NamespaceDecorator
-declare const Model: PXIO.ModelDecorator
-declare const On: PXIOHTTP.OnDecorator
-declare const METHODS: PXIOHTTP.METHODS
-declare const AfterMiddleware: PXIOHTTP.AfterMiddlewareDecorator
-
 @Namespace('/shared')
 export class SharedController {
   @Model('SharedModel') private sharedModel: Models<'SharedModel'>
   @Model('FileSystemModel') private fsModel: Models<'FileSystemModel'>
-  @On(METHODS.GET, '/:id')
-  @AfterMiddleware([responseFile])
-  public async shared(req: PXIOHTTP.Request, res: PXIOHTTP.Response, next: PXIOHTTP.Next) {
+  @After([responseFile])
+  @Get('/:id')
+  public async shared(req: PXIOHTTP.Request, res: PXIOHTTP.Response, next: Next) {
     const { id } = req.params
     const [result] = await this.sharedModel.find({ id })
     if (result) {

@@ -3,27 +3,20 @@ import { decryptRequest } from './middlewares/encrypt'
 import { verifyPermission } from './middlewares/permissions'
 import { RECYCLE_BIN } from 'libraries/classes/APIList'
 
-declare const Namespace: PXIOHTTP.NamespaceDecorator
-declare const Model: PXIO.ModelDecorator
-declare const On: PXIOHTTP.OnDecorator
-declare const BeforeMiddleware: PXIOHTTP.BeforeMiddlewareDecorator
-declare const METHODS: PXIOHTTP.METHODS
-
-const { GET, POST, PUT, DELETE } = METHODS
-
-@Namespace('/api/recycle-bin', { before: [verifySession, decryptRequest] })
+@Namespace('/api/recycle-bin')
+@Middlewares({ before: [verifySession, decryptRequest] })
 export class RecycleBinController {
   @Model('DevModeModel') public devModeModel: Models<'DevModeModel'>
   @Model('FileSystemModel') private fsModel: Models<'FileSystemModel'>
   @Model('RecycleBinModel') private recycleBinModel: Models<'RecycleBinModel'>
-  @On(GET, '/')
-  @BeforeMiddleware([verifyPermission(RECYCLE_BIN.LIST)])
+  @Before([verifyPermission(RECYCLE_BIN.LIST)])
+  @Get('/')
   public async list(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response) {
     const results = await this.recycleBinModel.findByUID(req.session.user?.uid || NaN)
     res.json(results)
   }
-  @On(POST, '/')
-  @BeforeMiddleware([verifyPermission(RECYCLE_BIN.CREATE)])
+  @Before([verifyPermission(RECYCLE_BIN.CREATE)])
+  @Post('/')
   public async create(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response) {
     if (!req.body.path || !Array.isArray(req.body.path) || req.body.path?.length < 2) {
       res.status(403).json({
@@ -44,8 +37,8 @@ export class RecycleBinController {
     await this.recycleBinModel.moveToRecycleBin(req.session.user as Users.User, result, path)
     res.json(true)
   }
-  @On(PUT, '/:id')
-  @BeforeMiddleware([verifyPermission(RECYCLE_BIN.RESTORE)])
+  @Before([verifyPermission(RECYCLE_BIN.RESTORE)])
+  @Put('/:id')
   public async restore(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response) {
     const { id } = req.params
     const result = await this.recycleBinModel.findByID(id)
@@ -57,14 +50,14 @@ export class RecycleBinController {
     await this.recycleBinModel.restore(req.session.user?.name || '', result.id, path)
     res.json(true)
   }
-  @On(DELETE, '/:id')
-  @BeforeMiddleware([verifyPermission(RECYCLE_BIN.DELETE)])
+  @Before([verifyPermission(RECYCLE_BIN.DELETE)])
+  @Delete('/:id')
   public async delete(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response) {
     await this.recycleBinModel.delete(req.session.user as Users.User, req.params.id)
     res.json(true)
   }
-  @On(DELETE, '/')
-  @BeforeMiddleware([verifyPermission(RECYCLE_BIN.CLEAN)])
+  @Before([verifyPermission(RECYCLE_BIN.CLEAN)])
+  @Delete('/')
   public async clean(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response) {
     await this.recycleBinModel.clean(req.session.user as Users.User)
     res.json(true)

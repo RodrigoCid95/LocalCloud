@@ -4,16 +4,8 @@ import { verifyPermission } from './middlewares/permissions'
 import fileUpload from 'express-fileupload'
 import { FS } from 'libraries/classes/APIList'
 
-declare const Namespace: PXIOHTTP.NamespaceDecorator
-declare const Model: PXIO.ModelDecorator
-declare const On: PXIOHTTP.OnDecorator
-declare const BeforeMiddleware: PXIOHTTP.BeforeMiddlewareDecorator
-declare const AfterMiddleware: PXIOHTTP.AfterMiddlewareDecorator
-declare const METHODS: PXIOHTTP.METHODS
-
-const { POST, PUT, DELETE } = METHODS
-
-@Namespace('/api/fs', { before: [verifySession, decryptRequest, fileUpload()] })
+@Namespace('/api/fs')
+@Middlewares({ before: [verifySession, decryptRequest, fileUpload()] })
 export class FileSystemAPIController {
   @Model('DevModeModel') public devModeModel: Models<'DevModeModel'>
   @Model('FileSystemModel') private fsModel: Models<'FileSystemModel'>
@@ -47,10 +39,10 @@ export class FileSystemAPIController {
     }
     res.json(items)
   }
-  @On(POST, '/shared/list')
-  @BeforeMiddleware([verifyPermission(FS.SHARED_DRIVE)])
-  @AfterMiddleware(['filter'])
-  public sharedDrive(req: PXIOHTTP.Request, res: PXIOHTTP.Response, next: PXIOHTTP.Next) {
+  @Before([verifyPermission(FS.SHARED_DRIVE)])
+  @After(['filter'])
+  @Post('/shared/list')
+  public sharedDrive(req: PXIOHTTP.Request, res: PXIOHTTP.Response, next: Next) {
     const { path = [] } = req.body
     const result = this.fsModel.lsSharedDirectory(path)
     if (typeof result === 'boolean') {
@@ -63,10 +55,10 @@ export class FileSystemAPIController {
     (req as any).result = result
     next()
   }
-  @On(POST, '/user/list')
-  @BeforeMiddleware([verifyPermission(FS.USER_DRIVE)])
-  @AfterMiddleware(['filter'])
-  public userDrive(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response, next: PXIOHTTP.Next) {
+  @Before([verifyPermission(FS.USER_DRIVE)])
+  @After(['filter'])
+  @Post('/user/list')
+  public userDrive(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response, next: Next) {
     const { path = [] } = req.body
     const result = this.fsModel.lsUserDirectory(req.session.user?.name || '', path)
     if (typeof result === 'boolean') {
@@ -79,22 +71,22 @@ export class FileSystemAPIController {
     (req as any).result = result
     next()
   }
-  @On(POST, '/shared')
-  @BeforeMiddleware([verifyPermission(FS.MKDIR_SHARED_DRIVE)])
+  @Before([verifyPermission(FS.MKDIR_SHARED_DRIVE)])
+  @Post('/shared')
   public async mkdirSharedDrive(req: PXIOHTTP.Request, res: PXIOHTTP.Response): Promise<void> {
     const { path = [] } = req.body
     await this.fsModel.mkdirToShared(path)
     res.json(true)
   }
-  @On(POST, '/user')
-  @BeforeMiddleware([verifyPermission(FS.MKDIR_USER_DRIVE)])
+  @Before([verifyPermission(FS.MKDIR_USER_DRIVE)])
+  @Post('/user')
   public async mkdirUserDrive(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
     const { path = [] } = req.body
     await this.fsModel.mkdirToUser(req.session.user?.name || '', path)
     res.json(true)
   }
-  @On(PUT, '/shared')
-  @BeforeMiddleware([verifyPermission(FS.UPLOAD_SHARED_DRIVE)])
+  @Before([verifyPermission(FS.UPLOAD_SHARED_DRIVE)])
+  @Put('/shared')
   public async uploadSharedDrive(req: PXIOHTTP.Request, res: PXIOHTTP.Response): Promise<void> {
     let { path = '' } = req.body
     path = path.split('|')
@@ -112,8 +104,8 @@ export class FileSystemAPIController {
     }
     res.json(true)
   }
-  @On(PUT, '/user')
-  @BeforeMiddleware([verifyPermission(FS.UPLOAD_USER_DRIVE)])
+  @Before([verifyPermission(FS.UPLOAD_USER_DRIVE)])
+  @Put('/user')
   public async uploadUserDrive(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
     let { path = '' } = req.body
     path = path.split('|')
@@ -131,22 +123,22 @@ export class FileSystemAPIController {
     }
     res.json(true)
   }
-  @On(DELETE, '/shared')
-  @BeforeMiddleware([verifyPermission(FS.RM_SHARED_DRIVE)])
+  @Before([verifyPermission(FS.RM_SHARED_DRIVE)])
+  @Delete('/shared')
   public rmSharedDrive(req: PXIOHTTP.Request, res: PXIOHTTP.Response) {
     const { path = [] } = req.body
     this.fsModel.rmToShared(path)
     res.json(true)
   }
-  @On(DELETE, '/user')
-  @BeforeMiddleware([verifyPermission(FS.RM_USER_DRIVE)])
+  @Before([verifyPermission(FS.RM_USER_DRIVE)])
+  @Delete('/user')
   public rmUserDrive(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response) {
     const { path = [] } = req.body
     this.fsModel.rmToUser(req.session.user?.name || '', path)
     res.json(true)
   }
-  @On(POST, '/copy')
-  @BeforeMiddleware([verifyPermission(FS.COPY)])
+  @Before([verifyPermission(FS.COPY)])
+  @Post('/copy')
   public async copy(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
     const { origin, dest } = req.body
     if ((!origin || !dest) && (!Array.isArray(origin) || !Array.isArray(dest))) {
@@ -159,8 +151,8 @@ export class FileSystemAPIController {
     await this.fsModel.copy(req.session.user?.name || '', origin, dest)
     res.json(true)
   }
-  @On(POST, '/move')
-  @BeforeMiddleware([verifyPermission(FS.MOVE)])
+  @Before([verifyPermission(FS.MOVE)])
+  @Post('/move')
   public async move(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
     const { origin, dest } = req.body
     if ((!origin || !dest) && (!Array.isArray(origin) || !Array.isArray(dest))) {
@@ -173,8 +165,8 @@ export class FileSystemAPIController {
     await this.fsModel.copy(req.session.user?.name || '', origin, dest, true)
     res.json(true)
   }
-  @On(POST, '/rename')
-  @BeforeMiddleware([verifyPermission(FS.RENAME)])
+  @Before([verifyPermission(FS.RENAME)])
+  @Post('/rename')
   public rename(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response) {
     const { path, newName } = req.body
     if (!Array.isArray(path) || typeof newName !== 'string') {

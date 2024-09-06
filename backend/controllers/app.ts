@@ -2,12 +2,7 @@ import path from 'node:path'
 import { devMode } from './middlewares/dev-mode'
 import { verifySession } from './middlewares/session'
 
-declare const Namespace: PXIOHTTP.NamespaceDecorator
-declare const Model: PXIO.ModelDecorator
-declare const On: PXIOHTTP.OnDecorator
-declare const METHODS: PXIOHTTP.METHODS
-
-export const verifyApp = (req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response, next: PXIOHTTP.Next) => {
+export const verifyApp = (req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response, next: Next) => {
   const { packagename } = req.params
   if (req.session?.apps && req.session?.apps[packagename]) {
     const app = req.session.apps[packagename]
@@ -77,12 +72,13 @@ export const verifyApp = (req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PX
   }
 }
 
-@Namespace('/app', { before: [devMode, verifySession, verifyApp] })
+@Namespace('/app')
+@Middlewares({ before: [devMode, verifySession, verifyApp] })
 export class AppController {
   @Model('UsersModel') public usersModel: Models<'UsersModel'>
   @Model('DevModeModel') public devModeModel: Models<'DevModeModel'>
   @Model('AppsModel') private appsModel: Models<'AppsModel'>
-  @On(METHODS.GET, '/:packagename')
+  @Get('/:packagename')
   public app(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response) {
     const app = (req.session as LocalCloud.SessionData).apps[req.params.packagename]
     if (app.useTemplate) {
@@ -105,7 +101,7 @@ export class AppController {
       )
     }
   }
-  @On(METHODS.GET, '/:packagename/*')
+  @Get('/:packagename/*')
   public source(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response) {
     const appPath = this.appsModel.paths.getApp(req.params.packagename)
     const pathSource = path.join(appPath, ...req.params[0].split('/'))

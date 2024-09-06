@@ -1,6 +1,5 @@
 import fs from 'node:fs'
 
-declare const configs: PXIO.Configs
 declare const isRelease: boolean
 
 class DevMode implements DevMode.Class {

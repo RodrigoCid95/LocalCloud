@@ -2,20 +2,13 @@ import { verifySession } from './middlewares/session'
 import { verifyPermission } from "./middlewares/permissions"
 import { SOURCES } from 'libraries/classes/APIList'
 
-declare const Namespace: PXIOHTTP.NamespaceDecorator
-declare const Model: PXIO.ModelDecorator
-declare const On: PXIOHTTP.OnDecorator
-declare const BeforeMiddleware: PXIOHTTP.BeforeMiddlewareDecorator
-declare const METHODS: PXIOHTTP.METHODS
-
-const { GET, POST, DELETE } = METHODS
-
-@Namespace('api/sources', { before: [verifySession] })
+@Namespace('api/sources')
+@Middlewares({ before: [verifySession] })
 export class SecureSourcesAPIController {
   @Model('DevModeModel') public devModeModel: Models<'DevModeModel'>
   @Model('SourcesModel') sourcesModel: Models<'SourcesModel'>
-  @On(GET, '/')
-  @BeforeMiddleware([verifyPermission(SOURCES.FIND)])
+  @Before([verifyPermission(SOURCES.FIND)])
+  @Get('/')
   public async find(req: PXIOHTTP.Request, res: PXIOHTTP.Response) {
     const { package_name, type, active } = req.query
     const query: Partial<SecureSources.Source> = {}
@@ -34,18 +27,18 @@ export class SecureSourcesAPIController {
     const results = await this.sourcesModel.find(query)
     res.json(results)
   }
-  @On(POST, '/:id')
-  @BeforeMiddleware([verifyPermission(SOURCES.ENABLE)])
+  @Before([verifyPermission(SOURCES.ENABLE)])
+  @Post('/:id')
   public async enable(req: PXIOHTTP.Request, res: PXIOHTTP.Response): Promise<void> {
     const { id } = req.params
-    await this.sourcesModel.setActive(id, true)
+    await this.sourcesModel.setActive(id as unknown as number, true)
     res.json(true)
   }
-  @On(DELETE, '/:id')
-  @BeforeMiddleware([verifyPermission(SOURCES.DISABLE)])
+  @Before([verifyPermission(SOURCES.DISABLE)])
+  @Delete('/:id')
   public async disable(req: PXIOHTTP.Request, res: PXIOHTTP.Response): Promise<void> {
     const { id } = req.params
-    await this.sourcesModel.setActive(id, false)
+    await this.sourcesModel.setActive(id as unknown as number, false)
     res.json(true)
   }
 }

@@ -28,7 +28,7 @@ export function verifyPermission(permission: APIPermission | string) {
   } else {
     apiPermission = permission
   }
-  return async function (req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response, next: PXIOHTTP.Next): Promise<void> {
+  return async function (req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response, next: Next): Promise<void> {
     if (verifyDevMode.bind(this)()) {
       next()
       return

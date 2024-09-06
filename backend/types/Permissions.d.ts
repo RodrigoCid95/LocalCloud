@@ -1,9 +1,9 @@
-import type { WithId } from "mongodb"
-
 declare global {
   namespace Permissions {
     interface New extends Omit<Permission, 'id'> { }
-    type Result = WithId<Omit<Permission, 'id'>>
+    interface Result extends Omit<Permission, 'id'> {
+      id_permission: number
+    }
   }
 }
 

@@ -1,5 +1,3 @@
-declare const Library: PXIO.LibraryDecorator
-
 export class BuilderModel {
   get privateAPIList() {
     return this.builder.privateAPIList

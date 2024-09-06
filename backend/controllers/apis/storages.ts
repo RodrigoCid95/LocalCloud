@@ -1,15 +1,7 @@
 import { verifySession } from "./middlewares/session"
 import { getOrigin } from './middlewares/permissions'
 
-declare const Namespace: PXIOHTTP.NamespaceDecorator
-declare const Model: PXIO.ModelDecorator
-declare const On: PXIOHTTP.OnDecorator
-declare const BeforeMiddleware: PXIOHTTP.BeforeMiddlewareDecorator
-declare const METHODS: PXIOHTTP.METHODS
-
-const { GET, PUT } = METHODS
-
-function verifyPermission(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response, next: PXIOHTTP.Next) {
+function verifyPermission(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response, next: Next) {
   const devModel: Models<'DevModeModel'> = (this as StoragesAPIController).devModeModel
   if (devModel.devMode.enable) {
     next()
@@ -24,7 +16,7 @@ function verifyPermission(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PX
   }
 }
 
-const filterPath = (isGlobal: boolean) => function (req: PXIOHTTP.Request<LocalCloud.SessionData>, _: PXIOHTTP.Response, next: PXIOHTTP.Next) {
+const filterPath = (isGlobal: boolean) => function (req: PXIOHTTP.Request<LocalCloud.SessionData>, _: PXIOHTTP.Response, next: Next) {
   const devModel: Models<'DevModeModel'> = (this as StoragesAPIController).devModeModel
   const storageModel: Models<'StorageModel'> = (this as StoragesAPIController).storageModel
   if (devModel.devMode.enable) {
@@ -46,12 +38,13 @@ const filterPath = (isGlobal: boolean) => function (req: PXIOHTTP.Request<LocalC
   next()
 }
 
-@Namespace('/api/storage', { before: [verifySession, verifyPermission] })
+@Namespace('/api/storage')
+@Middlewares({ before: [verifySession, verifyPermission] })
 export class StoragesAPIController {
   @Model('DevModeModel') public devModeModel: Models<'DevModeModel'>
   @Model('StorageModel') public storageModel: Models<'StorageModel'>
-  @On(GET, '/:name')
-  @BeforeMiddleware([filterPath(true)])
+  @Before([filterPath(true)])
+  @Get('/:name')
   public globalStore(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response) {
     if (typeof (req as any).storagePath === 'string') {
       const contentStorage = this.storageModel.loadStorage((req as any).storagePath)
@@ -60,8 +53,8 @@ export class StoragesAPIController {
       res.json(null)
     }
   }
-  @On(GET, '/user/:name')
-  @BeforeMiddleware([filterPath(false)])
+  @Before([filterPath(false)])
+  @Get('/user/:name')
   public userStore(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response) {
     if (typeof (req as any).storagePath === 'string') {
       const contentStorage = this.storageModel.loadStorage((req as any).storagePath)
@@ -70,15 +63,15 @@ export class StoragesAPIController {
       res.json(null)
     }
   }
-  @On(PUT, '/:name')
-  @BeforeMiddleware([filterPath(true)])
+  @Before([filterPath(true)])
+  @Put('/:name')
   public setGlobalStore(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response) {
     const content = req.body.content || null
     this.storageModel.writeContent((req as any).storagePath, content)
     res.json(true)
   }
-  @On(PUT, '/user/:name')
-  @BeforeMiddleware([filterPath(false)])
+  @Before([filterPath(false)])
+  @Put('/user/:name')
   public setUserStore(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response) {
     const content = req.body.content || null
     this.storageModel.writeContent((req as any).storagePath, content)

@@ -3,26 +3,19 @@ import { verifyPermission } from './middlewares/permissions'
 import { decryptRequest } from './middlewares/encrypt'
 import { USERS } from 'libraries/classes/APIList'
 
-declare const Namespace: PXIOHTTP.NamespaceDecorator
-declare const Model: PXIO.ModelDecorator
-declare const On: PXIOHTTP.OnDecorator
-declare const BeforeMiddleware: PXIOHTTP.BeforeMiddlewareDecorator
-declare const METHODS: PXIOHTTP.METHODS
-
-const { GET, POST, PUT, DELETE } = METHODS
-
-@Namespace('/api/users', { before: [verifySession] })
+@Namespace('/api/users')
+@Middlewares({ before: [verifySession] })
 export class UsersAPIController {
   @Model('UsersModel') public usersModel: Models<'UsersModel'>
   @Model('DevModeModel') public devModeModel: Models<'DevModeModel'>
-  @On(GET, '/')
-  @BeforeMiddleware([verifyPermission(USERS.INDEX)])
+  @Before([verifyPermission(USERS.INDEX)])
+  @Get('/')
   public index(_: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): void {
     const results = this.usersModel.getUsers()
     res.json(results)
   }
-  @On(GET, '/:uid')
-  @BeforeMiddleware([verifyPermission(USERS.USER)])
+  @Before([verifyPermission(USERS.USER)])
+  @Get('/:uid')
   public user(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): void {
     const user = this.usersModel.getUserByUID(Number(req.params.uid))
     if (user) {
@@ -31,8 +24,8 @@ export class UsersAPIController {
       res.json(null)
     }
   }
-  @On(POST, '/')
-  @BeforeMiddleware([verifyPermission(USERS.CREATE), decryptRequest])
+  @Before([verifyPermission(USERS.CREATE), decryptRequest])
+  @Post('/')
   public async create(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
     const { email, full_name, phone, name, password } = req.body
     if (!name || !password) {
@@ -59,8 +52,8 @@ export class UsersAPIController {
     })
     res.json(true)
   }
-  @On(PUT, '/:uid')
-  @BeforeMiddleware([verifyPermission(USERS.UPDATE), decryptRequest])
+  @Before([verifyPermission(USERS.UPDATE), decryptRequest])
+  @Put('/:uid')
   public async update(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
     const { full_name, email, phone } = req.body
     const result = this.usersModel.getUserByUID(Number(req.params.uid))
@@ -74,8 +67,8 @@ export class UsersAPIController {
     await this.usersModel.updateUser(result.name, { full_name, email, phone })
     res.json(true)
   }
-  @On(DELETE, '/:uid')
-  @BeforeMiddleware([verifyPermission(USERS.DELETE)])
+  @Before([verifyPermission(USERS.DELETE)])
+  @Delete('/:uid')
   public async delete(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
     const user = this.usersModel.getUserByUID(Number(req.params.uid))
     if (user) {
@@ -83,8 +76,8 @@ export class UsersAPIController {
     }
     res.json(true)
   }
-  @On(POST, '/assign-app')
-  @BeforeMiddleware([verifyPermission(USERS.ASSIGN_APP), decryptRequest])
+  @Before([verifyPermission(USERS.ASSIGN_APP), decryptRequest])
+  @Post('/assign-app')
   public async assignApp(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
     const { uid, package_name } = req.body
     if (!uid || !package_name) {
@@ -105,8 +98,8 @@ export class UsersAPIController {
     await this.usersModel.assignApp(result.uid, package_name)
     res.json(true)
   }
-  @On(POST, '/unassign-app')
-  @BeforeMiddleware([verifyPermission(USERS.UNASSIGN_APP), decryptRequest])
+  @Before([verifyPermission(USERS.UNASSIGN_APP), decryptRequest])
+  @Post('/unassign-app')
   public async unassignApp(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
     const { uid, package_name } = req.body
     if (!uid || !package_name) {

@@ -4,26 +4,20 @@ import { verifyPermission } from './middlewares/permissions'
 import { decryptRequest } from './middlewares/encrypt'
 import { APPS } from 'libraries/classes/APIList'
 
-declare const Namespace: PXIOHTTP.NamespaceDecorator
-declare const Model: PXIO.ModelDecorator
-declare const On: PXIOHTTP.OnDecorator
-declare const BeforeMiddleware: PXIOHTTP.BeforeMiddlewareDecorator
-declare const METHODS: PXIOHTTP.METHODS
-const { GET, PUT, DELETE } = METHODS
-
-@Namespace('api/apps', { before: [verifySession, decryptRequest] })
+@Namespace('api/apps')
+@Middlewares({ before: [verifySession, decryptRequest] })
 export class AppsAPIController {
   @Model('DevModeModel') public devModeModel: Models<'DevModeModel'>
   @Model('UsersModel') public usersModel: Models<'UsersModel'>
   @Model('AppsModel') public appsModel: Models<'AppsModel'>
-  @On(GET, '/')
-  @BeforeMiddleware([verifyPermission(APPS.APPS)])
+  @Before([verifyPermission(APPS.APPS)])
+  @Get('/')
   public async apps(_: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
     const results = await this.appsModel.getApps()
-    res.json(results)
+    res.json(results.map(({ package_name, title, description, author, extensions, useStorage }) => ({ package_name, title, description, author, extensions, useStorage })))
   }
-  @On(GET, '/:uid')
-  @BeforeMiddleware([verifyPermission(APPS.APPS_BY_UID)])
+  @Before([verifyPermission(APPS.APPS_BY_UID)])
+  @Get('/:uid')
   public async appsByUID(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
     const user = this.usersModel.getUserByUID(Number(req.params.uid || 'NaN'))
     if (!user) {
@@ -34,10 +28,10 @@ export class AppsAPIController {
       return
     }
     const results = await this.appsModel.getAppsByUID(user.uid)
-    res.json(results)
+    res.json(results.map(({ package_name, title, description, author, extensions, useStorage }) => ({ package_name, title, description, author, extensions, useStorage })))
   }
-  @On(PUT, '/')
-  @BeforeMiddleware([verifyPermission(APPS.INSTALL), fileUpload()])
+  @Before([verifyPermission(APPS.INSTALL), fileUpload()])
+  @Put('/')
   public async install(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
     const package_zip: UploadedFile | undefined = req.files?.package_zip as any
     const update = req.body.update !== undefined
@@ -70,8 +64,8 @@ export class AppsAPIController {
       })
     }
   }
-  @On(DELETE, '/:package_name')
-  @BeforeMiddleware([verifyPermission(APPS.UNINSTALL)])
+  @Before([verifyPermission(APPS.UNINSTALL)])
+  @Delete('/:package_name')
   public async unInstall(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
     const { package_name } = req.params
     const app = await this.appsModel.getAppByPackageName(package_name)

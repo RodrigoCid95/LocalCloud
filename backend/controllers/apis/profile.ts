@@ -3,26 +3,19 @@ import { verifyPermission } from './middlewares/permissions'
 import { decryptRequest } from './middlewares/encrypt'
 import { PROFILE } from 'libraries/classes/APIList'
 
-declare const Namespace: PXIOHTTP.NamespaceDecorator
-declare const Model: PXIO.ModelDecorator
-declare const On: PXIOHTTP.OnDecorator
-declare const BeforeMiddleware: PXIOHTTP.BeforeMiddlewareDecorator
-declare const METHODS: PXIOHTTP.METHODS
-
-const { GET, POST, PUT } = METHODS
-
-@Namespace('api/profile', { before: [verifySession] })
+@Namespace('api/profile')
+@Middlewares({ before: [verifySession] })
 export class ProfileAPIController {
   @Model('DevModeModel') public devModeModel: Models<'DevModeModel'>
   @Model('AppsModel') private appsModel: Models<'AppsModel'>
   @Model('UsersModel') private usersModel: Models<'UsersModel'>
-  @On(GET, '/')
-  @BeforeMiddleware([verifyPermission(PROFILE.INDEX)])
+  @Before([verifyPermission(PROFILE.INDEX)])
+  @Get('/')
   public index(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): void {
     res.json(req.session.user)
   }
-  @On(GET, '/apps')
-  @BeforeMiddleware([verifyPermission(PROFILE.APPS)])
+  @Before([verifyPermission(PROFILE.APPS)])
+  @Get('/apps')
   public async apps(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
     const results = await this.appsModel.getAppsByUID(req.session.user?.uid || NaN)
     const apps: Partial<Apps.App>[] = results.map(app => ({
@@ -33,15 +26,15 @@ export class ProfileAPIController {
     }))
     res.json(apps.map(({ package_name, title, description, author, extensions, useStorage }) => ({ package_name, title, description, author, extensions, useStorage })))
   }
-  @On(GET, '/config')
-  @BeforeMiddleware([verifyPermission(PROFILE.READ_CONFIG)])
+  @Before([verifyPermission(PROFILE.READ_CONFIG)])
+  @Get('/config')
   public getConfig(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): void {
     const { name } = req.session.user as Users.User
     const config = this.usersModel.getUserConfig(name)
     res.json(config)
   }
-  @On(POST, '/')
-  @BeforeMiddleware([verifyPermission(PROFILE.UPDATE), decryptRequest])
+  @Before([verifyPermission(PROFILE.UPDATE), decryptRequest])
+  @Post('/')
   public async update(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
     if (req.session.user) {
       const { user_name, full_name, email, phone } = req.body
@@ -71,8 +64,8 @@ export class ProfileAPIController {
     }
     res.json(true)
   }
-  @On(POST, '/config')
-  @BeforeMiddleware([verifyPermission(PROFILE.WRITE_CONFIG), decryptRequest])
+  @Before([verifyPermission(PROFILE.WRITE_CONFIG), decryptRequest])
+  @Post('/config')
   public async setConfig(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
     const { name } = req.session.user as Users.User
     const { config } = req.body
@@ -86,8 +79,8 @@ export class ProfileAPIController {
       })
     }
   }
-  @On(PUT, '/')
-  @BeforeMiddleware([verifyPermission(PROFILE.UPDATE_PASSWORD), decryptRequest])
+  @Before([verifyPermission(PROFILE.UPDATE_PASSWORD), decryptRequest])
+  @Put('/')
   public async updatePassword(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
     const { current_password, new_password } = req.body
     if (!current_password || !new_password) {

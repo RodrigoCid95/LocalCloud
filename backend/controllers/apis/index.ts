@@ -1,15 +1,10 @@
 import { getOrigin } from './middlewares/permissions'
 
-declare const Namespace: PXIOHTTP.NamespaceDecorator
-declare const Model: PXIO.ModelDecorator
-declare const On: PXIOHTTP.OnDecorator
-declare const METHODS: PXIOHTTP.METHODS
-
 @Namespace('/api')
 export class APIController {
   @Model('DevModeModel') public devModeModel: Models<'DevModeModel'>
   @Model('BuilderModel') public builderModel: Models<'BuilderModel'>
-  @On(METHODS.GET, '/connector.js')
+  @Get('/connector.js')
   public connector(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response) {
     res.set('Content-Type', 'text/javascript')
     if (this.devModeModel.devMode.enable) {

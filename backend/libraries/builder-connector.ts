@@ -1,8 +1,6 @@
 import { buildSync } from 'esbuild'
 import * as API_LIST from 'libraries/classes/APIList'
 
-declare const configs: PXIO.Configs
-
 const privateAPIList: string[] = []
 const dashAPIList: string[] = []
 const publicAPIList: string[] = []

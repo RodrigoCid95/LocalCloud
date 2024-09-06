@@ -1,34 +1,46 @@
-import type { Collection, Db } from 'mongodb'
-import { ObjectId } from 'mongodb'
-
-declare const Library: PXIO.LibraryDecorator
+import type { Database } from 'sqlite3'
 
 export class SharedModel {
-  @Library('mongo') private db: Db
-  private get collection(): Collection<Omit<Shared.Shared, 'id'>> {
-    return this.db.collection<Omit<Shared.Shared, 'id'>>('shared')
-  }
-  public async find(query: Partial<Shared.Shared> = {}): Promise<Shared.Shared[]> {
-    const filter = {}
-    const keys = Object.keys(query)
-    for (const key of keys) {
-      if (key === 'id') {
-        filter['_id'] = new ObjectId(query[key])
-      } else {
-        filter[key] = query[key]
+  @Library('database') private database: Database
+  public async find(query?: Partial<Shared.Shared>): Promise<Shared.Shared[]> {
+    let strQuery = 'SELECT * FROM shared'
+    const opts: any[] = []
+    if (query) {
+      const where: string[] = []
+      const entries = Object.entries(query)
+      for (let [key, value] of entries) {
+        if (key === 'path') {
+          opts.push((value as string[]).join('|'))
+        } else {
+          opts.push(value)
+        }
+        where.push(`${key} = ?`)
       }
+      strQuery += ` WHERE ${where.join(' AND ')};`
     }
-    const results = await this.collection.find(filter).toArray()
+    const results = await new Promise<Shared.Result[]>(resolve => this.database.all<Shared.Result>(
+      strQuery,
+      opts,
+      (error, rows) => error ? resolve([]) : resolve(rows)
+    ))
     return results.map(item => ({
-      id: item._id.toString(),
+      id: item.id,
       uid: item.uid,
-      path: item.path
+      path: item.path.split('|')
     }))
   }
-  public async create(shared: Shared.New): Promise<void> {
-    await this.collection.insertOne(shared)
+  public create(shared: Shared.Shared): Promise<void> {
+    return new Promise(resolve => this.database.run(
+      'INSERT INTO shared ( id, uid, path ) VALUES (?, ?, ?)',
+      [shared.id, shared.uid, shared.path.join('|')],
+      resolve
+    ))
   }
-  public async delete(id: Shared.Shared['id']): Promise<void> {
-    await this.collection.deleteOne({ _id: new ObjectId(id) })
+  public delete(id: Shared.Shared['id']): Promise<void> {
+    return new Promise(resolve => this.database.run(
+      'DELETE FROM shared WHERE id = ?',
+      [id],
+      resolve
+    ))
   }
 }

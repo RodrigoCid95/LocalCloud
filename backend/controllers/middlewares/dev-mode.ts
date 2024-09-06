@@ -1,6 +1,6 @@
 import { verifyDevMode } from "controllers/apis/middlewares/dev-mode"
 
-export function devMode(req: PXIOHTTP.Request, res: PXIOHTTP.Response, next: PXIOHTTP.Next) {
+export function devMode(req: PXIOHTTP.Request, res: PXIOHTTP.Response, next: Next) {
   const model = verifyDevMode.bind(this)()
   if (model) {
     if (req.path !== '/') {
