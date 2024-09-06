@@ -1,4 +1,5 @@
 backend/.debugger
+backend/.release
 backend/lc/system.db
 backend/lc/apps
 backend/lc/client/public
@@ -6,7 +7,6 @@ backend/lc/client/views/apps
 backend/node_modules
 backend/package-lock.json
 backend/key.pem
-backend/session-server.sock
 
 frontend/os/package-lock.json
 frontend/os/node_modules
