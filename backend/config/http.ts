@@ -7,8 +7,6 @@ import cors from 'cors'
 import { paths } from './paths'
 import { Store } from 'express-session'
 
-declare const isRelease: boolean
-
 class SessionConnector {
   #CALLBACKS: {
     [x: string]: any

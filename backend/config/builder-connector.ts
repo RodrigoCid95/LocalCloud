@@ -1,6 +1,6 @@
 import path from 'node:path'
 
-const srcPath = path.resolve(__dirname, '..', 'connector')
+const srcPath = path.resolve(process.cwd(), 'connector')
 
 export const builderConnector: BuilderConnector.Config = {
   mainPath: path.join(srcPath, 'main.ts'),

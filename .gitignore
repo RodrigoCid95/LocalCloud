@@ -1,5 +1,5 @@
 backend/.debugger
-backend/.release
+backend/dist
 backend/lc/system.db
 backend/lc/apps
 backend/lc/client/public

@@ -1,7 +1,5 @@
 import fs from 'node:fs'
 
-declare const isRelease: boolean
-
 class DevMode implements DevMode.Class {
   #enable: boolean
   get enable(): boolean {

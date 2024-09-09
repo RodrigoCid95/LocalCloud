@@ -5,7 +5,10 @@
 	"scripts": {
 		"init": "pxio",
 		"start": "pxio start",
-		"build": "pxio build"
+		"build": "pxio build",
+		"prepare-dist": "cd ./dist && mkdir temp && mv ./package.json ./temp && mv ./server ./temp/server && cd temp && npm i",
+		"compile": "cd dist && pkg temp --target latest-linux-x64 --output ./local-cloud && rm -R ./temp",
+		"dist": "npm run build && npm run prepare-dist && npm run compile"
 	},
 	"keywords": [],
 	"author": "",
@@ -36,7 +39,8 @@
 		"@types/spdy": "^3.4.9",
 		"@types/unzipper": "^0.10.9",
 		"@types/uuid": "^9.0.6",
-		"px.io": "^0.11.10-beta"
+		"pkg": "^5.8.1",
+		"px.io": "^0.12.17-beta"
 	},
 	"pxio": {
 		"type": "http",

@@ -5,7 +5,7 @@ import { v4 } from 'uuid'
 export class DevModeModel {
   @Library('devMode') public devMode: DevMode.Class
   @Library('database') public database: Database
-  @Library('paths') paths: Paths.Class
+  @Library('paths') private paths: Paths.Class
   public getUser(): Users.User | undefined {
     const PASSWD_CONTENT = fs.readFileSync(this.paths.passwd, 'utf8')
     const PASSWD_LINES = PASSWD_CONTENT.split('\n').filter(line => line !== '')
