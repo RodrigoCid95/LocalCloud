@@ -57,7 +57,7 @@ class Builder implements BuilderConnector.Class {
       write: false,
       inject: [configs.get('builderConnector').apiPath],
       treeShaking: true,
-      sourcemap: 'inline'
+      sourcemap: flags.get('maintenance-mode') ? 'inline' : false
     })
     return content.outputFiles[0].text
   }

@@ -1,4 +1,4 @@
-import cluster from "node:cluster"
+import cluster from 'node:cluster'
 
 if (cluster.isPrimary) {
   let numCPUs = Number(flags.get('i'))
@@ -24,7 +24,7 @@ if (cluster.isPrimary) {
   }
   const PORTS = Array.from({ length: numCPUs }, (_, i) => 3000 + i)
   for (const PORT of PORTS) {
-    const child = cluster.fork({ PORT })
+    const child = cluster.fork({ PORT, ESBUILD_BINARY_PATH: `${process.cwd()}/esbuild` })
     child.on('message', message => {
       const { uid, event, args = [] } = message
       const e = Store[event]
