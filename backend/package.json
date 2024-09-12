@@ -6,9 +6,9 @@
 		"init": "pxio",
 		"start": "pxio start",
 		"build": "pxio build",
-		"prepare-dist": "cd ./dist && mkdir temp && mv ./package.json ./temp && mv ./server ./temp/server && cd temp && npm i",
-		"compile": "cd dist/temp && pkg . --target latest-linux-x64 --output ./../local-cloud",
-		"dist": "npm run build && npm run prepare-dist && npm run compile && cd dist && rm -R ./temp && curl -fsSL https://esbuild.github.io/dl/v0.23.1 | sh"
+		"prepare-dist": "cd ./dist && mkdir source && mv ./package.json ./source && mv ./server ./source/server && cd source && npm i && npm i -D pkg",
+		"compile": "cd dist/source && pkg . --target latest-linux-x64 --output ./../local-cloud && cd .. && rm -R ./source && curl -fsSL https://esbuild.github.io/dl/v0.23.1 | sh",
+		"dist": "npm run build && npm run prepare-dist && npm run compile"
 	},
 	"keywords": [],
 	"author": "",
@@ -39,8 +39,7 @@
 		"@types/spdy": "^3.4.9",
 		"@types/unzipper": "^0.10.9",
 		"@types/uuid": "^9.0.6",
-		"pkg": "^5.8.1",
-		"px.io": "^0.12.17-beta"
+		"px.io": "^0.12.18-beta"
 	},
 	"pxio": {
 		"type": "http",
@@ -52,5 +51,22 @@
 		"loader": {
 			".sql": "text"
 		}
+	},
+	"pkg": {
+		"assets": [
+			"/node_modules/sqlite3/build/node_sqlite3.node",
+			"/node_modules/sqlite3/build/Debug/node_sqlite3.node",
+			"/node_modules/sqlite3/build/Release/node_sqlite3.node",
+			"/node_modules/sqlite3/out/Debug/node_sqlite3.node",
+			"/node_modules/sqlite3/Debug/node_sqlite3.node",
+			"/node_modules/sqlite3/out/Release/node_sqlite3.node",
+			"/node_modules/sqlite3/Release/node_sqlite3.node",
+			"/node_modules/sqlite3/build/default/node_sqlite3.node",
+			"/node_modules/sqlite3/compiled/18.5.0/linux/x64/node_sqlite3.node",
+			"/node_modules/sqlite3/addon-build/release/install-root/node_sqlite3.node",
+			"/node_modules/sqlite3/addon-build/debug/install-root/node_sqlite3.node",
+			"/node_modules/sqlite3/addon-build/default/install-root/node_sqlite3.node",
+			"/node_modules/sqlite3/lib/binding/node-v108-linux-x64/node_sqlite3.node"
+		]
 	}
 }
