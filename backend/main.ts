@@ -15,6 +15,10 @@ if (cluster.isPrimary) {
       Store.store.delete(sid)
       return null
     },
+    delete: (sid: string) => {
+      Store.store.delete(sid)
+      return null
+    },
     length: () => {
       Store.store.size
       return null
@@ -24,11 +28,20 @@ if (cluster.isPrimary) {
   }
   const PORTS = Array.from({ length: numCPUs }, (_, i) => 3000 + i)
   for (const PORT of PORTS) {
-    const child = cluster.fork({ PORT, ESBUILD_BINARY_PATH: `${process.cwd()}/esbuild` })
+    const env = { PORT }
+    if (isRelease) {
+      env['ESBUILD_BINARY_PATH'] = `${process.cwd()}/esbuild`
+    }
+    const child = cluster.fork(env)
     child.on('message', message => {
       const { uid, event, args = [] } = message
       const e = Store[event]
-      const result = e(...args)
+      let result = null
+      if (e) {
+        result = e(...args)
+      } else {
+        console.log('Error: Store command not fount', message)
+      }
       child.send({ uid, data: result })
     })
   }
