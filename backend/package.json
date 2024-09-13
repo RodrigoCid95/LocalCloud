@@ -6,8 +6,8 @@
 		"init": "pxio",
 		"start": "pxio start",
 		"build": "pxio build",
-		"prepare-dist": "cd ./dist && mkdir source && mv ./package.json ./source && mv ./server ./source/server && cd source && npm i && npm i -D pkg",
-		"compile": "cd dist/source && pkg . --target latest-linux-x64 --output ./../local-cloud && cd .. && rm -R ./source && curl -fsSL https://esbuild.github.io/dl/v0.23.1 | sh",
+		"prepare-dist": "cd ./dist && mkdir source && mv ./package.json ./source && mv ./server ./source/server && cd source && npm i",
+		"compile": "cd dist/source && npx pkg . --target latest-linux-x64 --output ./../local-cloud && cd .. && rm -R ./source && curl -fsSL https://esbuild.github.io/dl/v0.23.1 | sh",
 		"dist": "npm run build && npm run prepare-dist && npm run compile"
 	},
 	"keywords": [],
