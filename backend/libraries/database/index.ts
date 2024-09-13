@@ -8,7 +8,6 @@ import permissions from './permissions.sql'
 import secure_sources from './secure_sources.sql'
 
 export const database: () => Promise<Database> = async (): Promise<Database> => {
-  await new Promise(resolve => moduleEmitters.on('Paths:ready', resolve))
   const database: Database.Config = configs.get('database')
   const sqlite3: sqlite3 = verbose()
   const connector = new sqlite3.Database(database.path)

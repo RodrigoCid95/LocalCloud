@@ -1,46 +1,51 @@
-import { spawn } from 'node:child_process'
 import fs from 'node:fs'
 import path from 'node:path'
-import ini from 'ini'
 
-class Paths implements Paths.Class {
+export class Paths implements Paths.Class {
   get samba(): string {
-    return this.config.samba
+    return configs.get('paths').samba
   }
   get shadow(): string {
-    return this.config.shadow
+    return configs.get('paths').shadow
   }
   get passwd(): string {
-    return this.config.passwd
+    return configs.get('paths').passwd
   }
   get groups(): string {
-    return this.config.groups
+    return configs.get('paths').group
   }
   get system() {
-    return this.config.system.path
+    return configs.get('paths').system.path
   }
   get database() {
-    return this.config.system.database
+    return configs.get('paths').system.database
   }
   get apps() {
-    return this.config.system.apps
+    return configs.get('paths').system.apps
   }
   get appsTemplates() {
-    return this.config.system.appsViews
+    return configs.get('paths').system.appsViews
   }
   get storages() {
-    return this.config.system.storages
+    return configs.get('paths').system.storages
   }
   get users() {
-    return this.config.users.path
+    return configs.get('paths').users.path
   }
   get shared() {
-    return this.config.users.shared
+    return configs.get('paths').users.shared
   }
   get recycleBin() {
-    return this.config.users.recycleBin
+    return configs.get('paths').users.recycleBin
   }
-  constructor(private config: Paths.Config) { }
+  constructor() {
+    if (!fs.existsSync(this.system)) {
+      fs.mkdirSync(this.system)
+    }
+    if (!fs.existsSync(this.apps)) {
+      fs.mkdirSync(this.apps)
+    }
+  }
   getApp(packageName: string): string {
     return path.join(this.apps, packageName)
   }
@@ -60,7 +65,7 @@ class Paths implements Paths.Class {
     return path.join(this.storages, packageName, user, `${item}.json`)
   }
   getUser(name: string): string {
-    return path.join(this.config.users.path, name)
+    return path.join(configs.get('paths').users.path, name)
   }
   getRecycleBin(name: string): string {
     return path.join(this.recycleBin, name)
@@ -85,35 +90,4 @@ class Paths implements Paths.Class {
   resolveUserPath({ name, segments, verify = true }: Paths.ResolveUsersPathArgs): string | boolean {
     return this.resolve([this.getUser(name), ...segments], verify)
   }
-}
-
-export const paths = async () => {
-  const paths = new Paths(configs.get('paths'))
-  if (!fs.existsSync(paths.system)) {
-    fs.mkdirSync(paths.system)
-  }
-  if (!fs.existsSync(paths.apps)) {
-    fs.mkdirSync(paths.apps)
-  }
-  const SMB_CONFIG = fs.readFileSync(paths.samba, 'utf8')
-  const smbConfig = ini.parse(SMB_CONFIG)
-  if (!smbConfig['Carpeta Compartida']) {
-    smbConfig['Carpeta Compartida'] = {
-      comment: 'Carpeta Compartida',
-      path: paths.shared,
-      browsable: 'yes',
-      writable: 'yes',
-      'guest ok': 'no',
-      'valid users': '@lc'
-    }
-    const smbStrConfig = ini.stringify(smbConfig)
-    fs.writeFileSync(paths.samba, smbStrConfig, 'utf8')
-    await new Promise<void>(resolve => {
-      const child_process = spawn('/etc/init.d/smbd', ['restart'])
-      child_process.on('close', resolve)
-      child_process.stdin.end()
-    })
-  }
-  moduleEmitters.emit('Paths:ready')
-  return paths
 }

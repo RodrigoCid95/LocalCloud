@@ -1,6 +1,6 @@
 import fs from 'node:fs'
 
-class DevMode implements DevMode.Class {
+export class DevMode implements DevMode.Class {
   #enable: boolean
   get enable(): boolean {
     return this.#enable
@@ -16,5 +16,3 @@ class DevMode implements DevMode.Class {
     }
   }
 }
-
-export const devMode = () => new DevMode()

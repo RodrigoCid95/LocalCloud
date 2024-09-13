@@ -4,7 +4,7 @@ declare global {
       samba: string
       shadow: string
       passwd: string
-      groups: string
+      group: string
       system: {
         path: string
         apps: string

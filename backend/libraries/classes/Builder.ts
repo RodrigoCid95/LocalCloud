@@ -6,7 +6,7 @@ const dashAPIList: string[] = []
 const publicAPIList: string[] = []
 const allAPIList: string[] = []
 
-class Builder implements BuilderConnector.Class {
+export class Builder implements BuilderConnector.Class {
   get privateAPIList() {
     return privateAPIList
   }
@@ -62,5 +62,3 @@ class Builder implements BuilderConnector.Class {
     return content.outputFiles[0].text
   }
 }
-
-export const builder = () => new Builder()

@@ -1,10 +1,10 @@
 {
 	"name": "local-cloud",
 	"version": "1.0.0",
-	"description": "",
+	"description": "Nube privada.",
 	"scripts": {
 		"init": "pxio",
-		"start": "pxio start",
+		"start": "ETC=\"$PWD/.debugger/etc\" HOME=\"$PWD/.debugger/home\" SHARED=\"$PWD/.debugger/shared\" RECYCLE_BIN=\"$PWD/.debugger/recycler-bin\" pxio start",
 		"build": "pxio build",
 		"prepare-dist": "cd ./dist && mkdir source && mv ./package.json ./source && mv ./server ./source/server && cd source && npm i",
 		"compile": "cd dist/source && npx pkg . --target latest-linux-x64 --output ./../local-cloud && cd .. && rm -R ./source && curl -fsSL https://esbuild.github.io/dl/v0.23.1 | sh",
