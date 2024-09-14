@@ -1,6 +1,7 @@
 import type { FC } from "react"
 import { Breadcrumb, BreadcrumbItem, Menu, MenuButton, MenuDivider, MenuItem, MenuList, MenuPopover, MenuTrigger, Overflow, OverflowDivider, OverflowItem, makeStyles, mergeClasses, useIsOverflowGroupVisible, useIsOverflowItemVisible, useOverflowMenu } from "@fluentui/react-components"
 import { ChevronRight20Regular } from '@fluentui/react-icons'
+import { explorerController } from "../utils/Explorer"
 
 const useStyles = makeStyles({
   container: {
@@ -98,7 +99,7 @@ const OverflowMenuDivider: React.FC<{
   return <MenuDivider />
 }
 
-const DirectionBar: FC<DirectionBarProps> = ({ path, onGo }) => {
+const DirectionBar: FC<DirectionBarProps> = ({ path }) => {
   const itemIdsList: [string, string][] = []
   let count = 0
   for (const _ of path) {
@@ -112,12 +113,12 @@ const DirectionBar: FC<DirectionBarProps> = ({ path, onGo }) => {
   const styles = useStyles()
   const handleGo = (index?: number) => () => {
     if (index !== undefined) {
-      const newPath = [...path]
+      const newPath = explorerController.path
       index++
       newPath.splice(index, newPath.length - (index - 1))
-      onGo(newPath)
+      explorerController.path = newPath
     } else {
-      onGo([])
+      explorerController.path = []
     }
   }
   return (
@@ -167,5 +168,4 @@ interface OverflowMenuItemProps {
 
 interface DirectionBarProps {
   path: string[]
-  onGo: (newPath: string[]) => void
 }

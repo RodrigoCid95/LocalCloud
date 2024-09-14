@@ -3,21 +3,20 @@ import { Button, Spinner, Title1, Title3 } from "@fluentui/react-components"
 import Toolbar from './../Toolbar'
 import Item from "./Item"
 import './Explorer.css'
+import { explorerController } from "../../utils/Explorer"
+import { clipboardController } from "../../utils/Clipboard"
 
-const emitter = window.createEmitter()
-
-const Explorer: FC<ExplorerProps> = ({ path, onGo }) => {
+const Explorer: FC<ExplorerProps> = () => {
   const [items, setItems] = useState<Items>({
     dirs: [],
     files: []
   })
   const [loading, setLoading] = useState<boolean>(true)
   const [notFound, setNotFound] = useState<boolean>(false)
-  const [waitSelection, setWaitSelection] = useState<boolean>(false)
-  const [selections, setSelections] = useState<FS.ItemInfo[]>([])
 
-  const loadItems = useCallback((dir?: string) => {
-    const p = dir ? [...path, dir] : [...path]
+  const loadItems = useCallback(() => {
+    setLoading(true)
+    const p = explorerController.path
     const baseDir = p.shift()
     const reader = baseDir === 'shared' ? window.connectors.fs.sharedLs : window.connectors.fs.userLs
     reader(p).then(response => {
@@ -31,60 +30,27 @@ const Explorer: FC<ExplorerProps> = ({ path, onGo }) => {
       }
       setLoading(false)
     })
-  }, [setItems, setNotFound, setLoading, path])
+  }, [setItems, setNotFound, setLoading])
 
   useEffect(() => {
     loadItems()
-  }, [loadItems])
-
-  const handleOnGo = useCallback((dir: string) => {
-    const p = [...path, dir]
-    onGo(p)
-    loadItems(dir)
-    setSelections([])
-  }, [onGo, loadItems, path, setSelections])
-
-  const handleOnLaunch = useCallback((name: string) => {
-    const p = [...path, name]
-    window.launchFile(p.shift() as any, ...p)
-  }, [path])
-
-  const handleOnUp = useCallback(() => {
-    const p = [...path]
-    p.pop()
-    onGo(p)
-  }, [path, onGo])
-
-  const handleOnRefresh = useCallback(() => {
-    onGo([...path])
-    setSelections([])
-    setWaitSelection(false)
-    emitter.emit()
-  }, [path, onGo, setSelections, setWaitSelection])
-
-  const handleOnReload = useCallback((p: string[]) => {
-    const strP = p.join('|')
-    const strPath = path.join('|')
-    if (strP === strPath) {
-      handleOnRefresh()
-    }
-  }, [path, handleOnRefresh])
-
-  const handleOnSelected = useCallback((item: FS.ItemInfo, value: boolean) => {
-    if (waitSelection) {
-      const s = [...selections]
-      if (value) {
-        s.push(item)
-        setSelections(s)
-      } else {
-        const index = s.findIndex(selection => selection === item)
-        s.splice(index, 1)
-        setSelections(s)
+    const handleOnPaste = (path: any) => {
+      if (path.join('/') === explorerController.path.join('/')) {
+        loadItems()
       }
     }
-  }, [waitSelection, selections, setSelections])
+    explorerController.on('change', loadItems)
+    clipboardController.on('paste', handleOnPaste)
+    return () => {
+      explorerController.off('change', loadItems)
+      clipboardController.off('paste', handleOnPaste)
+    }
+  }, [loadItems])
 
-  const getPath = useCallback(() => [...path], [path])
+  const handleOnLaunch = useCallback((name: string) => {
+    const p = [...explorerController.path, name]
+    window.launchFile(p.shift() as any, ...p)
+  }, [])
 
   if (loading) {
     return <Spinner style={{ marginTop: '16px' }} />
@@ -93,21 +59,14 @@ const Explorer: FC<ExplorerProps> = ({ path, onGo }) => {
       return (
         <div className='not-found'>
           <Title1>Ruta no encontrada.</Title1>
-          <Button onClick={() => onGo([])}>Inicio</Button>
+          <Button onClick={() => explorerController.path = []}>Inicio</Button>
         </div>
       )
     }
     return (
       <>
-        {path.length > 0 && (
-          <Toolbar
-            onUp={handleOnUp}
-            onRefresh={handleOnRefresh}
-            onChangeSelectable={setWaitSelection}
-            getPath={getPath}
-            selections={selections}
-            path={path}
-          />
+        {explorerController.path.length > 0 && (
+          <Toolbar />
         )}
         <div className='explorer'>
           {items.dirs.length === 0 && items.files.length === 0 && (
@@ -117,24 +76,13 @@ const Explorer: FC<ExplorerProps> = ({ path, onGo }) => {
             <Item
               key={index}
               item={item}
-              waitSelection={waitSelection}
-              onGo={handleOnGo}
-              onChangeSelection={value => handleOnSelected(item, value)}
-              path={path}
-              onReload={handleOnReload}
-              emitter={emitter}
             />
           ))}
           {items.files.map((item, index) => (
             <Item
               key={index}
               item={item}
-              waitSelection={waitSelection}
               onLaunch={handleOnLaunch}
-              onChangeSelection={value => handleOnSelected(item, value)}
-              path={path}
-              onReload={handleOnReload}
-              emitter={emitter}
             />
           ))}
         </div>
@@ -152,6 +100,4 @@ interface Items {
 }
 
 interface ExplorerProps {
-  path: string[]
-  onGo: (newPath: string[]) => void
 }

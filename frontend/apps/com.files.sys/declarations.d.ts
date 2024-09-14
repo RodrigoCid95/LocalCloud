@@ -3,31 +3,42 @@ declare global {
     name: string
     fileTransfer: FileTransfer
   }
-  interface Transfers {
+  interface TransfersClass {
     readonly list: Transfer[]
     add(upload: Transfer): void
     remove(index: number): void
     on(callback: any): any
     off(callback: any): any
   }
+  type Callback = (...args: any[]) => void | Promise<void>
+  type ExplorerEvents = 'change' | 'selectableChange' | 'selectionChange'
+  interface ExplorerClass {
+    path: string[]
+    selectable: boolean
+    readonly selections: string[]
+    addSelection(path: string[]): void
+    removeSelection(path: string[]): void
+    on(event: ExplorerEvents, callback: Callback): void
+    off(event: ExplorerEvents, callback: Callback): void
+  }
+  type ClipboardEvents = 'change' | 'paste'
   interface ExplorerClipboard {
     readonly pendingPaste: boolean
-    toCopy(src: string[] | string[][]): void
-    toCut(src: string[] | string[][]): void
-    on(callback: any): void
-    off(callback: any): void
+    copy(src: ExplorerClass['selections']): void
+    cut(src: ExplorerClass['selections']): void
+    on(event: ClipboardEvents, callback: Callback): void
+    off(event: ClipboardEvents, callback: Callback): void
     paste(dest: string[]): Promise<void>
   }
-  interface Emitter {
-    on(callback: any): void
-    off(callback: any): void
-    emit(): void
+  interface EmitterClass {
+    on(callback: Callback): void
+    off(callback: Callback): void
+    emit(...args: any[]): void
   }
-  interface Window {
-    explorerClipboard: ExplorerClipboard
-    uploads: Transfers
-    downloads: Transfers
-    createEmitter(): Emitter
+  interface EmittersClass {
+    on(event: string, callback: Callback): void
+    off(event: string, callback: Callback): void
+    emit(event: string, ...args: any[]): void
   }
 }
 

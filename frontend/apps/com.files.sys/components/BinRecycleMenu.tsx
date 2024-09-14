@@ -1,5 +1,5 @@
 import { type FC, useState, useEffect, useCallback } from "react"
-import { Button, Caption1, Card, CardHeader, Dialog, DialogActions, DialogBody, DialogContent, DialogSurface, DialogTitle, Spinner, ToolbarButton, Text, Title3 } from "@fluentui/react-components"
+import { Button, Caption1, Card, CardHeader, Dialog, DialogActions, DialogBody, DialogContent, DialogSurface, DialogTitle, Spinner, ToolbarButton, Text } from "@fluentui/react-components"
 import { BinRecycleFullFilled, BinRecycleFilled, DeleteArrowBackFilled, DeleteFilled } from '@fluentui/react-icons'
 
 const Item: FC<ItemProps> = ({ item, onRemove }) => {
@@ -77,7 +77,7 @@ const BinRecycleMenu: FC = () => {
             <DialogTitle>Papelera de reciclaje</DialogTitle>
             <DialogContent>
               {items.map((item, index) => <Item key={index} item={item} onRemove={handleOnRemove} />)}
-              {items.length === 0 && <Title3>No hay elementos.</Title3>}
+              {items.length === 0 && <Caption1>No hay elementos.</Caption1>}
             </DialogContent>
             <DialogActions style={{ marginTop: '16px', marginBottom: '16px' }}>
               {!loading && <Button appearance="secondary" onClick={() => setOpen(false)}>Cerrar</Button>}

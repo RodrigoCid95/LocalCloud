@@ -1,15 +1,16 @@
 import { useCallback, useState, type FC } from "react"
 import { Button, Dialog, DialogActions, DialogBody, DialogContent, DialogSurface, DialogTitle, Field, Input, Spinner, ToolbarButton } from "@fluentui/react-components"
 import { FolderAdd24Filled } from '@fluentui/react-icons'
+import { explorerController } from "../../utils/Explorer"
 
-const NewFolder: FC<NewFolderProps> = ({ path, onCreate }) => {
+const NewFolder: FC<NewFolderProps> = () => {
   const [open, setOpen] = useState<boolean>(false)
   const [name, setName] = useState<string>('')
   const [loading, setLoading] = useState<boolean>(false)
 
   const handleOnSave = useCallback(() => {
     if (name) {
-      const p = [...path]
+      const p = explorerController.path
       const base = p.shift()
       const callback = base === 'shared' ? window.connectors.fs.sharedMkdir : window.connectors.fs.userMkdir
       setLoading(true)
@@ -17,10 +18,10 @@ const NewFolder: FC<NewFolderProps> = ({ path, onCreate }) => {
         setName('')
         setLoading(false)
         setOpen(false)
-        onCreate(path)
+        explorerController.path = explorerController.path
       })
     }
-  }, [name, path, setOpen, setLoading, onCreate])
+  }, [name, setOpen, setLoading])
 
   return (
     <>
@@ -55,8 +56,6 @@ const NewFolder: FC<NewFolderProps> = ({ path, onCreate }) => {
 }
 
 interface NewFolderProps {
-  path: string[]
-  onCreate(path: string[]): void
 }
 
 export default NewFolder

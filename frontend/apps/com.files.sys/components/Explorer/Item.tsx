@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useRef, useState, type FC } from "react"
 import { Caption1, Card, CardHeader, makeStyles, tokens, Text, Button, Popover, PopoverSurface, useRestoreFocusTarget, Title3, Toast, ToastTitle, useToastController, useId, Toaster, ToastTrigger, Link, Dialog, DialogActions, DialogBody, DialogContent, DialogSurface, DialogTitle, Field, Input, Spinner } from "@fluentui/react-components"
 import { DocumentFilled, FolderFilled } from '@fluentui/react-icons'
+import { explorerController } from "../../utils/Explorer"
+import { clipboardController } from "../../utils/Clipboard"
+import { transfers } from "../../utils/Transfers"
 
 const useStyles = makeStyles({
   caption: {
@@ -14,7 +17,8 @@ const useStyles = makeStyles({
   }
 })
 
-const Item: FC<ItemProps> = ({ item, onGo, onLaunch, waitSelection, onChangeSelection, path, onReload, emitter }) => {
+const Item: FC<ItemProps> = ({ item, onLaunch }) => {
+  const thisPath: string[] = [...explorerController.path, item.name]
   const styles = useStyles()
   const [open, setOpen] = useState<boolean>(false)
   const [rename, setRename] = useState<boolean>(false)
@@ -27,24 +31,22 @@ const Item: FC<ItemProps> = ({ item, onGo, onLaunch, waitSelection, onChangeSele
   const { dispatchToast } = useToastController(toasterId)
 
   useEffect(() => {
-    const unselect = () => setSelected(false)
-    emitter.on(unselect)
-    return () => emitter.off(unselect)
-  }, [setSelected, emitter])
+    const handlerOnSeletableChange = () => setSelected(false)
+    explorerController.on('selectableChange', handlerOnSeletableChange)
+    return () => explorerController.off('selectableChange', handlerOnSeletableChange)
+  }, [setSelected])
 
   const handleOnClick = useCallback(() => {
-    if (!waitSelection) {
+    if (!explorerController.selectable) {
       if (item.isFile) {
         if (onLaunch) {
           onLaunch(item.name)
         }
       } else {
-        if (onGo) {
-          onGo(item.name)
-        }
+        explorerController.path = thisPath
       }
     }
-  }, [waitSelection, cardRef, item, onLaunch, onGo])
+  }, [cardRef, item, onLaunch])
 
   const formatSize = useCallback((bytes: number) => {
     if (bytes === 0) return '0 Bytes'
@@ -61,27 +63,29 @@ const Item: FC<ItemProps> = ({ item, onGo, onLaunch, waitSelection, onChangeSele
 
   const handleCopy = useCallback(() => {
     setOpen(false)
-    window.explorerClipboard.toCopy([...path, item.name])
-  }, [path, item])
+    clipboardController.copy([thisPath.join('/')])
+  }, [item])
 
   const handleCut = useCallback(() => {
     setOpen(false)
-    window.explorerClipboard.toCut([...path, item.name])
-  }, [path, item])
+    clipboardController.cut([thisPath.join('/')])
+  }, [item])
 
   const handlePaste = useCallback(() => {
     if (!item.isFile) {
       setOpen(false)
-      window.explorerClipboard.paste([...path, item.name]).then(() => onReload(path))
+      clipboardController.paste(thisPath)
     }
-  }, [path, item])
+  }, [item])
 
   const handleDelete = useCallback(() => {
-    window.connectors.recycleBin.add([...path, item.name]).then(() => onReload(path))
-  }, [item, onReload, path])
+    window.connectors.recycleBin.add(thisPath).then(() => {
+      explorerController.path = explorerController.path
+    })
+  }, [item])
 
   const handleShare = useCallback(() => {
-    window.connectors.shared.create([...path, item.name]).then(({ id }) => {
+    window.connectors.shared.create(thisPath).then(({ id }) => {
       const url = window.createURL({ path: ['shared', id] }).href
       if (document.hasFocus()) {
         navigator.clipboard.writeText(url)
@@ -100,25 +104,25 @@ const Item: FC<ItemProps> = ({ item, onGo, onLaunch, waitSelection, onChangeSele
       )
       setOpen(false)
     })
-  }, [path, item])
+  }, [item])
 
   const handleOnSave = useCallback(() => {
     if (name) {
       setLoading(true)
-      window.connectors.fs.rename([...path, item.name], name).then(() => {
+      window.connectors.fs.rename(thisPath, name).then(() => {
         setLoading(false)
         setRename(false)
-        onReload([...path])
+        explorerController.path = explorerController.path
       })
     }
-  }, [name, setLoading, path, item, setRename, onReload])
+  }, [name, setLoading, item, setRename])
 
   const handleDownload = useCallback(() => {
-    const fileTransfer = window.createDownloader([...path, item.name])
+    const fileTransfer = window.createDownloader(thisPath)
     fileTransfer.start()
-    window.downloads.add({ fileTransfer, name: item.name })
+    transfers.downloads.add({ fileTransfer, name: item.name })
     setOpen(false)
-  }, [path, item, setOpen])
+  }, [item, setOpen])
 
   return (
     <div style={{ display: 'contents' }}>
@@ -157,15 +161,19 @@ const Item: FC<ItemProps> = ({ item, onGo, onLaunch, waitSelection, onChangeSele
         onClick={handleOnClick}
         onContextMenu={(e) => {
           e.preventDefault()
-          if (!waitSelection) {
+          if (!explorerController.selectable) {
             setOpen(o => !o)
           }
         }}
-        selected={waitSelection && selected}
+        selected={explorerController.selectable && selected}
         onSelectionChange={() => {
-          if (waitSelection) {
+          if (explorerController.selectable) {
             const newSelected = !selected
-            onChangeSelection(newSelected)
+            if (newSelected) {
+              explorerController.addSelection(thisPath)
+            } else {
+              explorerController.removeSelection(thisPath)
+            }
             setSelected(newSelected)
           }
         }}
@@ -200,7 +208,7 @@ const Item: FC<ItemProps> = ({ item, onGo, onLaunch, waitSelection, onChangeSele
             <Button onClick={handleOnOpen}>Abrir</Button>
             <Button onClick={handleCopy}>Copiar</Button>
             <Button onClick={handleCut}>Cortar</Button>
-            {!item.isFile && window.explorerClipboard.pendingPaste && <Button onClick={handlePaste}>Pegar</Button>}
+            {!item.isFile && clipboardController.pendingPaste && <Button onClick={handlePaste}>Pegar</Button>}
             <Button onClick={() => {
               setOpen(false)
               setRename(true)
@@ -223,11 +231,5 @@ export default Item
 
 interface ItemProps {
   item: FS.ItemInfo
-  onGo?: (dir: string) => void
   onLaunch?: (name: string) => void
-  onChangeSelection(value: boolean): void
-  waitSelection: boolean
-  path: string[]
-  onReload(path: string[]): void
-  emitter: Emitter
 }

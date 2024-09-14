@@ -2,21 +2,22 @@ import { type FC, useState, useCallback, useEffect } from "react"
 import { Button, Menu, MenuList, MenuPopover, MenuTrigger } from "@fluentui/react-components"
 import { ArrowDownload24Filled } from '@fluentui/react-icons'
 import DownloadItem from "../UploadManager/item"
+import { transfers } from "../../../utils/Transfers"
 
 const DownloadManager: FC<DownloadManagerProps> = () => {
-  const [downloads, setDownloads] = useState<Transfer[]>(window.downloads.list)
+  const [downloads, setDownloads] = useState<Transfer[]>(transfers.downloads.list)
 
   useEffect(() => {
-    const update = () => setDownloads([...window.downloads.list])
-    window.downloads.on(update)
+    const update = () => setDownloads([...transfers.downloads.list])
+    transfers.downloads.on(update)
     return () => {
-      window.downloads.off(update)
+      transfers.downloads.off(update)
     }
   }, [setDownloads])
 
   const quitUpload = useCallback((index: number) => {
-    window.downloads.remove(index)
-    setDownloads([...window.downloads.list])
+    transfers.downloads.remove(index)
+    setDownloads([...transfers.downloads.list])
   }, [setDownloads])
 
   if (downloads.length > 0) {

@@ -1,35 +1,41 @@
 import { useCallback, useEffect, useState, type FC } from "react"
 import { ToolbarButton, ToolbarDivider } from "@fluentui/react-components"
 import { Cut24Filled, Copy24Filled, ClipboardPaste24Filled } from '@fluentui/react-icons'
+import { explorerController } from "../../utils/Explorer"
+import { clipboardController } from "../../utils/Clipboard"
 
-const ToolbarClipboard: FC<ToolbarClipboardProps> = ({ selections, path, onPaste }) => {
-  const [pendingPaste, setPendingPaste] = useState<boolean>(window.explorerClipboard.pendingPaste)
+const ToolbarClipboard: FC<ToolbarClipboardProps> = () => {
+  const [pendingPaste, setPendingPaste] = useState<boolean>(clipboardController.pendingPaste)
+  const [selectionsLength, setSelectionsLength] = useState<number>(explorerController.selections.length)
 
   useEffect(() => {
-    const update = () => setPendingPaste(window.explorerClipboard.pendingPaste)
-    window.explorerClipboard.on(update)
-    return () => {
-      window.explorerClipboard.off(update)
+    const update = () => {
+      setPendingPaste(clipboardController.pendingPaste)
+      setSelectionsLength(explorerController.selections.length)
     }
-  }, [setPendingPaste])
+    clipboardController.on('change', update)
+    explorerController.on('selectionChange', update)
+    return () => {
+      clipboardController.off('change', update)
+      explorerController.off('selectionChange', update)
+    }
+  }, [setPendingPaste, setSelectionsLength])
 
   const handleCopy = useCallback(() => {
-    const items = selections.map(selection => [...path, selection.name])
-    window.explorerClipboard.toCopy(items)
-  }, [selections, path])
+    clipboardController.copy(explorerController.selections)
+  }, [])
 
   const handleCut = useCallback(() => {
-    const items = selections.map(selection => [...path, selection.name])
-    window.explorerClipboard.toCut(items)
-  }, [selections, path])
+    clipboardController.cut(explorerController.selections)
+  }, [])
 
   const handlePaste = useCallback(() => {
-    window.explorerClipboard.paste(path).then(() => onPaste(path))
-  }, [path])
+    clipboardController.paste(explorerController.path)
+  }, [])
 
   return (
     <>
-      {selections.length > 0 && (
+      {selectionsLength > 0 && (
         <>
           <ToolbarButton
             appearance="subtle"
@@ -54,15 +60,12 @@ const ToolbarClipboard: FC<ToolbarClipboardProps> = ({ selections, path, onPaste
           onClick={handlePaste}
         />
       )}
-      {(selections.length > 0 || pendingPaste) && <ToolbarDivider />}
+      {(selectionsLength > 0 || pendingPaste) && <ToolbarDivider />}
     </>
   )
 }
 
 interface ToolbarClipboardProps {
-  selections: FS.ItemInfo[]
-  path: string[]
-  onPaste(path: string[]): void
 }
 
 export default ToolbarClipboard

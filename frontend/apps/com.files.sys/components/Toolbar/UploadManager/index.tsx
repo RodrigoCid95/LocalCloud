@@ -2,12 +2,14 @@ import { useCallback, useState, type FC } from "react"
 import { Menu, MenuTrigger, Button, MenuPopover, MenuList, MenuItem } from "@fluentui/react-components"
 import { ArrowUpload24Filled } from '@fluentui/react-icons'
 import UploadItem from "./item"
+import { explorerController } from "../../../utils/Explorer"
+import { transfers } from "../../../utils/Transfers"
 
-const UploadManager: FC<UploadManagerProps> = ({ getPath }) => {
-  const [uploads, setUploads] = useState<Transfer[]>(window.uploads.list)
+const UploadManager: FC<UploadManagerProps> = () => {
+  const [uploads, setUploads] = useState<Transfer[]>(transfers.uploads.list)
 
   const handleOnUpload = useCallback(() => {
-    const path = getPath()
+    const path = explorerController.path
     const inputFile = document.createElement('input')
     inputFile.type = 'file'
     inputFile.multiple = true
@@ -21,18 +23,18 @@ const UploadManager: FC<UploadManagerProps> = ({ getPath }) => {
             const createFileTransfer = base === 'user' ? window.connectors.fs.userUpload : window.connectors.fs.sharedUpload
             const fileTransfer: FileTransfer = createFileTransfer({ path: p, file })
             fileTransfer.start()
-            window.uploads.add({ fileTransfer, name: file.name })
-            setUploads([...window.uploads.list])
+            transfers.uploads.add({ fileTransfer, name: file.name })
+            setUploads([...transfers.uploads.list])
           }
         }
       }
     })
     inputFile.click()
-  }, [getPath, uploads, setUploads])
+  }, [uploads, setUploads])
 
   const quitUpload = useCallback((index: number) => {
-    window.uploads.remove(index)
-    setUploads([...window.uploads.list])
+    transfers.uploads.remove(index)
+    setUploads([...transfers.uploads.list])
   }, [setUploads])
 
   return (
@@ -55,7 +57,6 @@ const UploadManager: FC<UploadManagerProps> = ({ getPath }) => {
 }
 
 interface UploadManagerProps {
-  getPath(): string[]
 }
 
 export default UploadManager

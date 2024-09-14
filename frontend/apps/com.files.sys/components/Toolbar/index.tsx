@@ -1,5 +1,4 @@
 import type { FC } from 'react'
-import type { ToolbarProps } from '@fluentui/react-components'
 import { useCallback, useState } from 'react'
 import { ArrowLeft24Filled, ArrowClockwise24Filled, Delete24Filled, MultiselectLtr24Filled } from '@fluentui/react-icons'
 import { Toolbar, ToolbarButton, ToolbarDivider, ToolbarToggleButton } from '@fluentui/react-components'
@@ -7,60 +6,51 @@ import UploadManager from './UploadManager'
 import ToolbarClipboard from './Clipboard'
 import NewFolder from './NewFolder'
 import DownloadManager from './DownloadManager'
+import { explorerController } from '../../utils/Explorer'
 
-const ExplorerToolbar: FC<ExplorerToolbarProps> = ({ onUp, onChangeSelectable, getPath, onRefresh, selections, path }) => {
-  const [checkedValues, setCheckedValues] = useState<Record<string, string[]>>({ selectable: [] })
-  const onChange: ToolbarProps["onCheckedValueChange"] = (_, { checkedItems }) => {
-    setCheckedValues({ selectable: checkedItems })
-    onChangeSelectable(checkedItems.includes('selectable'))
-  }
+const ExplorerToolbar: FC<ExplorerToolbarProps> = () => {
+  const [selectionLength, setSelectionLength] = useState(explorerController.selections.length)
+
+  useState(() => {
+    const update = () => setSelectionLength(explorerController.selections.length)
+    explorerController.on('selectionChange', update)
+    return () => explorerController.off('selectionChange', update)
+  })
 
   const handleOnDelete = useCallback(async () => {
-    for (const selection of selections) {
-      await window.connectors.recycleBin.add([...path, selection.name])
-    }
-    setCheckedValues({ selectable: [] })
-    onRefresh()
-  }, [selections, path, onRefresh])
-
-  const handleRefresh = useCallback((p?: string[]) => {
-    if (Array.isArray(p) && p !== path) {
-      return
-    }
-    setCheckedValues({ selectable: [] })
-    onRefresh()
-  }, [path, onRefresh, setCheckedValues])
+    const paths = explorerController.selections
+      .map(selection => selection.split('/'))
+      .map(path => window.connectors.recycleBin.add(path))
+    await Promise.all(paths)
+    explorerController.path = explorerController.path
+  }, [])
 
   return (
     <Toolbar
       size="small"
-      checkedValues={checkedValues}
-      onCheckedValueChange={onChange}
     >
       <ToolbarButton
         appearance="subtle"
         aria-label="Back"
         icon={<ArrowLeft24Filled />}
         onClick={() => {
-          setCheckedValues({ selectable: [] })
-          onUp()
+          const newPath = explorerController.path
+          newPath.pop()
+          explorerController.path = newPath
         }}
       />
       <ToolbarButton
         appearance="subtle"
         aria-label="Refresh"
         icon={<ArrowClockwise24Filled />}
-        onClick={handleRefresh as any}
+        onClick={() => explorerController.path = explorerController.path}
       />
-      <NewFolder
-        path={path}
-        onCreate={handleRefresh}
-      />
-      <UploadManager getPath={getPath} />
+      <NewFolder />
+      <UploadManager />
       <DownloadManager />
       <ToolbarDivider />
-      <ToolbarClipboard selections={selections} path={path} onPaste={handleRefresh} />
-      {selections.length > 0 && (
+      <ToolbarClipboard />
+      {selectionLength > 0 && (
         <>
           <ToolbarButton
             appearance="subtle"
@@ -76,18 +66,13 @@ const ExplorerToolbar: FC<ExplorerToolbarProps> = ({ onUp, onChangeSelectable, g
         icon={<MultiselectLtr24Filled />}
         name="selectable"
         value='selectable'
+        onClick={() => explorerController.selectable = !explorerController.selectable}
       />
     </Toolbar>
   )
 }
 
 interface ExplorerToolbarProps {
-  onUp(): void
-  onRefresh(): void
-  onChangeSelectable(selectable: boolean): void
-  getPath(): string[]
-  selections: FS.ItemInfo[]
-  path: string[]
 }
 
 export default ExplorerToolbar

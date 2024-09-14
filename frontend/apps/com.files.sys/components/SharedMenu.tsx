@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState, type FC } from "react"
-import { Button, Card, CardHeader, Dialog, DialogActions, DialogBody, DialogContent, DialogSurface, DialogTitle, Spinner, Title3, ToolbarButton, Text, Toast, useToastController, useId, Link, ToastTitle, ToastTrigger, Toaster } from "@fluentui/react-components"
+import { Button, Card, CardHeader, Dialog, DialogActions, DialogBody, DialogContent, DialogSurface, DialogTitle, Spinner, ToolbarButton, Text, Toast, useToastController, useId, Link, ToastTitle, ToastTrigger, Toaster, Caption1 } from "@fluentui/react-components"
 import { ShareFilled, ShareMultipleFilled, CopyFilled, DeleteFilled } from '@fluentui/react-icons'
 
 const Item: FC<ItemProps> = ({ item, onRemove }) => {
@@ -102,7 +102,7 @@ const SharedMenu = () => {
             <DialogTitle>Papelera de reciclaje</DialogTitle>
             <DialogContent>
               {items.map((item, index) => <Item key={index} item={item} onRemove={handleOnRemove} />)}
-              {items.length === 0 && <Title3>No hay elementos.</Title3>}
+              {items.length === 0 && <Caption1>No hay elementos.</Caption1>}
             </DialogContent>
             <DialogActions style={{ marginTop: '16px', marginBottom: '16px' }}>
               {!loading && <Button appearance="secondary" onClick={() => setOpen(false)}>Cerrar</Button>}
