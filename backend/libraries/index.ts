@@ -25,3 +25,4 @@ export const devMode = () => new DevMode()
 export const encrypt = () => new Encrypt()
 export const paths = () => new Paths()
 export * from './database'
+export * from './process'

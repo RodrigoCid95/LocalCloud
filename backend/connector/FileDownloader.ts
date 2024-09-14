@@ -57,6 +57,7 @@ export class FileDownloader implements FileTransfer {
           anchor.href = url
           anchor.download = this.filename
           anchor.click()
+          this.#progress = 100
         }
         for (const listener of this.#listeners.end) {
           (listener as any)()
