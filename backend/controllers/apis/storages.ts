@@ -38,7 +38,7 @@ const filterPath = (isGlobal: boolean) => function (req: PXIOHTTP.Request<LocalC
   next()
 }
 
-@Namespace('/api/storage')
+@Namespace('api', 'storage')
 @Middlewares({ before: [verifySession, verifyPermission] })
 export class StoragesAPIController {
   @Model('DevModeModel') public devModeModel: Models<'DevModeModel'>

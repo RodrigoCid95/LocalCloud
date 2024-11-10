@@ -3,7 +3,7 @@ import { GroupManager } from './GroupManager'
 import { Encrypt } from './Encrypt'
 import path from 'node:path'
 
-const { shadow, passwd, users: { path: home } } = configs.get('paths')
+const { shadow, passwd, users: { path: home } } = getConfig('paths')
 
 export class UserManager implements UserManager.Class {
   #groupManager: GroupManager.Class
@@ -86,7 +86,7 @@ export class UserManager implements UserManager.Class {
       if (!fs.existsSync(userPath)) {
         fs.mkdirSync(userPath, { recursive: true })
       }
-      if (isRelease) {
+      if (IS_RELEASE) {
         fs.chownSync(userPath, newUid, gid)
       }
       const skelPath = path.resolve('/', 'etc', 'skel')
@@ -95,7 +95,7 @@ export class UserManager implements UserManager.Class {
         const filePath = path.join(skelPath, file)
         const destFilesPath = path.join(userPath, file)
         fs.copyFileSync(filePath, destFilesPath)
-        if (isRelease) {
+        if (IS_RELEASE) {
           fs.chownSync(destFilesPath, newUid, gid)
         }
       }

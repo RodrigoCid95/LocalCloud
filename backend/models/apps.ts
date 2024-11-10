@@ -1,7 +1,7 @@
 import type { Database } from 'sqlite3'
 import fs from 'node:fs'
 import path from 'node:path'
-import { v4 } from 'uuid'
+import crypto from 'node:crypto'
 import unzipper from 'unzipper'
 
 export class AppsModel {
@@ -41,7 +41,7 @@ export class AppsModel {
     if (update) {
       await this.uninstall(package_name, true)
     }
-    const tempDir = path.join(this.paths.apps, 'temp', v4())
+    const tempDir = path.join(this.paths.apps, 'temp', crypto.randomUUID())
     fs.mkdirSync(tempDir, { recursive: true })
     await unzipper.Open
       .buffer(data)

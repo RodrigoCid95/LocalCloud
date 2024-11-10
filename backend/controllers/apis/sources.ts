@@ -2,7 +2,7 @@ import { verifySession } from './middlewares/session'
 import { verifyPermission } from "./middlewares/permissions"
 import { SOURCES } from 'libraries/classes/APIList'
 
-@Namespace('api/sources')
+@Namespace('api', 'sources')
 @Middlewares({ before: [verifySession] })
 export class SecureSourcesAPIController {
   @Model('DevModeModel') public devModeModel: Models<'DevModeModel'>

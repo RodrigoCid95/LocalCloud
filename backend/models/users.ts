@@ -1,7 +1,6 @@
 import type { Database } from 'sqlite3'
 import fs from 'node:fs'
 import path from 'node:path'
-import ini from 'ini'
 
 export class UsersModel {
   @Library('paths') paths: Paths.Class

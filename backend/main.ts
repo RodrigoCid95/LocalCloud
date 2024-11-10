@@ -1,7 +1,8 @@
 import cluster from 'node:cluster'
+import path from 'node:path'
 
 if (cluster.isPrimary) {
-  let numCPUs = Number(flags.get('i'))
+  let numCPUs = Number(getFlag('i'))
   numCPUs = isNaN(numCPUs) ? 1 : numCPUs
   console.log(`\n\nMaster ${process.pid} is running`, `\n${numCPUs} workers:\n`)
   const Store = {
@@ -29,8 +30,8 @@ if (cluster.isPrimary) {
   const PORTS = Array.from({ length: numCPUs }, (_, i) => 3000 + i)
   for (const PORT of PORTS) {
     const env = { PORT }
-    if (isRelease) {
-      env['ESBUILD_BINARY_PATH'] = `${process.cwd()}/esbuild`
+    if (IS_RELEASE) {
+      env['ESBUILD_BINARY_PATH'] = path.join(process.cwd(), 'esbuild')
     }
     const child = cluster.fork(env)
     child.on('message', message => {

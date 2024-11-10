@@ -1,7 +1,7 @@
 import { CSP } from './middlewares/csp'
 import { verifySession } from './middlewares/session'
 
-@Namespace('/launch')
+@Namespace('launch')
 @Middlewares({ before: [verifySession, CSP] })
 export class LaunchController {
   @Model('DevModeModel') public devModeModel: Models<'DevModeModel'>

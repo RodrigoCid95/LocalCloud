@@ -1,6 +1,6 @@
 import { getOrigin } from './middlewares/permissions'
 
-@Namespace('/api')
+@Namespace('api')
 export class APIController {
   @Model('DevModeModel') public devModeModel: Models<'DevModeModel'>
   @Model('BuilderModel') public builderModel: Models<'BuilderModel'>

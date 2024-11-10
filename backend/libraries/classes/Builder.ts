@@ -43,7 +43,7 @@ export class Builder implements BuilderConnector.Class {
       modules[`$${api}`] = apis ? apis.includes(api) ? 'true' : 'false' : 'true'
     }
     const content = buildSync({
-      entryPoints: [configs.get('builderConnector').mainPath],
+      entryPoints: [getConfig('builderConnector').mainPath],
       bundle: true,
       platform: 'browser',
       define: {
@@ -55,9 +55,9 @@ export class Builder implements BuilderConnector.Class {
       minify: Array.isArray(apis),
       format: 'esm',
       write: false,
-      inject: [configs.get('builderConnector').apiPath],
+      inject: [getConfig('builderConnector').apiPath],
       treeShaking: true,
-      sourcemap: flags.get('maintenance-mode') ? 'inline' : false
+      sourcemap: getFlag('maintenance-mode') ? 'inline' : false
     })
     return content.outputFiles[0].text
   }

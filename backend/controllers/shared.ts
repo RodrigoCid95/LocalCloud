@@ -1,6 +1,6 @@
 import { responseFile } from "./middlewares/file"
 
-@Namespace('/shared')
+@Namespace('shared')
 export class SharedController {
   @Model('SharedModel') private sharedModel: Models<'SharedModel'>
   @Model('FileSystemModel') private fsModel: Models<'FileSystemModel'>

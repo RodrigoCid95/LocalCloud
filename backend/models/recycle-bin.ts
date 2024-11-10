@@ -1,12 +1,12 @@
 import type { Database } from 'sqlite3'
 import fs from 'node:fs'
-import { v4 } from 'uuid'
+import crypto from 'node:crypto'
 
 export class RecycleBinModel {
   @Library('database') private database: Database
   @Library('paths') private paths: Paths.Class
   public async moveToRecycleBin(user: Users.User, strPath: string, path: string[]) {
-    const id = v4()
+    const id = crypto.randomUUID()
     const newPath = this.paths.getRecycleBinItem(user.name, id)
     fs.cpSync(strPath, newPath, { recursive: true })
     fs.rmSync(strPath, { recursive: true, force: true })

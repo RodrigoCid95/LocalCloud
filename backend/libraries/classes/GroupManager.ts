@@ -1,6 +1,6 @@
 import fs from 'node:fs'
 
-const { group: groupPath } = configs.get('paths')
+const { group: groupPath } = getConfig('paths')
 
 export class GroupManager implements GroupManager.Class {
   constructor() {
@@ -19,8 +19,6 @@ export class GroupManager implements GroupManager.Class {
         return { gid: Number(gid), name, users }
       })
     return groups
-  }
-  #loadGroup() {
   }
   addGroup(name: GroupManager.Group['name']): GroupManager.Group['gid'] {
     const groups = this.#loadedGroups()

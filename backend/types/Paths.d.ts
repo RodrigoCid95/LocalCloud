@@ -6,7 +6,6 @@ declare global {
       passwd: string
       group: string
       system: {
-        path: string
         apps: string
         appsViews: string
         clientPublic: string
@@ -43,7 +42,6 @@ declare global {
       readonly shadow: string
       readonly passwd: string
       readonly groups: string
-      readonly system: string
       readonly database: string
       readonly apps: string
       readonly appsTemplates: string

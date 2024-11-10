@@ -72,7 +72,7 @@ export const verifyApp = (req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PX
   }
 }
 
-@Namespace('/app')
+@Namespace('app')
 @Middlewares({ before: [devMode, verifySession, verifyApp] })
 export class AppController {
   @Model('UsersModel') public usersModel: Models<'UsersModel'>

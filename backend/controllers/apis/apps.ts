@@ -4,7 +4,7 @@ import { verifyPermission } from './middlewares/permissions'
 import { decryptRequest } from './middlewares/encrypt'
 import { APPS } from 'libraries/classes/APIList'
 
-@Namespace('api/apps')
+@Namespace('api', 'apps')
 @Middlewares({ before: [verifySession, decryptRequest] })
 export class AppsAPIController {
   @Model('DevModeModel') public devModeModel: Models<'DevModeModel'>

@@ -3,7 +3,7 @@ import { verifyPermission } from './middlewares/permissions'
 import { decryptRequest } from './middlewares/encrypt'
 import { PROFILE } from 'libraries/classes/APIList'
 
-@Namespace('api/profile')
+@Namespace('api', 'profile')
 @Middlewares({ before: [verifySession] })
 export class ProfileAPIController {
   @Model('DevModeModel') public devModeModel: Models<'DevModeModel'>

@@ -13,7 +13,7 @@ export const smbManager = async () => {
   const smbManager = new SMBManager()
   smbManager.create('Carpeta Compartida', {
     comment: 'Carpeta Compartida',
-    path: configs.get('paths').users.shared,
+    path: getConfig('paths').users.shared,
     browsable: 'yes',
     writable: 'yes',
     'guest ok': 'no',

@@ -3,48 +3,37 @@ import path from 'node:path'
 
 export class Paths implements Paths.Class {
   get samba(): string {
-    return configs.get('paths').samba
+    return getConfig('paths').samba
   }
   get shadow(): string {
-    return configs.get('paths').shadow
+    return getConfig('paths').shadow
   }
   get passwd(): string {
-    return configs.get('paths').passwd
+    return getConfig('paths').passwd
   }
   get groups(): string {
-    return configs.get('paths').group
-  }
-  get system() {
-    return configs.get('paths').system.path
+    return getConfig('paths').group
   }
   get database() {
-    return configs.get('paths').system.database
+    return getConfig('paths').system.database
   }
   get apps() {
-    return configs.get('paths').system.apps
+    return getConfig('paths').system.apps
   }
   get appsTemplates() {
-    return configs.get('paths').system.appsViews
+    return getConfig('paths').system.appsViews
   }
   get storages() {
-    return configs.get('paths').system.storages
+    return getConfig('paths').system.storages
   }
   get users() {
-    return configs.get('paths').users.path
+    return getConfig('paths').users.path
   }
   get shared() {
-    return configs.get('paths').users.shared
+    return getConfig('paths').users.shared
   }
   get recycleBin() {
-    return configs.get('paths').users.recycleBin
-  }
-  constructor() {
-    if (!fs.existsSync(this.system)) {
-      fs.mkdirSync(this.system)
-    }
-    if (!fs.existsSync(this.apps)) {
-      fs.mkdirSync(this.apps)
-    }
+    return getConfig('paths').users.recycleBin
   }
   getApp(packageName: string): string {
     return path.join(this.apps, packageName)
@@ -65,7 +54,7 @@ export class Paths implements Paths.Class {
     return path.join(this.storages, packageName, user, `${item}.json`)
   }
   getUser(name: string): string {
-    return path.join(configs.get('paths').users.path, name)
+    return path.join(getConfig('paths').users.path, name)
   }
   getRecycleBin(name: string): string {
     return path.join(this.recycleBin, name)

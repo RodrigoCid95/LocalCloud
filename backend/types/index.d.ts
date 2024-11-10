@@ -23,7 +23,7 @@ declare global {
       [package_name: string]: SessionApp
     }
     interface SessionData {
-      user: Users.User
+      user: Users.User | null
       apps: SessionApps
       key: string
       token: string

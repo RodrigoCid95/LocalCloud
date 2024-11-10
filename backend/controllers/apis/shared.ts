@@ -1,10 +1,10 @@
-import { v4 } from 'uuid'
+import crypto from 'node:crypto'
 import { verifySession } from './middlewares/session'
 import { decryptRequest } from './middlewares/encrypt'
 import { verifyPermission } from './middlewares/permissions'
 import { SHARED } from 'libraries/classes/APIList'
 
-@Namespace('/api/shared')
+@Namespace('api', 'shared')
 @Middlewares({ before: [verifySession, decryptRequest] })
 export class SharedAPIController {
   @Model('DevModeModel') public devModeModel: Models<'DevModeModel'>
@@ -31,7 +31,7 @@ export class SharedAPIController {
     if (result) {
       res.json(result)
     } else {
-      const newShared: Shared.Shared = { id: v4(), uid: uuid, path }
+      const newShared: Shared.Shared = { id: crypto.randomUUID(), uid: uuid, path }
       await this.sharedModel.create(newShared)
       res.json(newShared)
     }

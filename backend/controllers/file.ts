@@ -2,7 +2,7 @@ import { verifySession } from './middlewares/session'
 import { responseFile } from './middlewares/file'
 import { CSP } from './middlewares/csp'
 
-@Namespace('/file')
+@Namespace('file')
 @Middlewares({ before: [verifySession, CSP] })
 export class FileController {
   @Model('DevModeModel') public devModeModel: Models<'DevModeModel'>

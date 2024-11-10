@@ -1,27 +1,12 @@
 import type { Database } from 'sqlite3'
-import fs from 'node:fs'
-import { v4 } from 'uuid'
+import crypto from 'node:crypto'
 
 export class DevModeModel {
   @Library('devMode') public devMode: DevMode.Class
   @Library('database') public database: Database
-  @Library('paths') private paths: Paths.Class
-  public getUser(): Users.User | undefined {
-    const PASSWD_CONTENT = fs.readFileSync(this.paths.passwd, 'utf8')
-    const PASSWD_LINES = PASSWD_CONTENT.split('\n').filter(line => line !== '')
-    const USER_LIST = PASSWD_LINES.map(line => line.split(':'))
-    const result = USER_LIST.find(us => us[0] === this.devMode.user)
-    if (result) {
-      const name = result[0]
-      const [full_name = '', email = '', phone = ''] = result[4].split(',')
-      return {
-        uid: Number(result[2]),
-        name,
-        full_name,
-        email,
-        phone
-      }
-    }
+  @Library('userManager') private userManager: UserManager.Class
+  public getUser(): Users.User | null {
+    return this.userManager.get(this.devMode.user)
   }
   public async getApps(uid: Users.User['uid']): Promise<LocalCloud.SessionData['apps']> {
     const apps = await new Promise<Apps.App[]>(resolve => this.database.all<Apps.Result>(
@@ -39,7 +24,7 @@ export class DevModeModel {
     const appList: LocalCloud.SessionData['apps'] = {}
     for (const app of apps) {
       const sessionApp: LocalCloud.SessionApp = {
-        token: v4(),
+        token: crypto.randomUUID(),
         ...app,
         secureSources: [],
         permissions: []

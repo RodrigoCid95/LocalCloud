@@ -3,7 +3,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import ini from 'ini'
 
-const { samba, users: { path: home } } = configs.get('paths')
+const { samba, users: { path: home } } = getConfig('paths')
 
 export class SMBManager implements SMBManager.Class {
   constructor() {
@@ -25,7 +25,7 @@ export class SMBManager implements SMBManager.Class {
   async #writeConfig(config: UserConfig): Promise<void> {
     const smbStrConfig = ini.stringify(config)
     fs.writeFileSync(samba, smbStrConfig, 'utf8')
-    if (isRelease) {
+    if (getConfig('isRelease')) {
       const sambaPath = path.resolve('/', 'etc', 'init.d', 'smbd')
       if (fs.existsSync(sambaPath)) {
         await new Promise<void>(resolve => {

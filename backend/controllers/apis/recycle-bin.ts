@@ -3,7 +3,7 @@ import { decryptRequest } from './middlewares/encrypt'
 import { verifyPermission } from './middlewares/permissions'
 import { RECYCLE_BIN } from 'libraries/classes/APIList'
 
-@Namespace('/api/recycle-bin')
+@Namespace('api', 'recycle-bin')
 @Middlewares({ before: [verifySession, decryptRequest] })
 export class RecycleBinController {
   @Model('DevModeModel') public devModeModel: Models<'DevModeModel'>

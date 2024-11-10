@@ -4,7 +4,7 @@ import { verifyPermission } from './middlewares/permissions'
 import fileUpload from 'express-fileupload'
 import { FS } from 'libraries/classes/APIList'
 
-@Namespace('/api/fs')
+@Namespace('api', 'fs')
 @Middlewares({ before: [verifySession, decryptRequest, fileUpload()] })
 export class FileSystemAPIController {
   @Model('DevModeModel') public devModeModel: Models<'DevModeModel'>
