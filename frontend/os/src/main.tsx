@@ -1,7 +1,7 @@
-import ReactDOM from 'react-dom/client'
+import { useEffect, useState } from 'react'
+import { createRoot } from 'react-dom/client'
 import { FluentProvider, webDarkTheme, webLightTheme } from '@fluentui/react-components'
 import App from './App.tsx'
-import { useEffect, useState } from 'react'
 
 const darkModeQuery = window.matchMedia('(prefers-color-scheme: dark)')
 
@@ -17,6 +17,6 @@ const Container = () => {
   )
 }
 
-document.addEventListener('onConnectorReady', () => ReactDOM.createRoot(document.getElementById('root')!).render(
+document.addEventListener('onConnectorReady', () => createRoot(document.getElementById('root')!).render(
   <Container />,
 ))

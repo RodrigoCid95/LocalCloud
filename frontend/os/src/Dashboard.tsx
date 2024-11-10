@@ -1,15 +1,36 @@
 import { useEffect, useState } from "react"
-import { Card, CardHeader, Dialog, Text, DialogBody, DialogContent, DialogSurface, DialogTitle, Caption1, Spinner, Toolbar, ToolbarButton, ToolbarDivider, Field, Input, DialogActions, Button, makeResetStyles, tokens } from "@fluentui/react-components"
+import { Card, CardHeader, Dialog, Text, DialogBody, DialogContent, DialogSurface, DialogTitle, Caption1, Spinner, Toolbar, ToolbarButton, ToolbarDivider, Field, Input, DialogActions, Button, tokens, makeStyles } from "@fluentui/react-components"
 import { TableFilled, PersonFilled, KeyMultipleFilled, ArrowExitFilled, Apps28Filled } from '@fluentui/react-icons'
-import './dashboard.css'
 
-const useStackClassName = makeResetStyles({
-  display: "flex",
-  flexDirection: "column",
-  rowGap: tokens.spacingVerticalL,
+const useStyles = makeStyles({
+  form: {
+    display: "flex",
+    flexDirection: "column",
+    rowGap: tokens.spacingVerticalL,
+  },
+  apps: {
+    display: "flex",
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: tokens.spacingHorizontalL
+  },
+  app: {
+    width: "100%",
+    height: "fit-content",
+    '@media (min-width: 612px)': {
+      maxWidth: "266px"
+    }
+  },
+  caption: {
+    color: tokens.colorNeutralForeground3
+  },
+  text: {
+    margin: 0
+  },
 })
 
 const Dashboard = () => {
+  const styles = useStyles()
   const mediaQuery = window.matchMedia('(max-width: 560px)')
   const [verticalToolbar, setVerticalToolbar] = useState<boolean>(mediaQuery.matches)
 
@@ -113,22 +134,22 @@ const Dashboard = () => {
         <DialogSurface>
           <DialogBody>
             <DialogTitle>Apps</DialogTitle>
-            <DialogContent className='apps'>
+            <DialogContent className={styles.apps}>
               {apps.length === 0 && <p>No hay apps.</p>}
               {apps.map((app, index) => (
                 <Card
                   key={index}
-                  className='app'
+                  className={styles.app}
                   onClick={handleLaunchApp(app)}
                 >
                   <CardHeader
                     image={<Apps28Filled />}
                     header={<Text weight="semibold">{app.title}</Text>}
                     description={
-                      <Caption1 className='caption'>{app.author}</Caption1>
+                      <Caption1 className={styles.caption}>{app.author}</Caption1>
                     }
                   />
-                  <p className='text'>{app.description}</p>
+                  <p className={styles.text}>{app.description}</p>
                 </Card>
               ))}
             </DialogContent>
@@ -144,7 +165,7 @@ const Dashboard = () => {
           <DialogBody>
             <DialogTitle>Perfil</DialogTitle>
             <DialogContent>
-              <div className={useStackClassName()}>
+              <div className={styles.form}>
                 <Field
                   label='Nombre de usuario'
                 >
@@ -205,7 +226,7 @@ const Dashboard = () => {
           <DialogBody>
             <DialogTitle>Cambiar contraseña</DialogTitle>
             <DialogContent>
-              <div className={useStackClassName()}>
+              <div className={styles.form}>
                 <Field
                   label='Contraseña actual'
                   validationState={passwordValidation === '' ? 'none' : 'error'}

@@ -9,10 +9,12 @@ export default defineConfig({
         main: './src/main.tsx',
       },
       output: {
-        entryFileNames: 'app.js'
+        entryFileNames: 'js/app.js',
+        chunkFileNames: 'js/chunk-[name].js',
+        assetFileNames: 'assets/[name]-[hash][extname]',
       }
     },
-    outDir: './../../backend/lc/client/public',
+    outDir: './../../backend/public',
     emptyOutDir: true,
     minify: false,
     sourcemap: false
