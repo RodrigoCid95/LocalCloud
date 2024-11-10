@@ -1,12 +1,11 @@
 backend/.debugger
 backend/dist
-backend/lc/system.db
-backend/lc/apps
-backend/lc/client/public
-backend/lc/client/views/apps
 backend/node_modules
 backend/package-lock.json
-backend/key.pem
+backend/temp
+backend/public
+backend/release
+backend/views/apps
 
 frontend/os/package-lock.json
 frontend/os/node_modules
