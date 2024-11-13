@@ -5,12 +5,19 @@
   "main": "cli.js",
   "scripts": {
     "start": "node . start",
-    "build": "node . build"
+    "start:apps": "node . start com.apps.sys",
+    "start:files": "node . start com.files.sys",
+    "start:users": "node . start com.users.sys",
+    "build": "node . build",
+    "build:apps": "node . build com.apps.sys",
+    "build:files": "node . build com.files.sys",
+    "build:users": "node . build com.users.sys",
+    "build:all": "npm run build:apps && npm run build:files && npm run build:users"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "types": "./index.d.ts",
+  "types": "index.d.ts",
   "devDependencies": {
     "@fluentui/react-components": "^9.54.0",
     "@ionic/core": "^7.8.2",

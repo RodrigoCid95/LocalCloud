@@ -3,6 +3,10 @@ declare global {
     name: string
     fileTransfer: FileTransfer
   }
+  interface Download {
+    name: string
+    fileTransfer: Downloader
+  }
   interface TransfersClass {
     readonly list: Transfer[]
     add(upload: Transfer): void

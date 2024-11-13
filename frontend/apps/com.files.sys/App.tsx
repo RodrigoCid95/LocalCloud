@@ -1,62 +1,65 @@
-import { lazy, useState, Suspense, useEffect, useCallback } from "react"
-import { Spinner, Toolbar, ToolbarButton } from "@fluentui/react-components"
-import { FolderPeopleFilled, FolderPersonFilled } from '@fluentui/react-icons'
-import DirectionBar from "./components/DirectionBar"
-import BinRecycleMenu from "./components/BinRecycleMenu"
-import SharedMenu from "./components/SharedMenu"
-import { explorerController } from "./utils/Explorer"
-import './App.css'
+import { lazy, useState, useEffect, Suspense } from "react"
+import { makeStyles, Spinner, Toolbar, ToolbarButton } from "@fluentui/react-components"
+import { bundleIcon, FolderPeopleFilled, FolderPeopleRegular, FolderPersonFilled, FolderPersonRegular } from '@fluentui/react-icons'
+import BinRecycle from "./BinRecycle"
+import Shared from "./Shared"
 
-const Explorer = lazy(() => import('./components/Explorer'))
+const Explorer = lazy(() => import('./Explorer'))
+const SharedDirIcon = bundleIcon(FolderPeopleFilled, FolderPeopleRegular)
+const UserDirIcon = bundleIcon(FolderPersonFilled, FolderPersonRegular)
+const useStyles = makeStyles({
+  initial: {
+    minWidth: '100%',
+    minHeight: '100dvh',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center'
+  }
+})
+
+const mediaQuery = window.matchMedia('(max-width: 560px)')
 
 const App = () => {
-  const mediaQuery = window.matchMedia('(max-width: 560px)')
+  const styles = useStyles()
   const [verticalToolbar, setVerticalToolbar] = useState<boolean>(mediaQuery.matches)
-  const [path, setPath] = useState<string[]>([])
-
-  const handleGo = useCallback(() => setPath(explorerController.path), [setPath])
+  const [baseDir, setBaseDir] = useState<BaseDir>('user')
 
   useEffect(() => {
     mediaQuery.addEventListener('change', e => setVerticalToolbar(e.matches))
-    explorerController.on('change', handleGo)
-    return () => {
-      explorerController.on('change', handleGo)
-    }
-  }, [setVerticalToolbar])
+  }, [])
 
-  if (path.length === 0) {
+  if (baseDir) {
     return (
-      <div className="initial">
+      <Suspense fallback={<Spinner className='center-middle' size='huge' />}>
+        <Explorer baseDir={baseDir} onClose={() => setBaseDir('')} />
+      </Suspense>
+    )
+  } else {
+    return (
+      <div className={styles.initial}>
         <Toolbar vertical={verticalToolbar} size='large'>
           <ToolbarButton
-            icon={<FolderPeopleFilled />}
+            icon={<SharedDirIcon />}
             vertical
-            onClick={() => explorerController.path = ['shared']}
+            onClick={() => setBaseDir('shared')}
           >
             Carpeta compartida
           </ToolbarButton>
           <ToolbarButton
-            icon={<FolderPersonFilled />}
+            icon={<UserDirIcon />}
             vertical
-            onClick={() => explorerController.path = ['user']}
+            onClick={() => setBaseDir('user')}
           >
             Carpeta Personal
           </ToolbarButton>
-          <BinRecycleMenu />
-          <SharedMenu />
+          <BinRecycle />
+          <Shared />
         </Toolbar>
       </div>
-    )
-  } else {
-    return (
-      <>
-        <DirectionBar path={path} />
-        <Suspense fallback={<Spinner style={{ marginTop: '16px' }} />}>
-          <Explorer />
-        </Suspense>
-      </>
     )
   }
 }
 
 export default App
+
+type BaseDir = 'user' | 'shared' | ''

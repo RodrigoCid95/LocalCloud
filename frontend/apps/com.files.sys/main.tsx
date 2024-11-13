@@ -1,4 +1,4 @@
-import { Suspense, lazy, useEffect, useState } from 'react'
+import { Suspense, lazy, useEffect, useState, StrictMode } from 'react'
 import ReactDOM from 'react-dom/client'
 import { FluentProvider, Spinner, webDarkTheme, webLightTheme } from '@fluentui/react-components'
 import './main.css'
@@ -12,11 +12,13 @@ const Container = () => {
     darkModeQuery.addEventListener('change', e => setTheme(e.matches ? webDarkTheme : webLightTheme))
   })
   return (
-    <FluentProvider theme={theme}>
-      <Suspense fallback={<Spinner className='center-middle' size='huge' />}>
-        <App />
-      </Suspense>
-    </FluentProvider>
+    <StrictMode>
+      <FluentProvider theme={theme}>
+        <Suspense fallback={<Spinner className='center-middle' size='huge' />}>
+          <App />
+        </Suspense>
+      </FluentProvider>
+    </StrictMode>
   )
 }
 
