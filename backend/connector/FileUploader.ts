@@ -1,75 +1,50 @@
 declare const TOKEN: string
-export class FileUploader implements FileTransfer {
+export class FileUploader extends EventTarget implements FileTransfer {
   #xhr: XMLHttpRequest
   #form: FormData
-  #listenerLoadList: any[] = []
-  #listenerProgressList: any[] = []
   #progress: number = 0
+
   public get progress() {
     return this.#progress
   }
+
   constructor(endpoint: string, files: FileOptions[] = [], metadata: MetaData = {}) {
+    super()
     this.#xhr = new XMLHttpRequest()
     this.#form = new FormData()
-    for (const { name, file } of files) {
-      this.#form.append(name, file)
-    }
-    const meta = Object.entries(metadata)
-    for (const [name, value] of meta) {
-      this.#form.append(name, value)
-    }
-    this.#xhr.addEventListener('load', () => {
-      const isJSON = this.#xhr.getResponseHeader('content-type')?.includes('application/json')
-      const response = isJSON ? JSON.parse(this.#xhr.response) : this.#xhr.response
-      for (const listener of this.#listenerLoadList) {
-        listener(response)
-      }
-      this.#progress = 100
-    })
-    this.#xhr.upload.addEventListener('progress', event => {
-      if (event.lengthComputable) {
-        const percentComplete = (event.loaded / event.total) * 100
-        for (const listener of this.#listenerProgressList) {
-          this.#progress = Number(percentComplete.toFixed(2))
-          listener(this.#progress)
-        }
-      }
-    })
+    files.forEach(({ name, file }) => this.#form.append(name, file))
+    Object.entries(metadata).forEach(([name, value]) => this.#form.append(name, value))
     this.#xhr.open('PUT', endpoint)
     this.#xhr.setRequestHeader('token', TOKEN)
+    this.#xhr.addEventListener('loadend', this.#handleLoadEnd)
+    this.#xhr.upload.addEventListener('progress', this.#handleProgress)
+    this.#xhr.addEventListener('error', () => this.dispatchEvent(new CustomEvent('error')))
+    this.#xhr.addEventListener('abort', () => this.dispatchEvent(new CustomEvent('abort')))
   }
-  on(event: 'progress' | 'end' | 'error' | 'abort', callback: any) {
-    if (event === 'end') {
-      this.#listenerLoadList.push(callback)
-      return
+
+  #handleLoadEnd = () => {
+    try {
+      const isJSON = this.#xhr.getResponseHeader('content-type')?.includes('application/json')
+      const response = isJSON ? JSON.parse(this.#xhr.response) : this.#xhr.response
+      this.dispatchEvent(new CustomEvent('end', { detail: response }))
+    } catch (error) {
+      this.dispatchEvent(new CustomEvent('error'))
     }
-    if (event === 'abort') {
-      this.#xhr.addEventListener('abort', callback)
-      return
-    }
-    if (event === 'error') {
-      this.#xhr.addEventListener('error', callback)
-      return
-    }
-    if (event === 'progress') {
-      this.#listenerProgressList.push(callback)
+    this.#progress = 100
+  }
+
+  #handleProgress = (event: ProgressEvent) => {
+    if (event.lengthComputable) {
+      this.#progress = Number(((event.loaded / event.total) * 100).toFixed(2))
+      this.dispatchEvent(new CustomEvent('progress', { detail: this.#progress }))
+      if (this.#progress === 100) {
+        const isJSON = this.#xhr.getResponseHeader('content-type')?.includes('application/json')
+        const response = isJSON ? JSON.parse(this.#xhr.response) : this.#xhr.response
+        this.dispatchEvent(new CustomEvent('end', { detail: response }))
+      }
     }
   }
-  off(event: 'progress' | 'end' | 'error' | 'abort', callback: any) {
-    if (event === 'end') {
-      this.#listenerLoadList = this.#listenerLoadList.filter(listener => listener !== callback)
-      return
-    }
-    if (event === 'abort') {
-      this.#xhr.removeEventListener('abort', callback)
-      return
-    }
-    if (event === 'error') {
-      this.#xhr.removeEventListener('error', callback)
-      return
-    }
-    this.#listenerProgressList = this.#listenerProgressList.filter(listener => listener !== callback)
-  }
+
   start = () => this.#xhr.send(this.#form)
   cancel = () => this.#xhr.abort()
 }

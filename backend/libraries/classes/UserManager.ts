@@ -86,7 +86,7 @@ export class UserManager implements UserManager.Class {
       if (!fs.existsSync(userPath)) {
         fs.mkdirSync(userPath, { recursive: true })
       }
-      if (IS_RELEASE) {
+      if (getConfig('isRelease')) {
         fs.chownSync(userPath, newUid, gid)
       }
       const skelPath = path.resolve('/', 'etc', 'skel')
@@ -95,7 +95,7 @@ export class UserManager implements UserManager.Class {
         const filePath = path.join(skelPath, file)
         const destFilesPath = path.join(userPath, file)
         fs.copyFileSync(filePath, destFilesPath)
-        if (IS_RELEASE) {
+        if (getConfig('isRelease')) {
           fs.chownSync(destFilesPath, newUid, gid)
         }
       }

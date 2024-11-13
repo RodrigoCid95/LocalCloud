@@ -62,6 +62,10 @@ export class FileSystemModel {
   }
   public async writeToShared(segments: string[], data: Buffer): Promise<void> {
     const filePath = this.paths.resolveSharedPath({ segments, verify: false }) as string
+    const baseDir = path.dirname(filePath)
+    if (!fs.existsSync(baseDir)) {
+      fs.mkdirSync(baseDir, { recursive: true })
+    }
     fs.writeFileSync(filePath, data, { encoding: 'utf-8' })
     await this.run({
       title: 'Set Permission To Shared Item',
@@ -71,6 +75,10 @@ export class FileSystemModel {
   }
   public async writeToUser(name: Users.User['name'], segments: string[], data: Buffer): Promise<void> {
     const filePath = this.paths.resolveUserPath({ name, segments, verify: false }) as string
+    const baseDir = path.dirname(filePath)
+    if (!fs.existsSync(baseDir)) {
+      fs.mkdirSync(baseDir, { recursive: true })
+    }
     fs.writeFileSync(filePath, data, { encoding: 'utf-8' })
     await this.run({
       title: 'Set Owner To User',
@@ -136,8 +144,12 @@ export class FileSystemModel {
     if (isFile) {
       while (fs.existsSync(destPath)) {
         const segments = destPath.split('.')
-        const ext = segments.pop()
-        destPath = `${segments.join('.')}-copia.${ext}`
+        if (segments.length > 1) {
+          const ext = segments.pop()
+          destPath = `${segments.join('.')}-copia.${ext}`
+        } else {
+          destPath = `${destPath}-copia`
+        }
       }
       fs.copyFileSync(originPath, destPath)
       dp = destPath

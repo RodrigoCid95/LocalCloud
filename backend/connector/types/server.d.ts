@@ -1,7 +1,5 @@
 declare global {
-  interface FileTransfer {
-    on(event: 'progress' | 'end' | 'error' | 'abort', callback: any): void
-    off(event: 'progress' | 'end' | 'error' | 'abort', callback: any): void
+  interface FileTransfer extends EventTarget {
     readonly progress: number
     start(): void
     cancel(): void
