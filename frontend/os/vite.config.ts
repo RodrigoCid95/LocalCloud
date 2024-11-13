@@ -14,7 +14,7 @@ export default defineConfig({
         assetFileNames: 'assets/[name]-[hash][extname]',
       }
     },
-    outDir: './../../backend/public',
+    outDir: './../../backend/client',
     emptyOutDir: true,
     minify: false,
     sourcemap: false

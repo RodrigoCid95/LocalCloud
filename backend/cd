@@ -9,7 +9,7 @@ apps=./temp/apps
 views=./views
 storages=./temp/storages
 connector=./connector
-public=./public
+public=./client
 
 [fs]
 shared=./temp/shared

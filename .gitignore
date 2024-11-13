@@ -3,7 +3,7 @@ backend/dist
 backend/node_modules
 backend/package-lock.json
 backend/temp
-backend/public
+backend/client
 backend/release
 backend/views/apps
 

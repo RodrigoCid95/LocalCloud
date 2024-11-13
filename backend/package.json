@@ -3,7 +3,8 @@
 	"version": "1.0.0",
 	"description": "Nube privada.",
 	"scripts": {
-		"start": "CONFIG=\"$PWD/cd\" pxio start -- --maintenance-mode",
+		"start": "CONFIG=\"$PWD/cd\" pxio start --maintenance-mode",
+		"preview": "CONFIG=\"$PWD/cd\" pxio start -i 4",
 		"build": "pxio build",
 		"prepare-dist": "cd ./dist && npm i",
 		"compile": "cd ./dist && npx pkg . --target latest-linux-x64 --output ./../release/local-cloud && cd .. && rm -R ./dist && cd ./release && curl -fsSL https://esbuild.github.io/dl/v0.24.0 | sh",
