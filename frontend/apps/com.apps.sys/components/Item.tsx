@@ -24,13 +24,16 @@ const Item: FC<ItemProps> = ({ app, onReload, onPermissions, onSecureSources }) 
     inputFile.type = 'file'
     inputFile.multiple = false
     inputFile.accept = 'application/zip'
-    inputFile.addEventListener('change', async () => {
+    inputFile.addEventListener('change', () => {
       const file = inputFile.files?.item(0)
       if (file) {
-        const updater = window.connectors.apps.install(file, true)
-        updater.on('progress', (progress: number) => setProgressUpdate(progress))
-        updater.on('error', () => setProgressValidation({ message: 'Ocurrió un error al actualizar el paquete.', state: 'error' }))
-        updater.on('end', onReload)
+        const nameSegments = file.name.split('.')
+        nameSegments.pop()
+        const name = nameSegments.join('.')
+        const updater = window.connectors.apps.install({ name, file }, true)
+        updater.addEventListener('progress', () => setProgressUpdate(updater.progress))
+        updater.addEventListener('error', () => setProgressValidation({ message: 'Ocurrió un error al actualizar el paquete.', state: 'error' }))
+        updater.addEventListener('end', onReload)
         updater.start()
       }
     })

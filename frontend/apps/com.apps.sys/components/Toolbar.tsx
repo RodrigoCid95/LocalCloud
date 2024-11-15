@@ -15,9 +15,12 @@ const AppsToolbar: FC<ToolbarProps> = ({ onReload }) => {
       const file = inputFile.files?.item(0)
       if (file) {
         setLoading(true)
-        const installer = window.connectors.apps.install(file)
-        installer.on('progress', (percent: number) => setProgress(percent))
-        installer.on('end', () => {
+        const nameSegments = file.name.split('.')
+        nameSegments.pop()
+        const name = nameSegments.join('.')
+        const installer = window.connectors.apps.install({ name, file })
+        installer.addEventListener('progress', () => setProgress(installer.progress))
+        installer.addEventListener('end', () => {
           setLoading(false)
           setProgress(0)
           onReload()
