@@ -8,7 +8,7 @@
 		"build": "pxio build",
 		"prepare-dist": "cd ./dist && npm i",
 		"compile": "cd ./dist && npx pkg . --target latest-linux-x64 --output ./../release/local-cloud && cd .. && rm -R ./dist && cd ./release && curl -fsSL https://esbuild.github.io/dl/v0.24.0 | sh",
-		"copy-assets": "mkdir ./release/views && cp -R ./views/os ./release/views && cp ./views/layout.liquid ./release/views && cp -R ./public ./release && cp -R ./connector ./release",
+		"copy-assets": "mkdir ./release/views && cp -R ./views/os ./release/views && cp ./views/layout.liquid ./release/views && cp -R ./client ./release && cp -R ./connector ./release",
 		"dist": "npm run build && npm run prepare-dist && npm run compile && npm run copy-assets"
 	},
 	"keywords": [],
@@ -19,7 +19,7 @@
 		"boot": "manual",
 		"resources": [
 			"connector",
-			"public"
+			"client"
 		],
 		"loader": {
 			".sql": "text"
