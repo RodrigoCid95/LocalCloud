@@ -33,7 +33,7 @@ declare global {
     type UserMkdirMethod = (path: string[]) => Promise<void>
     interface UploadFileOptions {
       file: File
-      path: string[]
+      path?: string[]
     }
     type SharedUploadMethod = (opts: UploadFileOptions) => FileTransfer
     type UserUploadMethod = (opts: UploadFileOptions) => FileTransfer

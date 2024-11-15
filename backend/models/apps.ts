@@ -37,14 +37,14 @@ export class AppsModel {
       (error, rows) => error ? resolve(null) : resolve(rows[0])
     ))
   }
-  public async install(package_name: string, data: Buffer, update: boolean = false): Promise<InstallError | true> {
+  public async install(package_name: string, fileName: string, update: boolean = false): Promise<InstallResult> {
     if (update) {
       await this.uninstall(package_name, true)
     }
     const tempDir = path.join(this.paths.apps, 'temp', crypto.randomUUID())
     fs.mkdirSync(tempDir, { recursive: true })
     await unzipper.Open
-      .buffer(data)
+      .file(fileName)
       .then(d => d.extract({ path: tempDir }))
     let useTemplate = false
     let template = '{% layout "layout.liquid" %}'
@@ -63,35 +63,23 @@ export class AppsModel {
     const manifestPath = path.join(tempDir, 'manifest.json')
     if (!fs.existsSync(manifestPath)) {
       fs.rmSync(tempDir, { recursive: true, force: true })
-      return {
-        code: 'manifest-not-exist',
-        message: 'El paquete de instalación no cuenta con un archivo manifest.json'
-      }
+      return 'manifest-not-exist'
     }
     let manifestContent = fs.readFileSync(manifestPath, 'utf-8')
     if (this.isJSON(manifestContent)) {
       manifestContent = JSON.parse(manifestContent)
     } else {
       fs.rmSync(tempDir, { recursive: true, force: true })
-      return {
-        code: 'manifest-invalid',
-        message: 'El archivo manifest.json no es válido.'
-      }
+      return 'manifest-invalid'
     }
     const manifestKeys = Object.keys(manifestContent)
     if (!manifestKeys.includes('title')) {
       fs.rmSync(tempDir, { recursive: true, force: true })
-      return {
-        code: 'manifest-title-required',
-        message: 'El archivo manifest.json no contiene un título.'
-      }
+      return 'manifest-title-required'
     }
     if (!manifestKeys.includes('author')) {
       fs.rmSync(tempDir, { recursive: true, force: true })
-      return {
-        code: 'manifest-author-required',
-        message: 'El archivo manifest.json no contiene un autor.'
-      }
+      return 'manifest-author-required'
     }
     const { title, description = 'Sin descripción', author, permissions: permissionList = {}, sources = {}, extensions = [], 'use-storage': useStorage = false } = manifestContent as any
     const permissions: Apps.New['permissions'] = Object.keys(permissionList).map(api => ({
@@ -182,7 +170,4 @@ export class AppsModel {
   }
 }
 
-interface InstallError {
-  code: string
-  message: string
-}
+type InstallResult = 'manifest-not-exist' | 'manifest-invalid' | 'manifest-title-required' | 'manifest-author-required' | true

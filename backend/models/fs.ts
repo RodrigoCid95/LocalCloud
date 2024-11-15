@@ -60,31 +60,32 @@ export class FileSystemModel {
     }
     return result
   }
-  public async writeToShared(segments: string[], data: Buffer): Promise<void> {
+  public async setPermission(path: string, owner: string = ':lc'): Promise<void> {
+    await this.run({
+      title: 'Set Permission To Shared Item',
+      command: 'chown',
+      args: [owner, path]
+    })
+  }
+  public generateStreamFileToShared(segments: string[]): fs.WriteStream {
     const filePath = this.paths.resolveSharedPath({ segments, verify: false }) as string
     const baseDir = path.dirname(filePath)
     if (!fs.existsSync(baseDir)) {
       fs.mkdirSync(baseDir, { recursive: true })
     }
-    fs.writeFileSync(filePath, data, { encoding: 'utf-8' })
-    await this.run({
-      title: 'Set Permission To Shared Item',
-      command: 'chown',
-      args: [':lc', filePath]
-    })
+    const stream = fs.createWriteStream(filePath)
+    stream.on('finish', () => this.setPermission(filePath))
+    return stream
   }
-  public async writeToUser(name: Users.User['name'], segments: string[], data: Buffer): Promise<void> {
+  public generateStreamFileToUser(name: Users.User['name'], segments: string[]): fs.WriteStream {
     const filePath = this.paths.resolveUserPath({ name, segments, verify: false }) as string
     const baseDir = path.dirname(filePath)
     if (!fs.existsSync(baseDir)) {
       fs.mkdirSync(baseDir, { recursive: true })
     }
-    fs.writeFileSync(filePath, data, { encoding: 'utf-8' })
-    await this.run({
-      title: 'Set Owner To User',
-      command: 'chown',
-      args: [name, filePath]
-    })
+    const stream = fs.createWriteStream(filePath)
+    stream.on('finish', () => this.setPermission(filePath, name))
+    return stream
   }
   public async mkdirToShared(segments: string[]): Promise<void> {
     const dirPath = this.paths.resolveSharedPath({ segments, verify: false }) as string

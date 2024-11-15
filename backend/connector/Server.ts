@@ -6,7 +6,7 @@ declare const TOKEN: string
 declare const IS_DEV: boolean
 
 export class ServerConector {
-  createUploader = ({ api = 'fs', path, file, metadata = {} }: CreateUploaderArgs) => {
+  createUploader = ({ api = 'fs', path = [], file, metadata = {} }: CreateUploaderArgs) => {
     const base = path.shift() || ''
     return new FileUploader(
       this.createURL({ path: ['api', api, base] }).href,

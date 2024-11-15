@@ -20,12 +20,12 @@ export class FileDownloader extends EventTarget implements FileTransfer {
     if (this.#db) return this.#db
 
     return new Promise<IDBDatabase>((resolve, reject) => {
-      const request = indexedDB.open("DownloadDB", 1)
+      const request = indexedDB.open('DownloadDB', 1)
       request.onupgradeneeded = () => {
         const db = request.result
-        if (!db.objectStoreNames.contains("chunks")) {
-          const objectStore = db.createObjectStore("chunks", { keyPath: "id" })
-          objectStore.createIndex("id", "id")
+        if (!db.objectStoreNames.contains('chunks')) {
+          const objectStore = db.createObjectStore('chunks', { keyPath: 'id' })
+          objectStore.createIndex('id', 'id')
         }
       }
       request.onsuccess = () => {
@@ -39,8 +39,8 @@ export class FileDownloader extends EventTarget implements FileTransfer {
   async storeChunk(chunkIndex: number, data: Uint8Array) {
     const db = await FileDownloader.initDB()
     return new Promise<void>((resolve, reject) => {
-      const transaction = db.transaction("chunks", "readwrite")
-      const store = transaction.objectStore("chunks")
+      const transaction = db.transaction('chunks', 'readwrite')
+      const store = transaction.objectStore('chunks')
       store.put({ id: this.id, chunkIndex, data })
       transaction.oncomplete = () => resolve()
       transaction.onerror = () => reject(transaction.error)
@@ -65,9 +65,9 @@ export class FileDownloader extends EventTarget implements FileTransfer {
   async checkIfExistsInDB() {
     const db = await FileDownloader.initDB()
     return new Promise<boolean>((resolve, reject) => {
-      const transaction = db.transaction("chunks", "readonly")
-      const store = transaction.objectStore("chunks")
-      const index = store.index("id")
+      const transaction = db.transaction('chunks', 'readonly')
+      const store = transaction.objectStore('chunks')
+      const index = store.index('id')
       const request = index.getKey(this.id)
 
       request.onsuccess = () => resolve(!!request.result)
@@ -79,7 +79,7 @@ export class FileDownloader extends EventTarget implements FileTransfer {
     fetch(this.endpoint, { signal: this.#abortController.signal })
       .then(async response => {
         const reader = response.body?.getReader()
-        if (!reader) throw new Error("No readable stream")
+        if (!reader) throw new Error('No readable stream')
 
         const contentLength: number = parseInt(response.headers.get('content-length') || '0')
         let receivedLength = 0
@@ -107,8 +107,8 @@ export class FileDownloader extends EventTarget implements FileTransfer {
 
   async assembleFile() {
     const db = await FileDownloader.initDB()
-    const transaction = db.transaction("chunks", "readonly")
-    const store = transaction.objectStore("chunks")
+    const transaction = db.transaction('chunks', 'readonly')
+    const store = transaction.objectStore('chunks')
     const chunks: Uint8Array[] = []
 
     return new Promise<void>((resolve, reject) => {
@@ -136,8 +136,8 @@ export class FileDownloader extends EventTarget implements FileTransfer {
   async clean() {
     const db = await FileDownloader.initDB()
     return new Promise<void>((resolve, reject) => {
-      const transaction = db.transaction("chunks", "readwrite")
-      const store = transaction.objectStore("chunks")
+      const transaction = db.transaction('chunks', 'readwrite')
+      const store = transaction.objectStore('chunks')
       const request = store.openCursor(IDBKeyRange.only(this.id))
 
       request.onsuccess = (event) => {

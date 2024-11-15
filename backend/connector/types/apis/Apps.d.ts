@@ -9,9 +9,13 @@ declare global {
       useStorage?: boolean
       useTemplate: boolean
     }
+    interface Package {
+      name: string
+      file: File
+    }
     type ListMethod = () => Promise<App[]>
     type ListByUIDMethod = (uid: Users.User['uid']) => Promise<App[]>
-    type InstallMethod = (file: File, update?: boolean) => FileTransfer
+    type InstallMethod = (package: Package, update?: boolean) => FileTransfer
     type UninstallMethod = (package_name: App['package_name']) => Promise<void>
     interface Connector {
       list: ListMethod

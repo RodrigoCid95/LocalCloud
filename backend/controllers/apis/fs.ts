@@ -1,14 +1,16 @@
+import fs from 'node:fs'
+import busboy from 'busboy'
 import { verifySession } from './middlewares/session'
 import { decryptRequest } from './middlewares/encrypt'
 import { verifyPermission } from './middlewares/permissions'
-import fileUpload from 'express-fileupload'
 import { FS } from 'libraries/classes/APIList'
 
 @Namespace('api', 'fs')
-@Middlewares({ before: [verifySession, decryptRequest, fileUpload()] })
+@Middlewares({ before: [verifySession, decryptRequest] })
 export class FileSystemAPIController {
   @Model('DevModeModel') public devModeModel: Models<'DevModeModel'>
   @Model('FileSystemModel') private fsModel: Models<'FileSystemModel'>
+
   public filter(req: PXIOHTTP.Request, res: PXIOHTTP.Response): void {
     let items: FileSystem.ItemInfo[] = (req as any).result
     if (!req.query.showHidden) {
@@ -38,6 +40,38 @@ export class FileSystemAPIController {
       })
     }
     res.json(items)
+  }
+  public loadFiles(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): void {
+    const contentType = req.header('content-type')
+    if (contentType?.startsWith('multipart/form-data')) {
+      const streams: fs.WriteStream[] = []
+      let path = ''
+      const bb = busboy({ headers: req.headers })
+      bb
+        .on('field', (name, val) => {
+          if (name === 'path') {
+            path = val
+          }
+        })
+        .on('file', (_, file, info) => {
+          const { filename, encoding, mimeType } = info
+          let stream: fs.WriteStream
+          if (req.body.isToUser && req.session.user) {
+            stream = this.fsModel.generateStreamFileToUser(req.session.user.name, [...path.split('|'), filename])
+          } else {
+            stream = this.fsModel.generateStreamFileToShared([...path.split('|'), filename])
+          }
+          streams.push(stream)
+          file
+            .on('data', data => stream.write(data))
+            .on('error', () => stream.close(() => fs.unlinkSync(stream.path)))
+            .on('end', () => stream.close())
+        })
+        .on('finish', () => res.json(true))
+      req.pipe(bb)
+    } else {
+      res.json(true)
+    }
   }
   @Before([verifyPermission(FS.SHARED_DRIVE)])
   @After(['filter'])
@@ -86,42 +120,18 @@ export class FileSystemAPIController {
     res.json(true)
   }
   @Before([verifyPermission(FS.UPLOAD_SHARED_DRIVE)])
+  @After(['loadFiles'])
   @Put('/shared')
-  public async uploadSharedDrive(req: PXIOHTTP.Request, res: PXIOHTTP.Response): Promise<void> {
-    let { path = '' } = req.body
-    path = path.split('|')
-    const { files } = req
-    if (!files) {
-      res.status(400).json({
-        code: 'fields-required',
-        message: 'Faltan campos!'
-      })
-      return
-    }
-    const entries = Object.entries(files)
-    for (const [name, value] of entries) {
-      await this.fsModel.writeToShared([...path, name], (value as fileUpload.UploadedFile).data)
-    }
-    res.json(true)
+  public async uploadSharedDrive(req: PXIOHTTP.Request, _: PXIOHTTP.Response, next: Next): Promise<void> {
+    req.body.isToUser = false
+    next()
   }
   @Before([verifyPermission(FS.UPLOAD_USER_DRIVE)])
+  @After(['loadFiles'])
   @Put('/user')
-  public async uploadUserDrive(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
-    let { path = '' } = req.body
-    path = path.split('|')
-    const { files } = req
-    if (!files) {
-      res.status(400).json({
-        code: 'fields-required',
-        message: 'Faltan campos!'
-      })
-      return
-    }
-    const entries = Object.entries(files)
-    for (const [name, value] of entries) {
-      await this.fsModel.writeToUser(req.session.user?.name || '', [...path, name], (value as fileUpload.UploadedFile).data)
-    }
-    res.json(true)
+  public async uploadUserDrive(req: PXIOHTTP.Request, _: PXIOHTTP.Response, next: Next): Promise<void> {
+    req.body.isToUser = true
+    next()
   }
   @Before([verifyPermission(FS.RM_SHARED_DRIVE)])
   @Delete('/shared')
@@ -179,4 +189,13 @@ export class FileSystemAPIController {
     this.fsModel.rename(req.session.user?.name || '', path, newName)
     res.json(true)
   }
+}
+
+interface FileItem {
+  stream: fs.WriteStream
+  path: string
+}
+interface Field {
+  name: string
+  filename?: string
 }

@@ -173,10 +173,9 @@ const ENABLE_SOURCE = (server: ServerConector): SecureSources.EnableMethod => id
 
 export { ENABLE_SOURCE }
 
-const INSTALL_APP = (server: ServerConector): Apps.InstallMethod => (file, update) => server.createUploader({
+const INSTALL_APP = (server: ServerConector): Apps.InstallMethod => ({name, file}, update) => server.createUploader({
   api: 'apps',
-  path: [],
-  file: { name: 'package_zip', file },
+  file: { name, file },
   metadata: update ? { update: 'true' } : undefined
 })
 
@@ -319,7 +318,7 @@ const UPDATE_USER_INFO = (server: ServerConector): Users.UpdateMethod => (uid, d
 
 export { UPDATE_USER_INFO }
 
-const UPLOAD_SHARED_FILE = (server: ServerConector): FS.SharedUploadMethod => ({ path, file }) => server.createUploader({
+const UPLOAD_SHARED_FILE = (server: ServerConector): FS.SharedUploadMethod => ({ path = [], file }) => server.createUploader({
   api: 'fs',
   path: ['shared', ...path],
   file: { name: file.name, file }
@@ -327,7 +326,7 @@ const UPLOAD_SHARED_FILE = (server: ServerConector): FS.SharedUploadMethod => ({
 
 export { UPLOAD_SHARED_FILE }
 
-const UPLOAD_USER_FILE = (server: ServerConector): FS.UserUploadMethod => ({ path, file }) => server.createUploader({
+const UPLOAD_USER_FILE = (server: ServerConector): FS.UserUploadMethod => ({ path = [], file }) => server.createUploader({
   api: 'fs',
   path: ['user', ...path],
   file: { name: file.name, file }

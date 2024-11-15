@@ -44,9 +44,9 @@
 		]
 	},
 	"devDependencies": {
+		"@types/busboy": "^1.5.4",
 		"@types/compression": "^1.7.5",
 		"@types/express": "^5.0.0",
-		"@types/express-fileupload": "^1.5.1",
 		"@types/express-session": "^1.18.0",
 		"@types/ini": "^4.1.1",
 		"@types/node": "^22.9.0",
@@ -54,11 +54,11 @@
 		"px.io": "^0.18.23-beta"
 	},
 	"dependencies": {
+		"busboy": "^1.6.0",
 		"compression": "^1.7.5",
 		"cors": "^2.8.5",
 		"esbuild": "^0.24.0",
 		"express": "^4.21.1",
-		"express-fileupload": "^1.5.1",
 		"express-session": "^1.18.1",
 		"ini": "^5.0.0",
 		"liquidjs": "^10.18.0",

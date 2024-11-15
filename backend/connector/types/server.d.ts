@@ -6,7 +6,7 @@ declare global {
   }
   interface CreateUploaderArgs {
     api?: 'fs' | 'apps'
-    path: string[]
+    path?: string[]
     file: FileOptions | FileOptions[]
     metadata?: MetaData
   }
