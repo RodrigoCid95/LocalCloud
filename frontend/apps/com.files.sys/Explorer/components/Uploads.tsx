@@ -56,17 +56,11 @@ export default () => {
   const { uploads, addUpload, quitUpload } = useUploads()
   const [open, setOpen] = useState<boolean>(false)
 
-  useEffect(() => {
-    let inputFile = document.getElementById('file-selector') as HTMLInputElement | undefined
-    if (!inputFile) {
-      inputFile = document.createElement('input')
-      inputFile.setAttribute('id', 'file-selector')
-      inputFile.setAttribute('type', 'file')
-      inputFile.setAttribute('multiple', '')
-      inputFile.style.display = 'none'
-      document.body.appendChild(inputFile)
-    }
-    const handleOnChange = () => {
+  const handleOnUpload = () => {
+    const inputFile = document.createElement('input')
+    inputFile.setAttribute('type', 'file')
+    inputFile.setAttribute('multiple', '')
+    inputFile.addEventListener('change', () => {
       if (inputFile.files) {
         for (const file of inputFile.files) {
           setTimeout(() => {
@@ -74,15 +68,8 @@ export default () => {
           }, 100)
         }
       }
-    }
-    inputFile.addEventListener('change', handleOnChange)
-    return () => {
-      inputFile.removeEventListener('change', handleOnChange)
-    }
-  }, [])
-
-  const handleOnUpload = () => {
-    document.getElementById('file-selector')?.click()
+    })
+    inputFile.click()
   }
 
   return (

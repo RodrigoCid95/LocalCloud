@@ -22,7 +22,7 @@ const mediaQuery = window.matchMedia('(max-width: 560px)')
 const App = () => {
   const styles = useStyles()
   const [verticalToolbar, setVerticalToolbar] = useState<boolean>(mediaQuery.matches)
-  const [baseDir, setBaseDir] = useState<BaseDir>('user')
+  const [baseDir, setBaseDir] = useState<BaseDir>('')
 
   useEffect(() => {
     mediaQuery.addEventListener('change', e => setVerticalToolbar(e.matches))
