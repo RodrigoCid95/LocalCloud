@@ -23,15 +23,15 @@ if (process.env.CONFIG) {
 const strConfig = fs.readFileSync(process.env.CONFIG as string, 'utf-8')
 const CONFIG = ini.parse(strConfig)
 
-const srcPath = CONFIG.system.connector
+const srcPath = CONFIG.server.connector
 
 const samba = path.resolve(CONFIG.system.samba)
 const shadow = path.resolve(CONFIG.system.shadow)
 const passwd = path.resolve(CONFIG.system.passwd)
 const group = path.resolve(CONFIG.system.group)
-const apps = path.resolve(CONFIG.system.apps)
-const views = path.resolve(CONFIG.system.views)
-const storages = path.resolve(CONFIG.system.storages)
+const apps = path.resolve(CONFIG.server.apps)
+const views = path.resolve(CONFIG.server.views)
+const storages = path.resolve(CONFIG.server.storages)
 const shared = path.resolve(CONFIG.fs.shared)
 const home = path.resolve(CONFIG.fs.home)
 const recycleBin = path.resolve(CONFIG.fs['recycle bin'])
@@ -105,7 +105,7 @@ class SessionConnector {
   }
 }
 
-const keyPath = path.resolve(CONFIG.system.key)
+const keyPath = path.resolve(CONFIG.server.key)
 if (!fs.existsSync(keyPath)) {
   const { privateKey } = crypto.generateKeyPairSync('rsa', {
     modulusLength: 2048,
@@ -180,7 +180,7 @@ if (!IS_RELEASE || getFlag('maintenance-mode')) {
 }
 
 export const database: Database.Config = {
-  path: path.resolve(CONFIG.system['data base'])
+  path: path.resolve(CONFIG.server['data base'])
 }
 
 export const devMode: DevMode.Config = {
@@ -203,7 +203,7 @@ export const paths: Paths.Config = {
     appsViews: path.join(views, 'apps'),
     storages,
     database: database.path,
-    clientPublic: CONFIG.system.public,
+    clientPublic: CONFIG.server.public,
     clientViews: views,
   },
   users: {

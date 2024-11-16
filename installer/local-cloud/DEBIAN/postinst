@@ -1,0 +1,74 @@
+#!/bin/bash
+
+set -e # Termina si ocurre un error
+
+# Cargar el módulo de debconf
+. /usr/share/debconf/confmodule
+
+# Obtener el nombre de usuario inicial desde debconf
+db_get local-cloud/initial-username
+USERNAME="$RET"
+
+# Validar que el nombre de usuario no esté vacío
+if [ -z "$USERNAME" ]; then
+  echo "Error: El nombre de usuario no puede estar vacío."
+  exit 1
+fi
+
+# Crear el grupo lc si no existe
+if ! getent group lc &>/dev/null; then
+  echo "Creando el grupo lc..."
+  groupadd lc
+  echo "Grupo lc creado."
+fi
+
+# Verificar si el usuario ya existe
+if id "$USERNAME" &>/dev/null; then
+  # Asegurar que el usuario pertenece al grupo lc
+  if ! groups "$USERNAME" | grep -qw lc; then
+    echo "Agregando el usuario $USERNAME al grupo lc..."
+    usermod -aG lc "$USERNAME"
+    echo "Usuario $USERNAME añadido al grupo lc."
+  fi
+else
+  # Crear el usuario si no existe
+  echo "Creando el usuario $USERNAME..."
+  useradd -m -s /bin/bash "$USERNAME"
+  echo "Usuario $USERNAME creado."
+fi
+
+# Determinar la cantidad de CPUs disponibles
+NUM_CPUS=$(nproc --all)
+echo "Número de procesadores detectados: $NUM_CPUS"
+
+# Crear el archivo de servicio systemd
+SERVICE_FILE="/etc/systemd/system/local-cloud.service"
+cat <<EOF >"$SERVICE_FILE"
+[Unit]
+Description=LocalCloud Server
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/local-cloud -i $NUM_CPUS
+Restart=always
+User=root
+Environment=PATH=/usr/bin:/usr/local/bin
+Environment=NODE_ENV=production
+Environment=ESBUILD_BINARY_PATH=/usr/share/local-cloud/esbuild
+Environment=CONFIG=/usr/share/local-cloud/local-cloud.conf
+StandardOutput=append:/var/log/local-cloud/local-cloud.log
+StandardError=append:/var/log/local-cloud/local-cloud-error.log
+WorkingDirectory=/etc/local-cloud
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+echo "Archivo de servicio creado en $SERVICE_FILE."
+
+# Recargar systemd y habilitar el servicio
+systemctl daemon-reload
+systemctl enable local-cloud.service
+systemctl start local-cloud.service
+
+exit 0

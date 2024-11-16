@@ -31,7 +31,7 @@ if (cluster.isPrimary) {
   for (const PORT of PORTS) {
     const env = { PORT }
     if (IS_RELEASE) {
-      env['ESBUILD_BINARY_PATH'] = path.join(process.cwd(), 'esbuild')
+      env['ESBUILD_BINARY_PATH'] = process.env.ESBUILD_BINARY_PATH
     }
     const child = cluster.fork(env)
     child.on('message', message => {

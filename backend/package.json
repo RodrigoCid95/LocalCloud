@@ -4,11 +4,11 @@
 	"description": "Nube privada.",
 	"scripts": {
 		"start": "CONFIG=\"$PWD/cd\" pxio start --maintenance-mode",
-		"preview": "CONFIG=\"$PWD/cd\" pxio start -i 4",
+		"preview": "CONFIG=\"$PWD/cd\" pxio start -i 2",
 		"build": "pxio build",
 		"prepare-dist": "cd ./dist && npm i",
-		"compile": "cd ./dist && npx pkg . --target latest-linux-x64 --output ./../release/local-cloud && cd .. && rm -R ./dist && cd ./release && curl -fsSL https://esbuild.github.io/dl/v0.24.0 | sh",
-		"copy-assets": "mkdir ./release/views && cp -R ./views/os ./release/views && cp ./views/layout.liquid ./release/views && cp -R ./client ./release && cp -R ./connector ./release",
+		"compile": "npx rimraf ./../installer/local-cloud/usr/share/local-cloud/client && npx rimraf ./../installer/local-cloud/usr/share/local-cloud/connector && npx rimraf ./../installer/local-cloud/usr/share/local-cloud/views && npx rimraf ./../installer/local-cloud/usr/share/local-cloud/esbuild && cd ./dist && npx pkg . --target latest-linux-x64 --output ./../../installer/local-cloud/usr/bin/local-cloud && mkdir -p ./../../installer/local-cloud/usr/share/local-cloud && cd ./../../installer/local-cloud/usr/share/local-cloud && curl -fsSL https://esbuild.github.io/dl/v0.24.0 | sh",
+		"copy-assets": "cp -R ./client ./../installer/local-cloud/usr/share/local-cloud && cp -R ./connector ./../installer/local-cloud/usr/share/local-cloud && cp -R ./views ./../installer/local-cloud/usr/share/local-cloud && rm -R ./dist",
 		"dist": "npm run build && npm run prepare-dist && npm run compile && npm run copy-assets"
 	},
 	"keywords": [],
@@ -17,10 +17,7 @@
 	"pxio": {
 		"type": "http",
 		"boot": "manual",
-		"resources": [
-			"connector",
-			"client"
-		],
+		"resources": [],
 		"loader": {
 			".sql": "text"
 		},

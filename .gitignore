@@ -14,3 +14,12 @@ frontend/apps/package-lock.json
 frontend/apps/node_modules
 frontend/apps/dist
 frontend/apps/www/js
+
+installer/local-cloud/usr/bin
+installer/local-cloud/usr/tmp
+installer/local-cloud/usr/share/local-cloud/client
+installer/local-cloud/usr/share/local-cloud/connector
+installer/local-cloud/usr/share/local-cloud/views
+installer/local-cloud/usr/share/local-cloud/esbuild
+installer/local-cloud/usr/share/local-cloud/apps
+installer/local-cloud.deb

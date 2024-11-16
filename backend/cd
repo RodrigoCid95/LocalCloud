@@ -1,15 +1,17 @@
-[system]
+[server]
 key=./temp/key.pem
 data base=./temp/system.db
-samba=./temp/smb.conf
-shadow=./temp/shadow
-passwd=./temp/passwd
-group=./temp/group
 apps=./temp/apps
 views=./views
 storages=./temp/storages
 connector=./connector
 public=./client
+
+[system]
+samba=./temp/smb.conf
+shadow=./temp/shadow
+passwd=./temp/passwd
+group=./temp/group
 
 [fs]
 shared=./temp/shared
