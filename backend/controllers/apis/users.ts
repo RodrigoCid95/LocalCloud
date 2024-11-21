@@ -10,9 +10,10 @@ export class UsersAPIController {
   @Model('DevModeModel') public devModeModel: Models<'DevModeModel'>
   @Before([verifyPermission(USERS.INDEX)])
   @Get('/')
-  public index(_: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): void {
+  public index(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): void {
     const results = this.usersModel.getUsers()
-    res.json(results)
+    const userList = results.filter((user) => user.uid !== req.session.user?.uid)
+    res.json(userList)
   }
   @Before([verifyPermission(USERS.USER)])
   @Get('/:uid')
@@ -56,7 +57,12 @@ export class UsersAPIController {
   @Put('/:uid')
   public async update(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
     const { full_name, email, phone } = req.body
-    const result = this.usersModel.getUserByUID(Number(req.params.uid))
+    const uid = Number(req.params.uid)
+    if (req.session.user?.uid === uid) {
+      res.json(true)
+      return
+    }
+    const result = this.usersModel.getUserByUID(uid)
     if (!result) {
       res.status(400).json({
         code: 'user-not-exist',
@@ -70,7 +76,12 @@ export class UsersAPIController {
   @Before([verifyPermission(USERS.DELETE)])
   @Delete('/:uid')
   public delete(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): void {
-    const user = this.usersModel.getUserByUID(Number(req.params.uid))
+    const uid = Number(req.params.uid)
+    if (req.session.user?.uid === uid) {
+      res.json(true)
+      return
+    }
+    const user = this.usersModel.getUserByUID(uid)
     if (user) {
       this.usersModel.deleteUser(user.name)
     }
@@ -79,15 +90,20 @@ export class UsersAPIController {
   @Before([verifyPermission(USERS.ASSIGN_APP), decryptRequest])
   @Post('/assign-app')
   public async assignApp(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
-    const { uid, package_name } = req.body
-    if (!uid || !package_name) {
+    const { uid: strUID, package_name } = req.body
+    if (!strUID || !package_name) {
       res.status(400).json({
         code: 'fields-required',
         message: 'Faltan campos!'
       })
       return
     }
-    const result = this.usersModel.getUserByUID(Number(uid))
+    const uid = Number(strUID)
+    if (req.session.user?.uid === uid) {
+      res.json(true)
+      return
+    }
+    const result = this.usersModel.getUserByUID(uid)
     if (!result) {
       res.status(400).json({
         code: 'user-not-exist',
@@ -101,15 +117,20 @@ export class UsersAPIController {
   @Before([verifyPermission(USERS.UNASSIGN_APP), decryptRequest])
   @Post('/unassign-app')
   public async unassignApp(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
-    const { uid, package_name } = req.body
-    if (!uid || !package_name) {
+    const { uid: strUID, package_name } = req.body
+    if (!strUID || !package_name) {
       res.status(400).json({
         code: 'fields-required',
         message: 'Faltan campos!'
       })
       return
     }
-    const result = this.usersModel.getUserByUID(Number(uid))
+    const uid = Number(strUID)
+    if (req.session.user?.uid === uid) {
+      res.json(true)
+      return
+    }
+    const result = this.usersModel.getUserByUID(uid)
     if (!result) {
       res.status(400).json({
         code: 'user-not-exist',
