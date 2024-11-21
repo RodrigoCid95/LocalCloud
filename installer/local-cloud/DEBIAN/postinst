@@ -1,47 +1,100 @@
 #!/bin/bash
 
-set -e # Termina si ocurre un error
+set -e
 
-# Cargar el módulo de debconf
-. /usr/share/debconf/confmodule
+mkdir -p /var/log/local-cloud
+touch /var/log/local-cloud/local-cloud.log
+touch /var/log/local-cloud/local-cloud-error.log
 
-# Obtener el nombre de usuario inicial desde debconf
-db_get local-cloud/initial-username
-USERNAME="$RET"
+SSL_DIR="/etc/nginx/ssl_certificate"
+mkdir -p "$SSL_DIR"
 
-# Validar que el nombre de usuario no esté vacío
-if [ -z "$USERNAME" ]; then
-  echo "Error: El nombre de usuario no puede estar vacío."
-  exit 1
-fi
+echo "Generando certificados SSL..."
+ROOT_KEY="$SSL_DIR/rootCA.key"
+ROOT_CERT="$SSL_DIR/rootCA.pem"
+SSL_KEY="$SSL_DIR/key.pem"
+SSL_CSR="$SSL_DIR/csr.pem"
+SSL_CERT="$SSL_DIR/cert.pem"
 
-# Crear el grupo lc si no existe
-if ! getent group lc &>/dev/null; then
-  echo "Creando el grupo lc..."
-  groupadd lc
-  echo "Grupo lc creado."
-fi
+OPENSSL_CONFIG="
+[ req ]
+default_bits       = 2048
+distinguished_name = req_distinguished_name
+prompt             = no
 
-# Verificar si el usuario ya existe
-if id "$USERNAME" &>/dev/null; then
-  # Asegurar que el usuario pertenece al grupo lc
-  if ! groups "$USERNAME" | grep -qw lc; then
-    echo "Agregando el usuario $USERNAME al grupo lc..."
-    usermod -aG lc "$USERNAME"
-    echo "Usuario $USERNAME añadido al grupo lc."
-  fi
-else
-  # Crear el usuario si no existe
-  echo "Creando el usuario $USERNAME..."
-  useradd -m -s /bin/bash "$USERNAME"
-  echo "Usuario $USERNAME creado."
-fi
+[ req_distinguished_name ]
+C  = MX
+ST = Puebla
+L  = Chapulco
+O  = Local Cloud
+OU = Software Development
+CN = Local Cloud
+emailAddress = rodrigocid95@gmail.com
+"
 
-# Determinar la cantidad de CPUs disponibles
+echo "Creando clave y certificado raíz..."
+openssl genrsa -out "$ROOT_KEY" 2048
+openssl req -x509 -new -nodes -key "$ROOT_KEY" -sha256 -days 3650 -out "$ROOT_CERT" -config <(echo "$OPENSSL_CONFIG")
+
+echo "Creando clave privada y solicitud de certificado..."
+openssl genrsa -out "$SSL_KEY" 2048
+openssl req -new -key "$SSL_KEY" -out "$SSL_CSR" -config <(echo "$OPENSSL_CONFIG")
+
+echo "Firmando el certificado SSL con el certificado raíz..."
+openssl x509 -req -in "$SSL_CSR" -CA "$ROOT_CERT" -CAkey "$ROOT_KEY" -CAcreateserial -out "$SSL_CERT" -days 365 -sha256
+
+NGINX_CONFIG="/etc/nginx/sites-available/default"
+UPSTREAM_BLOCK="upstream local_cloud_app {
+  ip_hash;"
+
+PORT_BASE=3000
 NUM_CPUS=$(nproc --all)
-echo "Número de procesadores detectados: $NUM_CPUS"
+for ((i = 0; i < NUM_CPUS; i++)); do
+  INSTANCE_PORT=$((PORT_BASE + i))
+  UPSTREAM_BLOCK+="
+  server 127.0.0.1:$INSTANCE_PORT;"
+done
+UPSTREAM_BLOCK+="
+}"
 
-# Crear el archivo de servicio systemd
+cat <<EOF >"$NGINX_CONFIG"
+server {
+  listen 80;
+  server_name localcloud.local;
+
+  return 301 https://\$host\$request_uri;
+}
+
+$UPSTREAM_BLOCK
+
+server {
+  listen 443 ssl;
+
+  server_name localcloud.local;
+
+  ssl_certificate /etc/nginx/ssl_certificate/cert.pem;
+  ssl_certificate_key /etc/nginx/ssl_certificate/key.pem;
+
+  ssl_protocols TLSv1.2 TLSv1.3;
+  ssl_ciphers HIGH:!aNULL:!MD5;
+
+  client_max_body_size 1024M;
+
+  location / {
+    proxy_pass http://local_cloud_app;
+    proxy_set_header Host \$host;
+    proxy_set_header X-Real-IP \$remote_addr;
+    proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto \$scheme;
+  }
+}
+EOF
+
+echo "Configuración de NGINX creada en $NGINX_CONFIG."
+
+nginx -t
+
+echo "Número de procesadores detectados: $NUM_CPUS"
 SERVICE_FILE="/etc/systemd/system/local-cloud.service"
 cat <<EOF >"$SERVICE_FILE"
 [Unit]
@@ -58,7 +111,7 @@ Environment=ESBUILD_BINARY_PATH=/usr/share/local-cloud/esbuild
 Environment=CONFIG=/usr/share/local-cloud/local-cloud.conf
 StandardOutput=append:/var/log/local-cloud/local-cloud.log
 StandardError=append:/var/log/local-cloud/local-cloud-error.log
-WorkingDirectory=/etc/local-cloud
+WorkingDirectory=/usr/share/local-cloud
 
 [Install]
 WantedBy=multi-user.target
@@ -66,9 +119,15 @@ EOF
 
 echo "Archivo de servicio creado en $SERVICE_FILE."
 
-# Recargar systemd y habilitar el servicio
+if ! getent group lc &>/dev/null; then
+  echo "Creando el grupo lc..."
+  groupadd lc
+  echo "Grupo lc creado."
+fi
+
 systemctl daemon-reload
 systemctl enable local-cloud.service
 systemctl start local-cloud.service
+systemctl reload nginx
 
 exit 0

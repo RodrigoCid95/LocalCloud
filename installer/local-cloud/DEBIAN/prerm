@@ -1,0 +1,9 @@
+#!/bin/bash
+
+set -e
+
+systemctl stop local-cloud
+systemctl disable local-cloud
+rm /etc/systemd/system/local-cloud.service
+systemctl daemon-reload
+rm -R /usr/share/local-cloud
