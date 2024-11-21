@@ -1,31 +1,30 @@
-import { lazy, Suspense, useEffect, useState } from "react"
-import { Spinner } from "@fluentui/react-components"
+import { lazy, Suspense, useEffect, useState } from 'react'
+import { createRoot } from 'react-dom/client'
+import { Spinner } from '@fluentui/react-components'
+import App from './components/App'
 
 const Login = lazy(() => import('./Login'))
 const Dashboard = lazy(() => import('./Dashboard'))
 const DevMode = lazy(() => import('./DevMode'))
 
-const App = () => {
+const OS = () => {
   const [loading, setLoading] = useState<boolean>(true)
   const [auth, setAuth] = useState<boolean>(false)
-  const [devMode, setDevMode] = useState<boolean>(false)
 
   useEffect(() => {
-    if (document.body.dataset.devMode !== undefined) {
-      setLoading(false)
-      setDevMode(true)
-    } else {
-      (window.connectors.auth.status as Auth.StatusMethod)().then(a => {
+    if (window.connectors.auth.status) {
+      setLoading(true)
+      window.connectors.auth.status().then(a => {
         setLoading(false)
         setAuth(a)
       })
     }
-  })
+  }, [])
 
   if (loading) {
     return <Spinner />
   } else {
-    if (devMode) {
+    if (document.body.dataset.devMode) {
       return (
         <Suspense fallback={<Spinner />}>
           <DevMode />
@@ -48,4 +47,8 @@ const App = () => {
   }
 }
 
-export default App
+document.addEventListener('onConnectorReady', () => createRoot(document.getElementById('root')!).render(
+  <App>
+    <OS />
+  </App>,
+))

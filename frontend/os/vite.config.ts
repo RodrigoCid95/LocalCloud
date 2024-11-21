@@ -6,10 +6,11 @@ export default defineConfig({
   build: {
     rollupOptions: {
       input: {
-        main: './src/main.tsx',
+        os: './src/OS.tsx',
+        setup: './src/Setup.tsx',
       },
       output: {
-        entryFileNames: 'js/app.js',
+        entryFileNames: 'js/[name].js',
         chunkFileNames: 'js/chunk-[name].js',
         assetFileNames: 'assets/[name]-[hash][extname]',
       }

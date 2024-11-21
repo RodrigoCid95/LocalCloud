@@ -1,22 +1,24 @@
-import { useEffect, useState } from 'react'
-import { createRoot } from 'react-dom/client'
+import { type FC, useEffect, useState } from 'react'
 import { FluentProvider, webDarkTheme, webLightTheme } from '@fluentui/react-components'
-import App from './App.tsx'
 
 const darkModeQuery = window.matchMedia('(prefers-color-scheme: dark)')
 
-const Container = () => {
+const App: FC<AppProps> = ({ children }) => {
   const [theme, setTheme] = useState(darkModeQuery.matches ? webDarkTheme : webLightTheme)
+
   useEffect(() => {
     darkModeQuery.addEventListener('change', e => setTheme(e.matches ? webDarkTheme : webLightTheme))
   })
+
   return (
     <FluentProvider theme={theme}>
-      <App />
+      {children}
     </FluentProvider>
   )
 }
 
-document.addEventListener('onConnectorReady', () => createRoot(document.getElementById('root')!).render(
-  <Container />,
-))
+export default App
+
+interface AppProps {
+  children: React.ReactNode
+}

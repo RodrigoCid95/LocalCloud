@@ -190,12 +190,3 @@ export class FileSystemAPIController {
     res.json(true)
   }
 }
-
-interface FileItem {
-  stream: fs.WriteStream
-  path: string
-}
-interface Field {
-  name: string
-  filename?: string
-}

@@ -18,6 +18,9 @@ export const getOrigin = (referer: string): Origin => {
 }
 
 export function verifyPermission(permission: APIPermission | string) {
+  if (SETUP) {
+    return (_: PXIOHTTP.Request, res: PXIOHTTP.Response) => res.status(400).end()
+  }
   let apiPermission: APIPermission
   if (typeof permission === 'string') {
     apiPermission = {

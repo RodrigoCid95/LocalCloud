@@ -1,6 +1,8 @@
 import { responseFile } from "./middlewares/file"
+import { verifySetup } from "./middlewares/setup"
 
 @Namespace('shared')
+@Middlewares({before: [verifySetup]})
 export class SharedController {
   @Model('SharedModel') private sharedModel: Models<'SharedModel'>
   @Model('FileSystemModel') private fsModel: Models<'FileSystemModel'>

@@ -8,8 +8,9 @@
     "build": "vite build --minify"
   },
   "dependencies": {
-    "@fluentui/react-components": "^9.55.1",
+    "@fluentui/react-components": "^9.56.1",
     "@fluentui/react-icons": "^2.0.265",
+    "@fluentui/react-list-preview": "^0.4.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },

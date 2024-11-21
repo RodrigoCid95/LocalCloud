@@ -11,18 +11,8 @@ export class UserManager implements UserManager.Class {
   constructor() {
     this.#groupManager = new GroupManager()
     this.#encrypt = new Encrypt()
-    if (!fs.existsSync(home)) {
-      fs.mkdirSync(home)
-    }
-    if (!fs.existsSync(shadow)) {
-      fs.writeFileSync(shadow, '', 'utf-8')
-    }
-    if (!fs.existsSync(passwd)) {
-      fs.writeFileSync(passwd, '', 'utf-8')
-    }
-    this.updatePassword('test', '12341234')
   }
-  #loadUsers(): Users.Result[] {
+  #loadUsers(all: boolean = false): Users.Result[] {
     const shadowContent = fs.readFileSync(shadow, 'utf8')
     const shadowLines = shadowContent
       .split('\n')
@@ -38,7 +28,8 @@ export class UserManager implements UserManager.Class {
       .filter(line => line !== '')
       .map(line => {
         const [name, _, uid, __, comment] = line.split(':')
-        if (!groupUsers.includes(name)) {
+        let isUserSystem = !groupUsers.includes(name)
+        if (isUserSystem && !all) {
           return null
         }
         const [full_name = '', email = '', phone = ''] = comment.split(',')
@@ -47,7 +38,8 @@ export class UserManager implements UserManager.Class {
           uid: Number(uid),
           full_name,
           email,
-          phone
+          phone,
+          isUserSystem
         }
       })
       .filter(line => line !== null)
@@ -61,8 +53,10 @@ export class UserManager implements UserManager.Class {
     return users
   }
   create(newUser: Users.New): Users.User['uid'] {
-    const users = this.#groupManager.getUsers()
-    if (!users.includes(newUser.name)) {
+    const user = this
+      .#loadUsers(true)
+      .find(user => user.name === newUser.name) || null
+    if (!user) {
       const gid = this.#groupManager.addGroup(newUser.name)
       const passwdContent = fs.readFileSync(passwd, 'utf8')
       const uids = passwdContent
@@ -102,15 +96,15 @@ export class UserManager implements UserManager.Class {
       this.#groupManager.addUser(newUser.name)
       return newUid
     }
-    return this.get(newUser.name)?.uid || NaN
+    return user.uid
   }
   get(name: Users.User['name']): Users.Result | null {
     return this
       .#loadUsers()
       .find(user => user.name === name) || null
   }
-  getAll(): Users.Result[] {
-    return this.#loadUsers()
+  getAll(includeUserSystem: boolean = false): Users.Result[] {
+    return this.#loadUsers(includeUserSystem)
   }
   update(name: Users.User['name'], data: Partial<Users.User>): void {
     const users = this.#groupManager.getUsers()

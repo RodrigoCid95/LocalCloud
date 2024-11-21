@@ -1,9 +1,10 @@
 import { verifySession } from './middlewares/session'
 import { responseFile } from './middlewares/file'
 import { CSP } from './middlewares/csp'
+import { verifySetup } from './middlewares/setup'
 
 @Namespace('file')
-@Middlewares({ before: [verifySession, CSP] })
+@Middlewares({ before: [verifySetup, verifySession, CSP] })
 export class FileController {
   @Model('DevModeModel') public devModeModel: Models<'DevModeModel'>
   @Model('FileSystemModel') private fsModel: Models<'FileSystemModel'>

@@ -3,11 +3,6 @@ import fs from 'node:fs'
 const { group: groupPath } = getConfig('paths')
 
 export class GroupManager implements GroupManager.Class {
-  constructor() {
-    if (!fs.existsSync(groupPath)) {
-      fs.writeFileSync(groupPath, '', 'utf-8')
-    }
-  }
   #loadedGroups(): GroupManager.Group[] {
     const content = fs.readFileSync(groupPath, 'utf8')
     const groups: GroupManager.Group[] = content
@@ -61,9 +56,9 @@ export class GroupManager implements GroupManager.Class {
   }
   getUsers(): string[] {
     const groups = this.#loadedGroups()
-    const lcGoup = groups.find(group => group.name === 'lc')
-    if (lcGoup) {
-      return lcGoup.users
+    const lcGroup = groups.find(group => group.name === 'lc')
+    if (lcGroup) {
+      return lcGroup.users
     }
     this.addGroup('lc')
     return []

@@ -1,5 +1,8 @@
 import cluster from 'node:cluster'
-import path from 'node:path'
+import fs from 'node:fs'
+
+const appsCount = fs.readdirSync(getConfig('paths').system.apps).filter(item => item !== 'temp').length
+const SETUP = appsCount === 0
 
 if (cluster.isPrimary) {
   let numCPUs = Number(getFlag('i'))
@@ -34,6 +37,9 @@ if (cluster.isPrimary) {
       env['ESBUILD_BINARY_PATH'] = process.env.ESBUILD_BINARY_PATH
     }
     const child = cluster.fork(env)
+    if (SETUP) {
+      child.on('exit', () => process.kill(process.pid))
+    }
     child.on('message', message => {
       const { uid, event, args = [] } = message
       const e = Store[event]
@@ -47,5 +53,6 @@ if (cluster.isPrimary) {
     })
   }
 } else {
+  Object.defineProperty(global, 'SETUP', { value: SETUP, writable: false })
   initHttpServer({})
 }

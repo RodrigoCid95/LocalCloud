@@ -1,8 +1,9 @@
 import { CSP } from './middlewares/csp'
+import { verifySetup } from './middlewares/setup'
 import { verifySession } from './middlewares/session'
 
 @Namespace('launch')
-@Middlewares({ before: [verifySession, CSP] })
+@Middlewares({ before: [verifySetup, verifySession, CSP] })
 export class LaunchController {
   @Model('DevModeModel') public devModeModel: Models<'DevModeModel'>
   @Model('FileSystemModel') private fsModel: Models<'FileSystemModel'>

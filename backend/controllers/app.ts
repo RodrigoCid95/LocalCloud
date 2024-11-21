@@ -1,6 +1,7 @@
 import path from 'node:path'
 import { devMode } from './middlewares/dev-mode'
 import { verifySession } from './middlewares/session'
+import { verifySetup } from './middlewares/setup'
 
 export const verifyApp = (req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response, next: Next) => {
   const { packagename } = req.params
@@ -73,7 +74,7 @@ export const verifyApp = (req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PX
 }
 
 @Namespace('app')
-@Middlewares({ before: [devMode, verifySession, verifyApp] })
+@Middlewares({ before: [verifySetup, devMode, verifySession, verifyApp] })
 export class AppController {
   @Model('UsersModel') public usersModel: Models<'UsersModel'>
   @Model('DevModeModel') public devModeModel: Models<'DevModeModel'>

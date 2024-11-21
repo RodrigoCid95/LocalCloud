@@ -9,7 +9,7 @@ import { Paths } from './classes/Paths'
 export const builder = () => new Builder()
 export const groupManager = () => new GroupManager()
 export const userManager = () => new UserManager()
-export const smbManager = async () => {
+export const smbManager = () => {
   const smbManager = new SMBManager()
   smbManager.create('Carpeta Compartida', {
     comment: 'Carpeta Compartida',

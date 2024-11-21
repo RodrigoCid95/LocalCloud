@@ -4,3 +4,7 @@ import 'px.io/http'
 import 'px.io/sockets'
 import './connector/types'
 import 'types'
+
+declare global {
+  const SETUP: boolean
+}

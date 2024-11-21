@@ -26,7 +26,7 @@ export class UsersAPIController {
   }
   @Before([verifyPermission(USERS.CREATE), decryptRequest])
   @Post('/')
-  public async create(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
+  public create(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): void {
     const { email, full_name, phone, name, password } = req.body
     if (!name || !password) {
       res.status(400).json({
@@ -43,7 +43,7 @@ export class UsersAPIController {
       })
       return
     }
-    await this.usersModel.createUser({
+    this.usersModel.createUser({
       name,
       full_name,
       email,
@@ -64,15 +64,15 @@ export class UsersAPIController {
       })
       return
     }
-    await this.usersModel.updateUser(result.name, { full_name, email, phone })
+    this.usersModel.updateUser(result.name, { full_name, email, phone })
     res.json(true)
   }
   @Before([verifyPermission(USERS.DELETE)])
   @Delete('/:uid')
-  public async delete(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
+  public delete(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): void {
     const user = this.usersModel.getUserByUID(Number(req.params.uid))
     if (user) {
-      await this.usersModel.deleteUser(user.name)
+      this.usersModel.deleteUser(user.name)
     }
     res.json(true)
   }

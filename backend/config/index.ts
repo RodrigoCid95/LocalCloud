@@ -64,7 +64,7 @@ if (!fs.existsSync(group)) {
   fs.writeFileSync(group, '', 'utf-8')
 }
 if (!fs.existsSync(apps)) {
-  fs.mkdirSync(apps, { recursive: true })
+  fs.mkdirSync(path.join(apps, 'temp'), { recursive: true })
 }
 if (!fs.existsSync(views)) {
   fs.mkdirSync(views, { recursive: true })

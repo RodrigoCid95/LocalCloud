@@ -8,7 +8,7 @@ export class UsersModel {
   @Library('database') private database: Database
   @Library('userManager') private userManager: UserManager.Class
   @Library('smbManager') private smbManager: SMBManager.Class
-  public async createUser(user: Users.New): Promise<void> {
+  public createUser(user: Users.New): void {
     const { name, password, full_name = '', email = '', phone = '' } = user
     this.userManager.create({
       name,
@@ -17,7 +17,7 @@ export class UsersModel {
       email,
       phone
     })
-    await this.smbManager.create(name)
+    this.smbManager.create(name)
   }
   public getUser(name: Users.User['name']): Users.User | null {
     const result = this.userManager.get(name)
@@ -55,11 +55,11 @@ export class UsersModel {
   public updatePassword(name: Users.User['name'], password: string): void {
     this.userManager.updatePassword(name, password)
   }
-  public async deleteUser(name: Users.User['name']) {
+  public deleteUser(name: Users.User['name']): void {
     const userToDelete = this.getUser(name)
     if (userToDelete) {
       this.userManager.delete(userToDelete.uid)
-      await this.smbManager.delete(userToDelete.name)
+      this.smbManager.delete(userToDelete.name)
     }
   }
   public async assignApp(uid: Users.User['uid'], package_name: string): Promise<void> {
