@@ -19,7 +19,7 @@ export class AppsModel {
   }))
   public getAppsByUID(uid: Users.User['uid']): Promise<Apps.App[]> {
     return new Promise(resolve => this.database.all<Apps.Result>(
-      'SELECT apps.package_name, apps.title, apps.description, apps.author, apps.use_storage, apps.use_template FROM users_to_apps INNER JOIN apps ON users_to_apps.package_name = apps.package_name WHERE users_to_apps.uid = ?;',
+      'SELECT apps.package_name, apps.title, apps.description, apps.author, apps.extensions, apps.use_storage, apps.use_template FROM users_to_apps INNER JOIN apps ON users_to_apps.package_name = apps.package_name WHERE users_to_apps.uid = ?;',
       [uid],
       (error, rows) => error ? resolve([]) : resolve(this.parse(rows))
     ))
