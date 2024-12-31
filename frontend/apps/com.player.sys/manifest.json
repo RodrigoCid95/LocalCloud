@@ -1,0 +1,8 @@
+{
+  "title": "Player",
+  "description": "Media player",
+  "author": "Rodrigo Cid",
+  "permissions": {},
+  "sources": [],
+  "extensions": ["mp3", "mp4", "webm"]
+}

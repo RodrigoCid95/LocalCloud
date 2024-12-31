@@ -8,11 +8,13 @@
     "start:apps": "node . start com.apps.sys",
     "start:files": "node . start com.files.sys",
     "start:users": "node . start com.users.sys",
+    "start:player": "node . start com.player.sys",
     "build": "node . build",
     "build:apps": "node . build com.apps.sys",
     "build:files": "node . build com.files.sys",
     "build:users": "node . build com.users.sys",
-    "build:all": "npm run build:apps && npm run build:files && npm run build:users"
+    "build:player": "node . build com.player.sys",
+    "build:all": "npm run build:apps && npm run build:files && npm run build:users && npm run build:player"
   },
   "keywords": [],
   "author": "",
