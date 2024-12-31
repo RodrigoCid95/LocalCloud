@@ -48,7 +48,7 @@
 		"@types/ini": "^4.1.1",
 		"@types/node": "^22.9.0",
 		"@types/unzipper": "^0.10.10",
-		"pxio": "^0.18.25"
+		"pxio": "^0.18.27-beta"
 	},
 	"dependencies": {
 		"busboy": "^1.6.0",

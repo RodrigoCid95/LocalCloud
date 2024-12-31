@@ -1,7 +1,7 @@
-import 'px.io'
-import 'px.io/server'
-import 'px.io/http'
-import 'px.io/sockets'
+import 'pxio'
+import 'pxio/server'
+import 'pxio/http'
+import 'pxio/sockets'
 import './connector/types'
 import 'types'
 
