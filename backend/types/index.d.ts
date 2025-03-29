@@ -27,6 +27,7 @@ declare global {
       apps: SessionApps
       key: string
       token: string
+      socketID: string
     }
   }
 }

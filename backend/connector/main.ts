@@ -1,3 +1,4 @@
+import { encrypting } from './Encrypting'
 import { ServerConector } from './Server'
 
 //#region Declaration
@@ -7,6 +8,7 @@ declare const $AUTH_LOGOUT: any
 declare const AUTH_LOGOUT: any
 declare const $AUTH_STATUS: any
 declare const AUTH_STATUS: any
+declare const AUTH_ON_STATUS: any
 declare const $APP_LIST: any
 declare const APP_LIST: any
 declare const $APP_LIST_BY_UID: any
@@ -114,6 +116,7 @@ const defineAPI = (name: keyof Connectors, api: string | boolean, callback: any)
 $AUTH_LOGIN && defineAPI('auth', 'logIn', AUTH_LOGIN)
 $AUTH_LOGOUT && defineAPI('auth', 'logOut', AUTH_LOGOUT)
 $AUTH_STATUS && defineAPI('auth', 'status', AUTH_STATUS)
+$AUTH_STATUS && defineAPI('auth', 'onChange', AUTH_ON_STATUS)
 //#endregion
 //#region Apps
 $APP_LIST && defineAPI('apps', 'list', APP_LIST)
@@ -183,4 +186,10 @@ Object.defineProperty(window, 'createURL', { value: server.createURL.bind(server
 Object.defineProperty(window, 'createDownloader', { value: server.createDownloader.bind(server), writable: false })
 Object.defineProperty(window, 'connectors', { value: connectors, writable: false })
 
-document.dispatchEvent(new CustomEvent('onConnectorReady'))
+document.dispatchEvent(new CustomEvent('onConnectorReady'));
+
+(async () => {
+  const socket = await server.getSocket()
+  const data = await encrypting.encrypt(JSON.stringify(true))
+  socket.emit('test', data)
+})()

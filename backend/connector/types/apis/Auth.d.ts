@@ -13,12 +13,14 @@ declare global {
       message: string
     }
     type LoginMethod = (credentials: Credentials) => Promise<LoginOkResult | LoginFailResult>
+    type OnChangeStatus = (callback: (auth: boolean) => void) => Promise<void>
     type StatusMethod = () => Promise<boolean>
     type LogOutMethod = () => Promise<void>
     interface Connector {
       logIn?: LoginMethod
       status?: StatusMethod
       logOut?: LogOutMethod
+      onChange?: OnChangeStatus
     }
   }
 }

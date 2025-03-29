@@ -8,12 +8,12 @@ connector=./connector
 public=./client
 
 [system]
-samba=./temp/smb.conf
-shadow=./temp/shadow
-passwd=./temp/passwd
-group=./temp/group
+samba=/etc/samba/smb.conf
+shadow=/etc/shadow
+passwd=/etc/passwd
+group=/etc/group
 
 [fs]
-shared=./temp/shared
-home=./temp/home
-recycle bin=./temp/recycle-bin
+shared=/shared
+home=/home/home
+recycle bin=/recycle-bin

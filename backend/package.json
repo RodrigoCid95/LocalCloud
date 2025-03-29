@@ -2,7 +2,9 @@
 	"name": "local-cloud",
 	"version": "1.0.0",
 	"description": "Nube privada.",
-	"scripts": {
+	"scripts": { 
+		"docker:run": "docker run --rm -it -p 80:3001 -v .:/root/local-cloud -v ./temp/system.db:/var/local-cloud/system.db --name LocalCloud localcloud:latest /bin/bash",
+		"docker:build": "docker build -t localcloud:latest .",
 		"start": "CONFIG=\"$PWD/cd\" pxio start --maintenance-mode",
 		"preview": "CONFIG=\"$PWD/cd\" pxio start -i 2",
 		"build": "pxio build",
@@ -15,13 +17,18 @@
 	"author": "",
 	"license": "MIT",
 	"pxio": {
-		"type": "http",
+		"type": [
+			"http",
+			"sockets",
+			"workers"
+		],
 		"boot": "manual",
 		"resources": [],
 		"loader": {
 			".sql": "text"
 		},
-		"omitAuto": false
+		"omitAuto": false,
+		"singleProcess": true
 	},
 	"pkg": {
 		"assets": [
@@ -37,28 +44,33 @@
 			"/node_modules/sqlite3/addon-build/release/install-root/node_sqlite3.node",
 			"/node_modules/sqlite3/addon-build/debug/install-root/node_sqlite3.node",
 			"/node_modules/sqlite3/addon-build/default/install-root/node_sqlite3.node",
-			"/node_modules/sqlite3/lib/binding/node-v108-linux-x64/node_sqlite3.node"
+			"/node_modules/sqlite3/lib/binding/node-v108-linux-x64/node_sqlite3.node",
+			"/node_modules/socket.io/client-dist/*.js"
 		]
 	},
 	"devDependencies": {
 		"@types/busboy": "^1.5.4",
 		"@types/compression": "^1.7.5",
 		"@types/express": "^5.0.0",
-		"@types/express-session": "^1.18.0",
+		"@types/express-session": "^1.18.1",
 		"@types/ini": "^4.1.1",
-		"@types/node": "^22.9.0",
-		"@types/unzipper": "^0.10.10",
-		"pxio": "^0.18.27-beta"
+		"@types/node": "^22.13.9",
+		"@types/unzipper": "^0.10.11",
+		"pxio": "^0.24.37-beta",
+		"socket.io-client": "^4.8.1"
 	},
 	"dependencies": {
+		"@socket.io/cluster-adapter": "^0.2.2",
+		"@socket.io/sticky": "^1.0.4",
 		"busboy": "^1.6.0",
-		"compression": "^1.7.5",
+		"compression": "^1.8.0",
 		"cors": "^2.8.5",
-		"esbuild": "^0.24.0",
-		"express": "^4.21.1",
+		"esbuild": "^0.24.2",
+		"express": "^4.21.2",
 		"express-session": "^1.18.1",
 		"ini": "^5.0.0",
-		"liquidjs": "^10.18.0",
+		"liquidjs": "^10.21.0",
+		"socket.io": "^4.8.1",
 		"sqlite3": "^5.1.7",
 		"unzipper": "^0.12.3"
 	}

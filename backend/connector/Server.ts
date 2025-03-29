@@ -6,6 +6,8 @@ declare const TOKEN: string
 declare const IS_DEV: boolean
 
 export class ServerConector {
+  #sockets: Map<string, any> = new Map()
+  #manager?: any
   createUploader = ({ api = 'fs', path = [], file, metadata = {} }: CreateUploaderArgs) => {
     const base = path.shift() || ''
     return new FileUploader(
@@ -67,5 +69,19 @@ export class ServerConector {
       }
     }
     return url
+  }
+  async getSocket(...namespace: string[]) {
+    if (!this.#manager) {
+      const socketIOPath = '/socket.io/socket.io.esm.min.js'
+      const { Manager } = await import(socketIOPath)
+      this.#manager = new Manager()
+    }
+    const ns = `/${namespace.join('/')}`
+    if (!this.#sockets.has(ns)) {
+      const socket = this.#manager.socket(ns, { auth: { token: TOKEN } })
+      this.#sockets.set(ns, socket)
+    }
+    const socket = this.#sockets.get(ns)
+    return socket
   }
 }

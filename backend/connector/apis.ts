@@ -1,4 +1,5 @@
 import type { ServerConector } from './Server'
+import { encrypting } from './Encrypting'
 
 const ACCESS_SHARED_FILE_LIST = (server: ServerConector): FS.SharedLsMethod => (path, filter) => {
   const params = {}
@@ -91,6 +92,12 @@ const AUTH_STATUS = (server: ServerConector): Auth.StatusMethod => () => server.
 })
 
 export { AUTH_STATUS }
+
+const AUTH_ON_STATUS = (server: ServerConector): Auth.OnChangeStatus => async (callback) => {
+  server.getSocket('auth').then(authNSP => authNSP.on('change', callback))
+}
+
+export { AUTH_ON_STATUS }
 
 const CLEAN_RECYCLE_BIN = (server: ServerConector): RecycleBin.CleanMethod => () => server.send({
   endpoint: 'recycle-bin',

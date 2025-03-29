@@ -1,5 +1,8 @@
 import cluster from 'node:cluster'
+import http from 'node:http'
 import fs from 'node:fs'
+import { setupMaster } from '@socket.io/sticky'
+import { setupPrimary } from '@socket.io/cluster-adapter'
 
 const appsCount = fs.readdirSync(getConfig('paths').system.apps).filter(item => item !== 'temp').length
 const SETUP = appsCount === 0
@@ -7,30 +10,14 @@ const SETUP = appsCount === 0
 if (cluster.isPrimary) {
   let numCPUs = Number(getFlag('i'))
   numCPUs = isNaN(numCPUs) ? 1 : numCPUs
+  const httpServer = http.createServer()
+  setupMaster(httpServer, { loadBalancingMethod: "least-connection" })
+  setupPrimary()
+  cluster.setupPrimary({ serialization: 'advanced' })
+  httpServer.listen(3000)
+  const emitToWorker = initWorkerServer()
   console.log(`\n\nMaster ${process.pid} is running`, `\n${numCPUs} workers:\n`)
-  const Store = {
-    store: new Map(),
-    get: (sid: string) => Store.store.get(sid) || null,
-    set: (sid: string, session: any) => {
-      Store.store.set(sid, session)
-      return null
-    },
-    destroy: (sid: string) => {
-      Store.store.delete(sid)
-      return null
-    },
-    delete: (sid: string) => {
-      Store.store.delete(sid)
-      return null
-    },
-    length: () => {
-      Store.store.size
-      return null
-    },
-    all: () => Array.from(Store.store.values()),
-    clear: () => Store.store.clear()
-  }
-  const PORTS = Array.from({ length: numCPUs }, (_, i) => 3000 + i)
+  const PORTS = Array.from({ length: numCPUs }, (_, i) => 3001 + i)
   for (const PORT of PORTS) {
     const env = { PORT }
     if (IS_RELEASE) {
@@ -40,19 +27,16 @@ if (cluster.isPrimary) {
     if (SETUP) {
       child.on('exit', () => process.kill(process.pid))
     }
-    child.on('message', message => {
-      const { uid, event, args = [] } = message
-      const e = Store[event]
+    child.on('message', async message => {
+      const { uid, event, args } = message
       let result = null
-      if (e) {
-        result = e(...args)
-      } else {
-        console.log('Error: Store command not fount', message)
-      }
+      result = await emitToWorker(event, args)
       child.send({ uid, data: result })
     })
   }
 } else {
   Object.defineProperty(global, 'SETUP', { value: SETUP, writable: false })
-  initHttpServer({})
+  const { http } = initHttpServer({})
+  const io = initSocketsServer({ http })
+  Object.defineProperty(global, 'io', { value: io, writable: false })
 }
