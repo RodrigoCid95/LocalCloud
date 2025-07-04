@@ -27,7 +27,7 @@ const App = () => {
 
   const handleLoadApps = useCallback(() => {
     setLoading(true)
-    window.connectors.apps.list().then((list) => {
+    window.connectors.apps.get().then(({ results: list }) => {
       setApps(list)
       setLoading(false)
     })

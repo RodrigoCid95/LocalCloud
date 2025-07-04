@@ -1,50 +1,15 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import crypto from 'node:crypto'
-import ini from 'ini'
-import compression from 'compression'
+import { Liquid } from "liquidjs"
 import session from 'express-session'
-import cors from 'cors'
-import { Liquid } from 'liquidjs'
-import { SessionStore } from './SessionStore'
-import { getPaths } from './paths'
+import compression from 'compression'
 import { createAdapter } from '@socket.io/cluster-adapter'
 import { setupWorker } from '@socket.io/sticky'
+import { SessionStore } from './SessionStore'
 
-const end = () => {
-  console.error('Config not found.')
-  process.exit(1)
-}
-
-if (process.env.CONFIG) {
-  if (!fs.existsSync(process.env.CONFIG)) {
-    end()
-  }
-} else {
-  end()
-}
-const strConfig = fs.readFileSync(process.env.CONFIG as string, 'utf-8')
-const CONFIG = ini.parse(strConfig)
-
-const iniPaths = getPaths(CONFIG)
-const {
-  samba,
-  shadow,
-  passwd,
-  group,
-  apps,
-  views,
-  storages,
-  shared,
-  home,
-  recycleBin,
-  mainPath,
-  apiPath,
-  appsViews,
-  dataBase: dataBasePath
-} = iniPaths
-
-const keyPath = path.resolve(CONFIG.server.key)
+const shareDir = path.resolve('/', 'usr', 'share', 'local-cloud')
+const keyPath = path.join(shareDir, 'key.pem')
 if (!fs.existsSync(keyPath)) {
   const { privateKey } = crypto.generateKeyPairSync('rsa', {
     modulusLength: 2048,
@@ -59,50 +24,22 @@ if (!fs.existsSync(keyPath)) {
   })
   fs.writeFileSync(keyPath, privateKey, 'utf-8')
 }
-
+const viewsPath = path.join(shareDir, 'views')
 const sessionModdleware = session({
   store: new SessionStore(),
   secret: fs.readFileSync(keyPath, 'utf-8'),
   resave: true,
   saveUninitialized: true
 })
+const timeoutMiddleware: PXIOHTTP.Middleware = (req, _, next: Next) => {
+  req?.setTimeout(0)
+  next()
+}
 const middlewares = [
+  timeoutMiddleware,
   compression(),
   sessionModdleware
 ]
-
-if (!IS_RELEASE || getFlag('maintenance-mode')) {
-  middlewares.push(cors())
-}
-
-export const database: Database.Config = { path: dataBasePath }
-
-export const devMode: DevMode.Config = {
-  enable: getFlag('maintenance-mode') as boolean,
-  user: getFlag('user') as string
-}
-
-export const builderConnector: BuilderConnector.Config = { mainPath, apiPath }
-
-export const paths: Paths.Config = {
-  samba,
-  shadow,
-  passwd,
-  group,
-  system: {
-    apps,
-    appsViews,
-    storages,
-    database: database.path,
-    clientPublic: CONFIG.server.public,
-    clientViews: views,
-  },
-  users: {
-    shared,
-    path: home,
-    recycleBin
-  }
-}
 
 export const HTTP: PXIOHTTP.Config = {
   optionsUrlencoded: { extended: true },
@@ -110,16 +47,19 @@ export const HTTP: PXIOHTTP.Config = {
     name: 'liquid',
     ext: 'liquid',
     callback: (new Liquid({
-      layouts: paths.system.clientViews,
+      layouts: viewsPath,
       extname: 'liquid'
     })).express(),
-    dirViews: paths.system.clientViews
+    dirViews: viewsPath
   },
   middlewares,
   events: {
     onError(err, _, res, next) {
       if (err) {
-        res.status(500).json(err)
+        console.error(err)
+        if (!res.closed) {
+          res.status(500).json(err)
+        }
       } else {
         next()
       }
@@ -128,12 +68,11 @@ export const HTTP: PXIOHTTP.Config = {
   pathsPublic: [
     {
       route: '/',
-      dir: paths.system.clientPublic
+      dir: path.join(shareDir, 'public')
     }
   ]
 }
 
-export const isRelease = IS_RELEASE
 export const WS: PXIOSockets.Config = {
   events: {
     onBeforeConfig(io) {

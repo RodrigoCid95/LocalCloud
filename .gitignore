@@ -1,25 +1,34 @@
 backend/.debugger
-backend/dist
 backend/node_modules
 backend/package-lock.json
-backend/temp
-backend/client
-backend/release
 backend/views/apps
 
 frontend/os/package-lock.json
 frontend/os/node_modules
+frontend/os/dist
 
 frontend/apps/package-lock.json
 frontend/apps/node_modules
 frontend/apps/dist
 frontend/apps/www/js
+frontend/apps/apps/sources
+frontend/apps/apps/views
 
-installer/local-cloud/usr/bin
-installer/local-cloud/usr/tmp
-installer/local-cloud/usr/share/local-cloud/client
-installer/local-cloud/usr/share/local-cloud/connector
-installer/local-cloud/usr/share/local-cloud/views
-installer/local-cloud/usr/share/local-cloud/esbuild
+installer/local-cloud/usr/share/local-cloud/lib
+installer/local-cloud/usr/share/local-cloud/node
+installer/local-cloud/usr/share/local-cloud/npm
+installer/local-cloud/usr/share/local-cloud/server
 installer/local-cloud/usr/share/local-cloud/apps
+installer/local-cloud/usr/share/local-cloud/connector
+installer/local-cloud/usr/share/local-cloud/public
+installer/local-cloud/usr/share/local-cloud/recycle-bin
+installer/local-cloud/usr/share/local-cloud/temp
+installer/local-cloud/usr/share/local-cloud/views
+installer/local-cloud/usr/share/local-cloud/key.pem
+installer/local-cloud/usr/share/local-cloud/server/modules
+installer/local-cloud/usr/share/local-cloud/server/node_modules
+installer/local-cloud/usr/share/local-cloud/server/main.js
+installer/local-cloud/usr/share/local-cloud/server/main.js.map
+installer/local-cloud/usr/share/local-cloud/server/node
+installer/local-cloud/usr/share/local-cloud/server/package-lock.json
 installer/local-cloud.deb

@@ -18,5 +18,50 @@
 		"javascript.referencesCodeLens.enabled": true,
 		"typescript.referencesCodeLens.enabled": true,
 		"typescript.referencesCodeLens.showOnAllFunctions": true
+	},
+	"tasks": {
+		"version": "2.0.0",
+		"tasks": [
+			{
+				"label": "Run to Docker",
+				"command": "docker",
+				"type": "shell",
+				"args": [
+					"run",
+					"--rm",
+					"-it",
+					"-p",
+					"80:3001",
+					"-v",
+					"${workspaceFolder}/../backend/views:/usr/share/local-cloud/views",
+					"-v",
+					"${workspaceFolder}/../backend:/usr/share/local-cloud/server",
+					"-v",
+					"${workspaceFolder}/../installer/local-cloud/usr/share/local-cloud:/usr/share/local-cloud",
+					"--name",
+					"local-cloud",
+					"localcloud:latest"
+				],
+				"presentation": {
+					"reveal": "always"
+				},
+				"group": "none"
+			},
+			{
+				"label": "Build DockerFile",
+				"command": "docker",
+				"type": "shell",
+				"args": [
+					"build",
+					"-t",
+					"localcloud:latest",
+					"${workspaceFolder}/.."
+				],
+				"presentation": {
+					"reveal": "always"
+				},
+				"group": "build"
+			}
+		]
 	}
 }

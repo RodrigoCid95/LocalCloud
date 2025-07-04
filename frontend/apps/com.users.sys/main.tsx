@@ -20,6 +20,6 @@ const Container = () => {
   )
 }
 
-document.addEventListener('onConnectorReady', () => ReactDOM.createRoot(document.getElementById('root')!).render(
+document.addEventListener('OnConnectorReady', () => ReactDOM.createRoot(document.getElementById('root')!).render(
   <Container />,
 ))

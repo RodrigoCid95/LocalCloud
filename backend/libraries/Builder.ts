@@ -1,63 +1,97 @@
+import path from 'node:path'
+import fs from 'node:fs'
 import { buildSync } from 'esbuild'
-import * as API_LIST from 'libraries/APIList'
 
-const privateAPIList: string[] = []
-const dashAPIList: string[] = []
-const publicAPIList: string[] = []
-const allAPIList: string[] = []
+export class Builder implements Builder.Adapter {
+  private mainEntrypoint: string
+  private apiList: Builder.Module
+  private apiStrList: string[] = []
+  private apiResolvedPaths: string[]
+  public dashApiList: string[]
+  public publicApiList: string[]
 
-export class Builder implements BuilderConnector.Class {
-  get privateAPIList() {
-    return privateAPIList
-  }
-  get dashAPIList() {
-    return dashAPIList
-  }
-  get publicAPIList() {
-    return publicAPIList
-  }
   constructor() {
-    const entries = Object.entries(API_LIST)
-    for (const [_, value] of entries) {
-      const subEntries = Object.entries(value)
-      for (const [_, value2] of subEntries) {
-        if (typeof value2 === 'object') {
-          if (value2.freeForDashboard) {
-            dashAPIList.push(value2.name)
-            allAPIList.push(value2.name)
-          }
-          if (value2.public) {
-            publicAPIList.push(value2.name)
-            allAPIList.push(value2.name)
-          }
-        } else {
-          privateAPIList.push(value2)
-          allAPIList.push(value2)
-        }
+    const connectorPath = path.resolve('/', 'usr', 'share', 'local-cloud', 'connector')
+    const metaPath = path.join(connectorPath, 'meta')
+    this.mainEntrypoint = path.resolve('/', 'usr', 'share', 'local-cloud', 'connector', 'code', 'main.js')
+    this.apiList = this.readFile(path.join(metaPath, 'list.json'))
+    this.apiStrList = this.parse(this.apiList)
+    this.apiResolvedPaths = []
+    const entries = Object.entries(this.apiList)
+    for (const [module, apis] of entries) {
+      for (const api of apis) {
+        this.apiResolvedPaths.push(path.join(connectorPath, 'code', 'apis', module, `${api}.js`))
       }
     }
+    this.dashApiList = this.parse(this.readFile(path.join(metaPath, 'dashboard.json')))
+    this.publicApiList = this.parse(this.readFile(path.join(metaPath, 'public.json')))
   }
-  build({ token, key, apis }: BuilderConnector.BuildOpts): string {
-    const modules = {}
-    for (const api of allAPIList) {
-      modules[`$${api}`] = apis ? apis.includes(api) ? 'true' : 'false' : 'true'
+
+  private readFile(filePath: string): Builder.Module {
+    if (!fs.existsSync(filePath)) {
+      return {}
     }
+    const content = fs.readFileSync(filePath, 'utf8')
+    return JSON.parse(content || '{}')
+  }
+
+  public parse(list: string[]): Builder.Module;
+  public parse(list: Builder.Module): string[];
+  public parse(list: string[] | Builder.Module): Builder.Module | string[] {
+    if (Array.isArray(list)) {
+      const result: Builder.Module = {}
+      for (const item of list) {
+        const [module, api] = item.split('.')
+        if (!result[module]) {
+          result[module] = []
+        }
+        if (api) {
+          result[module].push(api)
+        }
+      }
+      return result
+    } else {
+      const entries = Object.entries(list)
+      const result = []
+      for (const [module, apis] of entries) {
+        if (!result[module]) {
+          result[module] = []
+        }
+        for (const api of apis) {
+          result[module].push(api)
+        }
+      }
+      return result
+    }
+  }
+
+  public build({ token = '', key = '', apis = this.apiStrList }: Builder.BuildOpts = {}): string {
+    const apiListEntries = Object.entries(this.apiList)
+    const define = {}
+    for (const [module, apiList] of apiListEntries) {
+      for (const api of apiList) {
+        const key = `$${module}_${api}`
+        const value = apis[module]?.includes(api) ? 'true' : 'false'
+        define[key] = value
+      }
+    }
+    const IS_DEV = token == '' && key == ''
     const content = buildSync({
-      entryPoints: [getConfig('builderConnector').mainPath],
+      entryPoints: [this.mainEntrypoint],
       bundle: true,
       platform: 'browser',
       define: {
         TOKEN: `"${token}"`,
         KEY: `"${key}"`,
-        IS_DEV: !token || !key ? 'true' : 'false',
-        ...modules
+        IS_DEV: IS_DEV ? 'true' : 'false',
+        ...define
       },
-      minify: Array.isArray(apis),
+      minify: !IS_DEV,
       format: 'esm',
       write: false,
-      inject: [getConfig('builderConnector').apiPath],
+      inject: this.apiResolvedPaths,
       treeShaking: true,
-      sourcemap: getFlag('maintenance-mode') ? 'inline' : false
+      sourcemap: IS_DEV ? 'inline' : false
     })
     return content.outputFiles[0].text
   }

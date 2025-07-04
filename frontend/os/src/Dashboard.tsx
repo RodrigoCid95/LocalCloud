@@ -63,9 +63,10 @@ const Dashboard = () => {
   const handleApps = async () => {
     setAppsLoading(true)
     try {
-      const listApps = await window.connectors.profile.listApps()
-      console.log(listApps)
-      setApps(listApps)
+      const { ok, apps: listApps } = await window.connectors.profile.appList()
+      if (ok) {
+        setApps(listApps)
+      }
     } catch (error) {
       console.error(error)
     }

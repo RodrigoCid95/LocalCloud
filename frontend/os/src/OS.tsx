@@ -47,7 +47,7 @@ const OS = () => {
   }
 }
 
-document.addEventListener('onConnectorReady', () => createRoot(document.getElementById('root')!).render(
+document.addEventListener('OnConnectorReady', () => createRoot(document.getElementById('root')!).render(
   <App>
     <OS />
   </App>,

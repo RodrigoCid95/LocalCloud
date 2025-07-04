@@ -1,8 +1,11 @@
 declare global {
   namespace SecureSources {
-    interface New extends Omit<Source, 'id'> { }
-    interface Result extends Omit<Source, 'id'> {
-      id_source: number
+    interface Source {
+      id: string
+      type: 'image' | 'media' | 'object' | 'script' | 'style' | 'worker' | 'font' | 'connect'
+      source: string
+      description: string
+      enable: boolean
     }
   }
 }

@@ -12,6 +12,7 @@
 		"esModuleInterop": true,
 		"allowSyntheticDefaultImports": true,
 		"module": "ES2022",
+		"lib": ["ES2021"],
 		"paths": {
 			"config/*": [
 				"config/*"

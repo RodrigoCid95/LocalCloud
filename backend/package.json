@@ -2,16 +2,10 @@
 	"name": "local-cloud",
 	"version": "1.0.0",
 	"description": "Nube privada.",
-	"scripts": { 
-		"docker:run": "docker run --rm -it -p 80:3001 -v .:/root/local-cloud -v ./temp/system.db:/var/local-cloud/system.db --name LocalCloud localcloud:latest /bin/bash",
-		"docker:build": "docker build -t localcloud:latest .",
-		"start": "CONFIG=\"$PWD/cd\" pxio start --maintenance-mode",
-		"preview": "CONFIG=\"$PWD/cd\" pxio start -i 2",
-		"build": "pxio build",
-		"prepare-dist": "cd ./dist && npm i",
-		"compile": "npx rimraf ./../installer/local-cloud/usr/share/local-cloud/client && npx rimraf ./../installer/local-cloud/usr/share/local-cloud/connector && npx rimraf ./../installer/local-cloud/usr/share/local-cloud/views && npx rimraf ./../installer/local-cloud/usr/share/local-cloud/esbuild && cd ./dist && npx pkg . --target latest-linux-x64 --output ./../../installer/local-cloud/usr/bin/local-cloud && mkdir -p ./../../installer/local-cloud/usr/share/local-cloud && cd ./../../installer/local-cloud/usr/share/local-cloud && curl -fsSL https://esbuild.github.io/dl/v0.24.0 | sh",
-		"copy-assets": "cp -R ./client ./../installer/local-cloud/usr/share/local-cloud && cp -R ./connector ./../installer/local-cloud/usr/share/local-cloud && cp -R ./views ./../installer/local-cloud/usr/share/local-cloud && rm -R ./dist",
-		"dist": "npm run build && npm run prepare-dist && npm run compile && npm run copy-assets"
+	"scripts": {
+		"start": "pxio start",
+		"preview": "pxio start -i 2",
+		"build": "pxio build"
 	},
 	"keywords": [],
 	"author": "",
@@ -24,39 +18,20 @@
 		],
 		"boot": "manual",
 		"resources": [],
-		"loader": {
-			".sql": "text"
-		},
 		"omitAuto": false,
 		"singleProcess": true
-	},
-	"pkg": {
-		"assets": [
-			"/node_modules/sqlite3/build/node_sqlite3.node",
-			"/node_modules/sqlite3/build/Debug/node_sqlite3.node",
-			"/node_modules/sqlite3/build/Release/node_sqlite3.node",
-			"/node_modules/sqlite3/out/Debug/node_sqlite3.node",
-			"/node_modules/sqlite3/Debug/node_sqlite3.node",
-			"/node_modules/sqlite3/out/Release/node_sqlite3.node",
-			"/node_modules/sqlite3/Release/node_sqlite3.node",
-			"/node_modules/sqlite3/build/default/node_sqlite3.node",
-			"/node_modules/sqlite3/compiled/18.5.0/linux/x64/node_sqlite3.node",
-			"/node_modules/sqlite3/addon-build/release/install-root/node_sqlite3.node",
-			"/node_modules/sqlite3/addon-build/debug/install-root/node_sqlite3.node",
-			"/node_modules/sqlite3/addon-build/default/install-root/node_sqlite3.node",
-			"/node_modules/sqlite3/lib/binding/node-v108-linux-x64/node_sqlite3.node",
-			"/node_modules/socket.io/client-dist/*.js"
-		]
 	},
 	"devDependencies": {
 		"@types/busboy": "^1.5.4",
 		"@types/compression": "^1.7.5",
-		"@types/express": "^5.0.0",
+		"@types/express": "^5.0.1",
 		"@types/express-session": "^1.18.1",
 		"@types/ini": "^4.1.1",
-		"@types/node": "^22.13.9",
+		"@types/mime-types": "^2.1.4",
+		"@types/node": "^22.13.14",
+		"@types/shell-quote": "^1.7.5",
 		"@types/unzipper": "^0.10.11",
-		"pxio": "^0.24.37-beta",
+		"pxio": "^0.28.41-beta",
 		"socket.io-client": "^4.8.1"
 	},
 	"dependencies": {
@@ -65,13 +40,14 @@
 		"busboy": "^1.6.0",
 		"compression": "^1.8.0",
 		"cors": "^2.8.5",
-		"esbuild": "^0.24.2",
+		"esbuild": "^0.25.1",
 		"express": "^4.21.2",
 		"express-session": "^1.18.1",
 		"ini": "^5.0.0",
 		"liquidjs": "^10.21.0",
+		"mime-types": "^3.0.1",
+		"shell-quote": "^1.8.2",
 		"socket.io": "^4.8.1",
-		"sqlite3": "^5.1.7",
 		"unzipper": "^0.12.3"
 	}
 }

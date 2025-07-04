@@ -48,7 +48,7 @@ const AppPermission: FC<AppPermissionProps> = ({ permission }) => {
 
   return (
     <Switch
-      label={PERMISSION_LIST[permission.api] || permission.api}
+      label={PERMISSION_LIST[permission.name] || permission.name}
       disabled={disable}
       checked={checked}
       onChange={handleChange}
@@ -66,47 +66,47 @@ const AppPermissions: FC<AppPermissionsProps> = ({ app, onClose }) => {
 
   useEffect(() => {
     const { package_name } = app
-    window.connectors.permissions.find({ package_name }).then(result => {
-      setPermissions(result)
-      setLoading(false)
-    })
+    window.connectors.permissions.get(package_name).then(({ permissions: result }) => {
+  setPermissions(result)
+  setLoading(false)
+})
   }, [app, setPermissions, setLoading])
 
-  return (
-    <Dialog
-      open={app !== undefined}
-      onOpenChange={(_, data) => {
-        if (!data.open) {
-          onClose()
-        }
-      }}
-    >
-      <DialogSurface>
-        <DialogBody>
-          <DialogTitle>Permisos de {app.title}</DialogTitle>
-          <DialogContent>
-            {loading && <Spinner />}
-            {permissions.length > 0 && (
-              <div style={{ display: "flex", flexDirection: "column", }}>
-                {permissions.map((permission, index) => (
-                  <AppPermission
-                    key={index}
-                    permission={permission}
-                  />
-                ))}
-              </div>
-            )}
-            {permissions.length === 0 && <Caption1>Esta app no cuenta con fuentes seguras.</Caption1>}
-          </DialogContent>
-          <DialogActions>
-            <DialogTrigger disableButtonEnhancement>
-              <Button appearance="primary">Cerrar</Button>
-            </DialogTrigger>
-          </DialogActions>
-        </DialogBody>
-      </DialogSurface>
-    </Dialog>
-  )
+return (
+  <Dialog
+    open={app !== undefined}
+    onOpenChange={(_, data) => {
+      if (!data.open) {
+        onClose()
+      }
+    }}
+  >
+    <DialogSurface>
+      <DialogBody>
+        <DialogTitle>Permisos de {app.title}</DialogTitle>
+        <DialogContent>
+          {loading && <Spinner />}
+          {permissions.length > 0 && (
+            <div style={{ display: "flex", flexDirection: "column", }}>
+              {permissions.map((permission, index) => (
+                <AppPermission
+                  key={index}
+                  permission={permission}
+                />
+              ))}
+            </div>
+          )}
+          {permissions.length === 0 && <Caption1>Esta app no cuenta con fuentes seguras.</Caption1>}
+        </DialogContent>
+        <DialogActions>
+          <DialogTrigger disableButtonEnhancement>
+            <Button appearance="primary">Cerrar</Button>
+          </DialogTrigger>
+        </DialogActions>
+      </DialogBody>
+    </DialogSurface>
+  </Dialog>
+)
 }
 
 interface PermissionList {

@@ -1,7 +1,7 @@
 {
   "title": "Apps",
   "description": "Gestor de aplicaciones",
-  "author": "Rodrigo Cid",
+  "author": "LocalCloud",
   "permissions": {
     "APP_LIST": "Permite listar las aplicaciones instaladas para gestionarlas.",
     "ENABLE_SOURCE": "Permite administrar las fuentes seguras.",
@@ -13,5 +13,54 @@
     "PERMISSION_LIST": "Permite consultar la lista de permisos de una aplicación.",
     "SOURCE_LIST": "Permite consultar la lista de fuentes seguras de una aplicación."
   },
-  "sources": []
+  "sources": {
+    "image": [
+      {
+        "src": "https://test.com",
+        "description": "Test for development."
+      }
+    ],
+    "media": [
+      {
+        "src": "https://test.com",
+        "description": "Test for development."
+      }
+    ],
+    "object": [
+      {
+        "src": "https://test.com",
+        "description": "Test for development."
+      }
+    ],
+    "script": [
+      {
+        "src": "https://test.com",
+        "description": "Test for development."
+      }
+    ],
+    "style": [
+      {
+        "src": "https://test.com",
+        "description": "Test for development."
+      }
+    ],
+    "worker": [
+      {
+        "src": "https://test.com",
+        "description": "Test for development."
+      }
+    ],
+    "font": [
+      {
+        "src": "https://test.com",
+        "description": "Test for development."
+      }
+    ],
+    "connect": [
+      {
+        "src": "https://test.com",
+        "description": "Test for development."
+      }
+    ]
+  }
 }

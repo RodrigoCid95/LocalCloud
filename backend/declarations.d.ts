@@ -4,10 +4,10 @@ import 'pxio/server'
 import 'pxio/http'
 import 'pxio/sockets'
 import 'pxio/workers'
-import './connector/types'
-import 'types'
+import './types'
 
 declare global {
   const SETUP: boolean
   const io: Server
+  const isJSON: (text: string) => boolean
 }

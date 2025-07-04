@@ -1,12 +1,10 @@
 import cluster from 'node:cluster'
 import http from 'node:http'
-import fs from 'node:fs'
 import { setupMaster } from '@socket.io/sticky'
 import { setupPrimary } from '@socket.io/cluster-adapter'
 
-const appsCount = fs.readdirSync(getConfig('paths').system.apps).filter(item => item !== 'temp').length
-const SETUP = appsCount === 0
-
+Object.defineProperty(global, 'isJSON', { value: (text: string) => /^[\],:{}\s]*$/.test(text.replace(/\\["\\\/bfnrtu]/g, '@').replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']').replace(/(?:^|:|,)(?:\s*\[)+/g, '')), writable: false })
+process.setMaxListeners(0)
 if (cluster.isPrimary) {
   let numCPUs = Number(getFlag('i'))
   numCPUs = isNaN(numCPUs) ? 1 : numCPUs
@@ -16,7 +14,7 @@ if (cluster.isPrimary) {
   cluster.setupPrimary({ serialization: 'advanced' })
   httpServer.listen(3000)
   const emitToWorker = initWorkerServer()
-  console.log(`\n\nMaster ${process.pid} is running`, `\n${numCPUs} workers:\n`)
+  console.log(`\n\nMaster ${process.pid} is running`, `\n${numCPUs} threads:\n`)
   const PORTS = Array.from({ length: numCPUs }, (_, i) => 3001 + i)
   for (const PORT of PORTS) {
     const env = { PORT }
@@ -24,9 +22,7 @@ if (cluster.isPrimary) {
       env['ESBUILD_BINARY_PATH'] = process.env.ESBUILD_BINARY_PATH
     }
     const child = cluster.fork(env)
-    if (SETUP) {
-      child.on('exit', () => process.kill(process.pid))
-    }
+    child.setMaxListeners(0)
     child.on('message', async message => {
       const { uid, event, args } = message
       let result = null
@@ -35,7 +31,6 @@ if (cluster.isPrimary) {
     })
   }
 } else {
-  Object.defineProperty(global, 'SETUP', { value: SETUP, writable: false })
   const { http } = initHttpServer({})
   const io = initSocketsServer({ http })
   Object.defineProperty(global, 'io', { value: io, writable: false })

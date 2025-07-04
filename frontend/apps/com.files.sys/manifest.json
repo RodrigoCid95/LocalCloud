@@ -1,7 +1,7 @@
 {
   "title": "Archivos",
   "description": "Explorador de archivos",
-  "author": "Rodrigo Cid",
+  "author": "LocalCloud",
   "permissions": {
     "ACCESS_SHARED_FILE_LIST": "Permite listar los archivos y/o directorios de la carpeta compartida.",
     "ACCESS_USER_FILE_LIST": "Permite listar los archivos y/o directorios de la carpeta del usuario.",
@@ -22,6 +22,5 @@
     "RESTORE_ITEMS_TO_RECYCLE_BIN": "Permite sacar elementos de la papelera de reciclaje.",
     "DELETE_ITEMS_TO_RECYCLE_BIN": "Permite eliminar de forma permanente elementos de la papelera de reciclaje.",
     "CLEAN_RECYCLE_BIN": "Permite vaciar la papelera de reciclaje."
-  },
-  "use-storage": true
+  }
 }

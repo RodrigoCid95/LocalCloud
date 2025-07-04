@@ -1,38 +1,64 @@
-import type { Database } from 'sqlite3'
+import path from 'node:path'
+import fs from 'node:fs'
+
+const NAME_TO_ABBREVIATIONS = {
+  image: 'IM',
+  media: 'ME',
+  object: 'OB',
+  script: 'SC',
+  style: 'ST',
+  worker: 'WO',
+  font: 'FO',
+  connect: 'CO'
+}
+
+const ABBREVIATIONS_TO_NAME = {
+  IM: 'image',
+  ME: 'media',
+  OB: 'object',
+  SC: 'script',
+  ST: 'style',
+  WO: 'worker',
+  FO: 'font',
+  CO: 'connect'
+}
 
 export class SourcesModel {
-  @Library('DataBase') private database: Database
-  public async find(query?: Partial<SecureSources.Source>): Promise<SecureSources.Source[]> {
-    let strQuery = 'SELECT * FROM secure_sources'
-    const values: any[] = []
-    if (query) {
-      const where: string[] = []
-      const entries = Object.entries(query)
-      for (const [key, value] of entries) {
-        where.push(`${key} = ?`)
-        values.push(value)
+  private appsPath = path.resolve('/', 'usr', 'share', 'local-cloud', 'apps')
+
+  public get(packageName: Apps.App['package_name']): SecureSources.Source[] {
+    const results: SecureSources.Source[] = []
+    const manifestPath = path.join(this.appsPath, packageName, 'manifest.json')
+    const manifestContent = fs.readFileSync(manifestPath, 'utf8')
+    const manifest = JSON.parse(manifestContent)
+    const entries = Object.entries<any>(manifest.sources)
+    for (const [type, sources] of entries) {
+      for (let index = 0; index < sources.length; index++) {
+        const { src, description, enable } = sources[index]
+        results.push({
+          id: `${NAME_TO_ABBREVIATIONS[type]}:${index}`,
+          type: type as any,
+          source: src,
+          description,
+          enable
+        })
       }
-      strQuery += ` WHERE ${where.join(' AND ')}`
     }
-    const results = await new Promise<SecureSources.Result[]>(resolve => this.database.all<SecureSources.Result>(
-      strQuery,
-      values,
-      (error, rows) => error ? resolve([]) : resolve(rows)
-    ))
-    return results.map(result => ({
-      id: result.id_source,
-      package_name: result.package_name,
-      type: result.type,
-      source: result.source,
-      justification: result.justification,
-      active: result.active
-    }))
+    return results
   }
-  public async setActive(id: number, active: boolean): Promise<void> {
-    await new Promise(resolve => this.database.run(
-      'UPDATE secure_sources set active = ? WHERE id_source = ?',
-      [active ? 1 : 0, id],
-      resolve
-    ))
+
+  public put(packageName: Apps.App['package_name'], id: SecureSources.Source['id'], value: boolean): void {
+    let [abbreviation, index]: any = id.split(':')
+    index = Number(index)
+    const type = ABBREVIATIONS_TO_NAME[abbreviation]
+    const manifestPath = path.join(this.appsPath, packageName, 'manifest.json')
+    let manifestContent = fs.readFileSync(manifestPath, 'utf8')
+    const manifest = JSON.parse(manifestContent)
+    if (!manifest.sources) {
+      return
+    }
+    manifest.sources[type][index].enable = value
+    manifestContent = JSON.stringify(manifest)
+    fs.writeFileSync(manifestPath, manifestContent, 'utf8')
   }
 }

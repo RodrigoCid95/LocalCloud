@@ -1,173 +1,184 @@
-import type { Database } from 'sqlite3'
 import fs from 'node:fs'
 import path from 'node:path'
-import crypto from 'node:crypto'
 import unzipper from 'unzipper'
 
 export class AppsModel {
-  @Library('DataBase') private database: Database
-  @Library('Paths') public paths: Paths.Class
-  private isJSON = (text: string): boolean => /^[\],:{}\s]*$/.test(text.replace(/\\["\\\/bfnrtu]/g, '@').replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']').replace(/(?:^|:|,)(?:\s*\[)+/g, ''))
-  private parse = (results: Apps.Result[]): Apps.App[] => results.map(result => ({
-    package_name: result.package_name,
-    title: result.title,
-    description: result.description,
-    author: result.author,
-    extensions: (result.extensions || '').split('|'),
-    useStorage: result.use_storage === 1 ? true : false,
-    useTemplate: (result as any).use_template === 1 ? true : false
-  }))
-  public getAppsByUID(uid: Users.User['uid']): Promise<Apps.App[]> {
-    return new Promise(resolve => this.database.all<Apps.Result>(
-      'SELECT apps.package_name, apps.title, apps.description, apps.author, apps.extensions, apps.use_storage, apps.use_template FROM users_to_apps INNER JOIN apps ON users_to_apps.package_name = apps.package_name WHERE users_to_apps.uid = ?;',
-      [uid],
-      (error, rows) => error ? resolve([]) : resolve(this.parse(rows))
-    ))
-  }
-  public getApps(): Promise<Apps.App[]> {
-    return new Promise(resolve => this.database.all<Apps.Result>(
-      'SELECT * FROM apps',
-      (error, rows) => error ? resolve([]) : resolve(this.parse(rows))
-    ))
-  }
-  public getAppByPackageName(package_name: string): Promise<Apps.Result | null> {
-    return new Promise(resolve => this.database.all<Apps.Result>(
-      'SELECT * FROM apps WHERE package_name = ?',
-      [package_name],
-      (error, rows) => error ? resolve(null) : resolve(rows[0])
-    ))
-  }
-  public async install(package_name: string, fileName: string, update: boolean = false): Promise<InstallResult> {
-    if (update) {
-      await this.uninstall(package_name, true)
+  private appsPath = path.resolve('/', 'usr', 'share', 'local-cloud', 'apps')
+  private appsAssignmentsPath = path.resolve('/', 'usr', 'share', 'local-cloud', 'apps', 'assignments')
+  private templatesPath = path.resolve('/', 'usr', 'share', 'local-cloud', 'views', 'apps')
+  public appsTempPath = path.resolve('/', 'usr', 'share', 'local-cloud', 'temp')
+  private storageDir: string = path.resolve('/', 'usr', 'share', 'local-cloud', 'storages')
+  private globalStorageDir: string = path.join(this.storageDir, 'global')
+  private usersStorageDir: string = path.join(this.storageDir, 'users')
+
+  constructor() {
+    if (!fs.existsSync(this.appsPath)) {
+      fs.mkdirSync(this.appsPath, { recursive: true })
     }
-    const tempDir = path.join(this.paths.apps, 'temp', crypto.randomUUID())
-    fs.mkdirSync(tempDir, { recursive: true })
+    if (!fs.existsSync(this.appsTempPath)) {
+      fs.mkdirSync(this.appsTempPath, { recursive: true })
+    }
+  }
+
+  private readAssignments(): Assignments {
+    if (!fs.existsSync(this.appsAssignmentsPath)) {
+      return {}
+    }
+    const assignmentsContent = fs.readFileSync(this.appsAssignmentsPath, 'utf8')
+    const assignments = JSON.parse(assignmentsContent)
+    return assignments
+  }
+
+  private readManifest(packageName: Apps.App['package_name']): any | undefined {
+    const manifestPath = path.join(this.appsPath, packageName, 'manifest.json')
+    if (!fs.existsSync(manifestPath)) {
+      return
+    }
+    const manifestContent = fs.readFileSync(manifestPath, 'utf8')
+    const manifest = JSON.parse(manifestContent)
+    return manifest
+  }
+
+  public get(): Apps.App[] {
+    const packageNames = fs
+      .readdirSync(this.appsPath)
+      .filter(pn => pn !== 'assignments')
+    const results: Apps.App[] = []
+    for (const packageName of packageNames) {
+      const manifest = this.readManifest(packageName)
+      if (manifest) {
+        const app: Apps.App = {
+          package_name: packageName,
+          title: manifest.title || '',
+          description: manifest.description || '',
+          author: manifest.author || '',
+          extensions: manifest.extensions || []
+        }
+        results.push(app)
+      }
+    }
+    return results
+  }
+
+  public getByPackageName(packageName: Apps.App['package_name']): Apps.App | undefined {
+    const manifest = this.readManifest(packageName)
+    if (!manifest) {
+      return
+    }
+    return {
+      package_name: packageName,
+      title: manifest.title || '',
+      description: manifest.description || '',
+      author: manifest.author || '',
+      extensions: manifest.extensions || []
+    }
+  }
+
+  public getByUid(uid: Users.User['uid']): Apps.App[] {
+    const assignments = this.readAssignments()
+    const packageNames = assignments[uid.toString()] || []
+    const results: Apps.App[] = []
+    for (const packageName of packageNames) {
+      const manifest = this.readManifest(packageName)
+      const app: Apps.App = {
+        package_name: packageName,
+        title: manifest.title || '',
+        description: manifest.description || '',
+        author: manifest.author || '',
+        extensions: manifest.extensions || []
+      }
+      results.push(app)
+    }
+    return results
+  }
+
+  public async install(packageName: Apps.App['package_name'], fileName: string, update: boolean = false): Promise<InstallResult> {
+    if (update) {
+      this.uninstall(packageName, true)
+    }
+    const appPath = path.join(this.appsPath, packageName)
+    fs.mkdirSync(appPath, { recursive: true })
     await unzipper.Open
       .file(fileName)
-      .then(d => d.extract({ path: tempDir }))
-    let useTemplate = false
-    let template = '{% layout "layout.liquid" %}'
-    const headPath = path.join(tempDir, 'head.html')
-    if (fs.existsSync(headPath)) {
-      useTemplate = true
-      const headContent = fs.readFileSync(headPath, 'utf8')
-      template += `{% block head %}${headContent}{% endblock %}`
+      .then(d => d.extract({ path: appPath }))
+    const templateName = `${packageName.split('.').join('-')}.liquid`
+    const templatePath = path.join(appPath, templateName)
+    const viewPath = path.join(this.templatesPath, templateName)
+    const rollback = () => {
+      if (fs.existsSync(viewPath)) {
+        fs.rmSync(viewPath, { recursive: true, force: true })
+      }
+      fs.rmSync(appPath, { recursive: true, force: true })
     }
-    const bodyPath = path.join(tempDir, 'body.html')
-    if (fs.existsSync(bodyPath)) {
-      useTemplate = true
-      const bodyContent = fs.readFileSync(bodyPath, 'utf8')
-      template += `{% block body %}${bodyContent}{% endblock %}`
+    if (fs.existsSync(templatePath)) {
+      fs.copyFileSync(templatePath, viewPath)
+      fs.rmSync(templatePath, { force: true })
     }
-    const manifestPath = path.join(tempDir, 'manifest.json')
+    const manifestPath = path.join(appPath, 'manifest.json')
     if (!fs.existsSync(manifestPath)) {
-      fs.rmSync(tempDir, { recursive: true, force: true })
+      rollback()
       return 'manifest-not-exist'
     }
-    let manifestContent = fs.readFileSync(manifestPath, 'utf-8')
-    if (this.isJSON(manifestContent)) {
-      manifestContent = JSON.parse(manifestContent)
-    } else {
-      fs.rmSync(tempDir, { recursive: true, force: true })
+    const manifestContent = fs.readFileSync(manifestPath, 'utf8')
+    if (!isJSON(manifestContent)) {
+      rollback()
       return 'manifest-invalid'
     }
-    const manifestKeys = Object.keys(manifestContent)
-    if (!manifestKeys.includes('title')) {
-      fs.rmSync(tempDir, { recursive: true, force: true })
+    const manifest = JSON.parse(manifestContent)
+    if (!manifest['title']) {
+      rollback()
       return 'manifest-title-required'
     }
-    if (!manifestKeys.includes('author')) {
-      fs.rmSync(tempDir, { recursive: true, force: true })
+    if (!manifest['author']) {
+      rollback()
       return 'manifest-author-required'
     }
-    const { title, description = 'Sin descripción', author, permissions: permissionList = {}, sources = {}, extensions = [], 'use-storage': useStorage = false } = manifestContent as any
-    const permissions: Apps.New['permissions'] = Object.keys(permissionList).map(api => ({
-      api,
-      justification: permissionList[api]
-    }))
-    await new Promise(resolve => this.database.run(
-      'INSERT INTO apps (package_name, title, description, author, extensions, use_storage, use_template) VALUES (?, ?, ?, ?, ?, ?, ?);',
-      [package_name, title, description, author, extensions.join('|'), useStorage ? 1 : 0, useTemplate ? 1 : 0],
-      resolve
-    ))
-    for (const permission of permissions) {
-      await new Promise(resolve => this.database.run(
-        'INSERT INTO permissions (package_name, api, justification, active) VALUES (?, ?, ?, ?)',
-        [package_name, permission.api, permission.justification || 'Sin justificación.', true],
-        resolve
-      ))
+    if (manifest['permissions']) {
+      const permissions = {}
+      const entries = Object.entries(manifest['permissions'])
+      for (const [permission, description] of entries) {
+        permission[permission] = { description, enable: true }
+      }
+      manifest['permissions'] = permissions
     }
-    for (const [name, srcs] of Object.entries(sources)) {
-      if (['image', 'media', 'object', 'script', 'style', 'worker', 'font', 'connect'].includes(name)) {
-        for (const src of srcs as any[]) {
-          await new Promise(resolve => this.database.run(
-            'INSERT INTO secure_sources (package_name, type, source, justification, active) VALUES (?, ?, ?, ?, ?)',
-            [package_name, name, src.source, src.justification || 'Sin justificación.', true],
-            resolve
-          ))
+    return true
+  }
+
+  public uninstall(packageName: Apps.App['package_name'], conserveData = false): void {
+    const app = this.get().find(a => a.package_name === packageName)
+    if (!app) {
+      return
+    }
+    const appPath = path.join(this.appsPath, packageName)
+    const templateName = `${packageName.split('.').join('-')}.liquid`
+    const viewPath = path.join(this.templatesPath, templateName)
+    fs.rmSync(appPath, { recursive: true, force: true })
+    if (fs.existsSync(viewPath)) {
+      fs.rmSync(viewPath, { recursive: true, force: true })
+    }
+    if (!conserveData) {
+      const globalStorage = path.join(this.globalStorageDir, `${packageName}.json`)
+      if (fs.existsSync(globalStorage)) {
+        fs.rmSync(globalStorage)
+      }
+      const users = fs.readdirSync(this.usersStorageDir)
+      for (const user of users) {
+        const userStorage = path.join(this.usersStorageDir, user, `${packageName}.json`)
+        if (fs.existsSync(userStorage)) {
+          fs.rmSync(userStorage)
         }
       }
     }
-    fs.cpSync(path.join(tempDir, 'code'), this.paths.getApp(package_name), { recursive: true })
-    const storagePath = this.paths.getAppGlobalStorage(package_name)
-    if (useStorage) {
-      fs.mkdirSync(storagePath, { recursive: true })
-    } else {
-      if (fs.existsSync(storagePath)) {
-        fs.rmSync(storagePath, { recursive: true })
-      }
-    }
-    const templatePath = path.join(this.paths.appsTemplates, `${package_name.replace(/\./g, '-')}.liquid`)
-    if (useTemplate) {
-      if (!fs.existsSync(this.paths.appsTemplates)) {
-        fs.mkdirSync(this.paths.appsTemplates, { recursive: true })
-      }
-      fs.writeFileSync(templatePath, template, 'utf8')
-    } else {
-      if (fs.existsSync(templatePath)) {
-        fs.rmSync(templatePath, { recursive: true })
-      }
-    }
-    fs.rmSync(tempDir, { recursive: true, force: true })
-    return true
   }
-  public async uninstall(package_name: string, skipAssignments: boolean = false): Promise<void> {
-    await new Promise(resolve => this.database.run(
-      'DELETE FROM secure_sources WHERE package_name = ?',
-      [package_name],
-      resolve
-    ))
-    await new Promise(resolve => this.database.run(
-      'DELETE FROM permissions WHERE package_name = ?',
-      [package_name],
-      resolve
-    ))
-    if (!skipAssignments) {
-      await new Promise(resolve => this.database.run(
-        'DELETE FROM users_to_apps WHERE package_name = ?',
-        [package_name],
-        resolve
-      ))
-    }
-    await new Promise(resolve => this.database.run(
-      'DELETE FROM apps WHERE package_name = ?',
-      [package_name],
-      resolve
-    ))
-    if (!skipAssignments) {
-      const appStorage = this.paths.getAppStorage(package_name)
-      if (fs.existsSync(appStorage)) {
-        fs.rmSync(appStorage, { force: true, recursive: true })
-      }
-    }
-    const appPath = this.paths.getApp(package_name)
-    fs.rmSync(appPath, { recursive: true, force: true })
-    const templatePath = path.join(this.paths.appsTemplates, `${package_name.replace(/\./g, '-')}.liquid`)
-    if (fs.existsSync(templatePath)) {
-      fs.rmSync(templatePath, { recursive: true, force: true })
-    }
+
+  public resolveAsset(packageName: Apps.App['package_name'], ...assetPath: string[]): string {
+    const assetsPath = path.join(this.appsPath, packageName, 'code')
+    return path.join(assetsPath, ...assetPath)
   }
 }
 
 type InstallResult = 'manifest-not-exist' | 'manifest-invalid' | 'manifest-title-required' | 'manifest-author-required' | true
+
+interface Assignments {
+  [x: Users.User['uid']]: string[]
+}

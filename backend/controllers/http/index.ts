@@ -1,51 +1,45 @@
-import { devMode } from './middlewares/dev-mode'
-import { verifySession, verifyNotSession } from './middlewares/session'
-import { tokens } from './middlewares/tokens'
-import { CSP } from './middlewares/csp'
-import { verifySetup } from './middlewares/setup'
+import { BaseAPI } from './API/BaseAPI'
+import { notSession, session } from './middlewares/session'
 
-const verifyNotSetup = (_: PXIOHTTP.Request, res: PXIOHTTP.Response, next: Next): void => {
-  if (SETUP) {
-    next()
-  } else {
-    res.redirect('/')
-  }
-}
+export * from './File'
+export * from './App'
+export * from './API'
 
-export class IndexController {
-  @Model('UsersModel') public usersModel: Models<'UsersModel'>
-  @Model('DevModeModel') public devModeModel: Models<'DevModeModel'>
+export class IndexController extends BaseAPI {
+  @Model('BuilderModel') public builder: Models<'BuilderModel'>
 
-  @Before([verifyNotSetup])
-  @Get('/setup')
-  public setup(_: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): void {
-    res.render('os/setup')
-  }
+  @Before([notSession])
+  @View('/login', { title: 'LocalCloud - Iniciar sesión', description: 'LocalCloud - Iniciar sesión' })
+  public login = 'os/index'
 
-  @Before([verifySetup, devMode, CSP, tokens, verifySession])
-  @Get('/')
-  public dashboard(_: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): void {
-    if (this.devModeModel.devMode.enable) {
-      res.render('os/index', { title: 'LocalCloud - Dev Mode', description: 'LocalCloud - Modo de desarrollo', devMode: true })
-    } else {
-      res.render('os/index', { title: 'LocalCloud - Dashboard', description: 'LocalCloud - Dashboard' })
+  @Before([session])
+  @View('/', { title: 'LocalCloud - Dashboard', description: 'LocalCloud - Dashboard' })
+  public index = 'os/index'
+
+  @Get('/api/connector.js')
+  public async connector(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): Promise<void> {
+    if (process.env.ROOT_MODE === 'true') {
+      const result = this.builder.builder.build()
+      res
+        .setHeader('content-type', 'text/javascript')
+        .send(result)
+      return
     }
-  }
-  @Before([verifySetup, devMode, CSP, tokens, verifyNotSession])
-  @Get('/login')
-  public login(_: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): void {
-    res.render('os/index', { title: 'LocalCloud - Iniciar sesión', description: 'LocalCloud - Iniciar sesión' })
-  }
-
-  @Get('/test')
-  public test(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response): void {
-    io._nsps.get('/auth')?.to(req.session.id).emit('change', true)
-    res.send(req.session.id)
+    const origin = this.getOrigin(req?.headers?.referer)
+    let token = req.session.token
+    let key = req.session.key
+    let apis: string[] = this.builder.builder.publicApiList
+    if (req.session.user) {
+      if (origin === 1) {
+        apis = this.builder.builder.dashApiList
+      } else if (typeof origin === 'string' && req.session?.apps?.[origin]) {
+        token = req.session.apps[origin].token
+        apis = req.session.apps[origin].permissions
+      }
+    }
+    const result = this.builder.builder.build({ key, token, apis })
+    res
+      .setHeader('content-type', 'text/javascript')
+      .send(result)
   }
 }
-
-export * from './app'
-export * from './file'
-export * from './shared'
-export * from './launch'
-export * from './apis'

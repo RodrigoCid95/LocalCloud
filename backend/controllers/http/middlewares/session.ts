@@ -1,14 +1,22 @@
-import { verifyDevMode } from "controllers/http/apis/middlewares/dev-mode"
-
-export async function verifySession(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response, next: Next): Promise<void> {
+export async function session(req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response, next: Next): Promise<void> {
   if (req.session.user) {
     next()
   } else {
-    const model: Models<'DevModeModel'> | boolean = verifyDevMode.bind(this)()
-    if (typeof model !== 'boolean') {
-      req.session.user = model.getUser()
-      req.session.apps = await model.getApps(req.session.user?.uid || NaN)
-      next()
+    if (process.env.ROOT_MODE === 'true') {
+      req.session.user = {
+        uid: 0,
+        name: 'root',
+        fullName: '',
+        email: '',
+        phone: ''
+      }
+
+      req.session.save(error => {
+        if (error) {
+          console.error(error)
+        }
+        next()
+      })
       return
     }
     if (req.originalUrl === '/') {
@@ -19,7 +27,7 @@ export async function verifySession(req: PXIOHTTP.Request<LocalCloud.SessionData
   }
 }
 
-export const verifyNotSession: PXIOHTTP.Middleware = (req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response, next: Next): void => {
+export const notSession: PXIOHTTP.Middleware = (req: PXIOHTTP.Request<LocalCloud.SessionData>, res: PXIOHTTP.Response, next: Next): void => {
   if (!req.session.user) {
     next()
   } else {
