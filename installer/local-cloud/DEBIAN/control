@@ -1,8 +1,0 @@
-Package: local-cloud
-Version: 0.0.2
-Section: utils
-Priority: optional
-Architecture: amd64
-Depends: nginx, samba, openssl
-Maintainer: Rodrigo Cid <rodrigocid95@gmail.com>
-Description: Servidor NAS privado.

@@ -1,0 +1,11 @@
+{
+  "title": "Iniciar sesión",
+  "description": "Gestor de aplicaciones",
+  "author": "LocalCloud",
+  "permissions": {},
+  "sources": {
+    "style": {
+      "'unsafe-inline'": ""
+    }
+  }
+}

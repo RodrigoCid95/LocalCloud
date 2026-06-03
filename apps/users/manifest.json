@@ -1,0 +1,25 @@
+{
+  "title": "Usuarios",
+  "description": "Gestor de usuarios",
+  "author": "LocalCloud",
+  "permissions": {
+    "USERS_GET_ALL": "",
+    "USERS_CREATE": "",
+    "USERS_UPDATE": "",
+    "USERS_DELETE": "",
+    "USERS_SET_PASSWORD": "",
+    "SAMBA_BELONGS_TO": "",
+    "SAMBA_ENABLE": "",
+    "SAMBA_DISABLE": "",
+    "SAMBA_SET_PASSWORD": "",
+    "APPS_GET_ALL": "",
+    "ASSIGNMENTS_GET": "",
+    "ASSIGNMENTS_ADD": "",
+    "ASSIGNMENTS_REMOVE": ""
+  },
+  "sources": {
+    "style": {
+      "'unsafe-inline'": ""
+    }
+  }
+}

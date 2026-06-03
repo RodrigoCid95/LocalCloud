@@ -1,0 +1,23 @@
+{
+  "title": "Chat",
+  "description": "Chat interno",
+  "author": "LocalCloud",
+  "permissions": {
+    "PROFILE_GET": "",
+    "USERS_GET_ALL": "",
+    "APP_BUS_CONNECT": "",
+    "APP_BUS_SHARED": "",
+    "NOTIFICATIONS_SEND": "",
+    "APP_STORE_READ": "",
+    "APP_STORE_WRITE": "",
+    "APP_STORE_DELETE": ""
+  },
+  "sources": {
+    "style": {
+      "'unsafe-inline'": ""
+    },
+    "media": {
+      "data:": ""
+    }
+  }
+}

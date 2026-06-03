@@ -1,0 +1,33 @@
+{
+  "title": "Reproductor",
+  "description": "Reproductor de audio y video",
+  "author": "LocalCloud",
+  "permissions": {
+    "FILESYSTEM_READ_DIR": "Buscar archivos reproducibles en una carpeta.",
+    "FILESYSTEM_READ_FILE": "Leer el archivo seleccionado para reproducirlo."
+  },
+  "sources": {
+    "media": {
+      "blob:": "Reproducir archivos cargados desde el sistema de archivos."
+    },
+    "style": {
+      "'unsafe-inline'": ""
+    }
+  },
+  "extentions": [
+    "mp3",
+    "m4a",
+    "aac",
+    "wav",
+    "flac",
+    "ogg",
+    "oga",
+    "opus",
+    "weba",
+    "mp4",
+    "m4v",
+    "webm",
+    "ogv",
+    "mov"
+  ]
+}

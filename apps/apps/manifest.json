@@ -1,0 +1,20 @@
+{
+  "title": "Apps",
+  "description": "Gestor de aplicaciones",
+  "author": "LocalCloud",
+  "permissions": {
+    "APPS_GET_ALL": "",
+    "APPS_UPDATE": "",
+    "PERMISSIONS_GET": "",
+    "PERMISSIONS_ENABLE": "",
+    "PERMISSIONS_DISABLE": "",
+    "SOURCES_GET": "",
+    "SOURCES_ENABLE": "",
+    "SOURCES_DISABLE": ""
+  },
+  "sources": {
+    "style": {
+      "'unsafe-inline'": ""
+    }
+  }
+}
