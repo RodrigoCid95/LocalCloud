@@ -1,0 +1,25 @@
+{
+  "title": "Escritorio",
+  "description": "",
+  "author": "LocalCloud",
+  "permissions": {
+    "PROFILE_GET": "",
+    "PROFILE_GET_APPS": "",
+    "PROFILE_UPDATE": "",
+    "PROFILE_SET_PASSWORD": "",
+    "PROFILE_SET_SAMBA_PASSWORD": "",
+    "NOTIFICATIONS_STREAM": "",
+    "NOTIFICATIONS_SEND": "",
+    "SYSTEM_STATUS_GET": "",
+    "SYSTEM_SHUTDOWN": "",
+    "SYSTEM_REBOOT": ""
+  },
+  "sources": {
+    "style": {
+      "'unsafe-inline'": ""
+    },
+    "media": {
+      "data:": ""
+    }
+  }
+}

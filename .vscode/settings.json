@@ -1,11 +1,16 @@
 {
-  "sqltools.useNodeRuntime": true,
-  "sqltools.connections": [
-    {
-      "previewLimit": 50,
-      "driver": "SQLite",
-      "database": ".system/system.db",
-      "name": "LocalCloudDB"
+    "go.buildTags": "linux",
+    "go.toolsEnvVars": {
+        "GOOS": "linux"
+    },
+    "files.autoSave": "onFocusChange",
+    "go.useLanguageServer": true,
+    "[go]": {
+        "editor.insertSpaces": false,
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": "explicit"
+        },
+        "editor.codeLens": true
     }
-  ]
 }

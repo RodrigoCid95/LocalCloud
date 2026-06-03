@@ -1,0 +1,39 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build Dockerfile",
+            "type": "shell",
+            "command": "docker",
+            "args": [
+                "build",
+                "-t",
+                "localcloud",
+                "."
+            ]
+        },
+        {
+            "label": "Run To Docker",
+            "type": "shell",
+            "command": "docker",
+            "args": [
+                "run",
+                "-it",
+                "--rm",
+                "-v",
+                "${workspaceFolder}/system:/app",
+                "-v",
+                "${workspaceFolder}/apps/dist:/app/apps",
+                "-v",
+                "${workspaceFolder}/temp/apps:/usr/share/local-cloud/apps",
+                "-v",
+                "${workspaceFolder}/temp/system:/usr/share/local-cloud/system-apps",
+                "-p",
+                "80:80",
+                "-p",
+                "443:443",
+                "localcloud",
+            ]
+        }
+    ]
+}

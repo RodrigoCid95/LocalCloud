@@ -1,0 +1,18 @@
+{
+  "title": "Archivos",
+  "description": "Explorador de archivos",
+  "author": "LocalCloud",
+  "permissions": {
+    "FILESYSTEM_READ_DIR": "",
+    "FILESYSTEM_READ_FILE": "",
+    "FILESYSTEM_CREATE_DIR": "",
+    "FILESYSTEM_WRITE_FILE": "",
+    "FILESYSTEM_DELETE": "",
+    "FILESYSTEM_RENAME": ""
+  },
+  "sources": {
+    "style": {
+      "'unsafe-inline'": ""
+    }
+  }
+}
